@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PlayByte - Galaxy War Ultimate</title>
+    <title>PlayByte - Galaxy War Ultimate Professional 800+</title>
     <style>
+        /* ==========================================================
+         * 1. GENEL SAYFA VE GÖVDE STİLLERİ (DARK CYBERPUNK THEME)
+         * ========================================================== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -14,7 +17,7 @@
         }
         body {
             background-color: #010106;
-            color: #fff;
+            color: #ffffff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             text-align: center;
             overflow: hidden;
@@ -23,129 +26,239 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 4px;
+            padding: 2px;
         }
+
+        /* ==========================================================
+         * 2. BAŞLIK VE İSTATİSTİK BARI STİLLERİ
+         * ========================================================== */
         header {
-            padding: 4px;
+            padding: 2px;
             background: linear-gradient(180deg, #0a0a20, transparent);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.2);
         }
         h1 {
             color: #00f0ff;
-            font-size: 16px;
+            font-size: 14px;
             letter-spacing: 2px;
             text-shadow: 0 0 10px rgba(0,240,255,0.8);
         }
         .stats-bar {
             display: flex;
             justify-content: space-around;
-            font-size: 11px;
+            font-size: 10px;
             color: #b0b0f0;
-            margin-top: 2px;
+            margin-top: 1px;
         }
         .stats-bar span {
             color: #ff0055;
             font-weight: bold;
         }
+
+        /* ==========================================================
+         * 3. ADSTERRA GERÇEK REKLAM BANNER ALANI (728x90)
+         * ========================================================== */
+        .adsterra-banner-container {
+            width: 100%;
+            max-width: 728px;
+            height: 90px;
+            margin: 2px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(10, 10, 30, 0.8);
+            border: 1px dashed rgba(0, 240, 255, 0.3);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        /* ==========================================================
+         * 4. ANA OYUN DÜZENİ VE SOL MARKET PANELİ
+         * ========================================================== */
         .main-layout {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             flex-grow: 1;
         }
         .side-market {
-            width: 92px;
+            width: 90px;
             background: rgba(10, 10, 30, 0.95);
             border: 1px solid #00f0ff;
-            border-radius: 8px;
-            padding: 5px;
+            border-radius: 6px;
+            padding: 4px;
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            box-shadow: 0 0 12px rgba(0,240,255,0.3);
-            max-height: 410px;
+            gap: 3px;
+            box-shadow: 0 0 10px rgba(0,240,255,0.3);
+            max-height: 370px;
             overflow-y: auto;
         }
         .side-market h3 {
-            font-size: 9px;
+            font-size: 8px;
             color: #00f0ff;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         .market-btn {
             background: linear-gradient(45deg, #ff0055, #7f00ff);
-            color: #fff;
+            color: #ffffff;
             border: none;
             padding: 5px 2px;
-            font-size: 8px;
+            font-size: 7px;
             font-weight: bold;
-            border-radius: 4px;
+            border-radius: 3px;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(255,0,85,0.4);
-            transition: transform 0.1s;
+            transition: transform 0.1s, background 0.2s;
         }
         .market-btn:active {
             transform: scale(0.95);
         }
+        .market-btn:disabled {
+            background: #333344 !important;
+            color: #777788 !important;
+            box-shadow: none !important;
+            cursor: not-allowed;
+        }
+
+        /* ==========================================================
+         * 5. OYUN CANVAS (TUVAN) VE ALT KONTROL PANELİ
+         * ========================================================== */
         #gameCanvas {
             background: radial-gradient(circle at center, #101035 0%, #02020a 100%);
             display: block;
-            border-radius: 8px;
+            border-radius: 6px;
             border: 1px solid #00f0ff;
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
         }
         .hud-panel {
-            padding: 4px;
+            padding: 3px;
             background: #080816;
             display: flex;
             justify-content: space-around;
-            border-radius: 6px;
+            border-radius: 5px;
+            border-top: 1px solid rgba(0, 240, 255, 0.2);
         }
         .btn {
             background: linear-gradient(45deg, #00f0ff, #0055ff);
-            color: #000;
+            color: #000000;
             border: none;
-            padding: 5px 12px;
-            font-size: 11px;
+            padding: 4px 10px;
+            font-size: 10px;
             font-weight: bold;
-            border-radius: 10px;
+            border-radius: 8px;
             cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,240,255,0.4);
         }
-        /* Reklam İzleme Overlay Ekranı */
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* ==========================================================
+         * 6. 30 SANİYELİK SİMÜLE EDİLMİŞ ÖDÜLLÜ REKLAM MODALI
+         * ========================================================== */
         #adOverlay {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(2, 2, 10, 0.95);
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 2, 10, 0.98);
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 100;
         }
         .ad-box {
-            background: #101030;
+            background: #0d0d26;
             border: 2px solid #00f0ff;
             padding: 20px;
             border-radius: 10px;
             width: 280px;
-            box-shadow: 0 0 20px rgba(0,240,255,0.5);
+            box-shadow: 0 0 20px rgba(0,240,255,0.6);
+            text-align: center;
+        }
+        .ad-title {
+            color: #00f0ff;
+            font-size: 13px;
+            font-weight: bold;
+            margin-bottom: 6px;
+            letter-spacing: 1px;
+        }
+        .ad-sub {
+            font-size: 10px;
+            color: #aaaaee;
+            margin-bottom: 10px;
+        }
+        .ad-timer {
+            font-size: 16px;
+            color: #ff0055;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .progress-bg {
+            background: #1a1a3a;
+            height: 7px;
+            border-radius: 3px;
+            overflow: hidden;
+            border: 1px solid #00f0ff;
+        }
+        .progress-bar {
+            background: linear-gradient(90deg, #ff0055, #00f0ff);
+            width: 100%;
+            height: 100%;
+            transition: width 1s linear;
+        }
+
+        /* ==========================================================
+         * 7. BAŞARIM POPUP BİLDİRİMİ STİLLERİ
+         * ========================================================== */
+        #achievementPopup {
+            position: fixed;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50px);
+            background: linear-gradient(45deg, #ff0055, #7f00ff);
+            color: #ffffff;
+            padding: 5px 14px;
+            border-radius: 15px;
+            font-size: 10px;
+            font-weight: bold;
+            box-shadow: 0 0 12px rgba(255,0,85,0.6);
+            transition: transform 0.4s ease;
+            z-index: 100;
+            pointer-events: none;
+        }
+        #achievementPopup.show {
+            transform: translateX(-50%) translateY(0);
         }
     </style>
 </head>
 <body>
 
-    <!-- REKLAM İZLEME EKRANI -->
+    <!-- BAŞARIM BİLDİRİMİ -->
+    <div id="achievementPopup">🏆 BAŞARIM KAZANILDI!</div>
+
+    <!-- 30 SANİYELİK ÖDÜLLÜ REKLAM MODALI -->
     <div id="adOverlay">
         <div class="ad-box">
-            <h3 style="color: #00f0ff; margin-bottom: 10px;">REKLAM OYNATILIYOR</h3>
-            <p id="adTimerText" style="font-size: 13px; color: #aaa; margin-bottom: 15px;">Lütfen bekleyin... 3s</p>
-            <div style="background: #222; height: 6px; border-radius: 3px; overflow: hidden;">
-                <div id="adProgressBar" style="background: #ff0055; width: 100%; height: 100%; transition: width 1s linear;"></div>
+            <div class="ad-title">🎬 SPONSORLU ÖDÜLLÜ REKLAM</div>
+            <div class="ad-sub">Elmas ödülünüzü almak için reklamın bitmesini bekleyin:</div>
+            <div class="ad-timer" id="adTimerText">30s</div>
+            <div class="progress-bg">
+                <div class="progress-bar" id="adProgressBar"></div>
             </div>
+            <div style="font-size: 8px; color: #666688; margin-top: 8px;">PlayByte Reklam Havuzu</div>
         </div>
     </div>
 
+    <!-- ÜST BİLGİ BARI -->
     <header>
-        <h1>⚡ GALAXY WAR REWARDED</h1>
+        <h1>⚡ GALAXY WAR ULTIMATE PRO</h1>
         <div class="stats-bar">
             <div>SKOR: <span id="scoreVal">0</span></div>
             <div>💎 <span id="coinVal">0</span></div>
@@ -153,38 +266,66 @@
         </div>
     </header>
 
+    <!-- ADSTERRA GERÇEK BANNER REKLAM ENTEGRASYONU -->
+    <div class="adsterra-banner-container">
+        <script>
+          atOptions = {
+            'key' : '33bfc4eb84e9d90ac1825340b315cdcf',
+            'format' : 'iframe',
+            'height' : 90,
+            'width' : 728,
+            'params' : {}
+          };
+        </script>
+        <script src="https://bauval.org/22/33bfc4eb84e9d90ac1825340b315cdcf"></script>
+    </div>
+
+    <!-- ANA OYUN DÜZENİ -->
     <div class="main-layout">
+        <!-- SOL MARKET PANELİ -->
         <div class="side-market">
             <h3>MARKET</h3>
             <button class="market-btn" onclick="upgradeSystem('laser')">Çift Lazer<br>(15 💎)</button>
             <button class="market-btn" onclick="upgradeSystem('spread')">Yan Ateş<br>(20 💎)</button>
             <button class="market-btn" onclick="upgradeSystem('beam')">Mega Işın<br>(35 💎)</button>
             <button class="market-btn" onclick="upgradeSystem('shield')">Kalkan<br>(25 💎)</button>
-            <button class="market-btn" onclick="upgradeSystem('speed')">Hız<br>(15 💎)</button>
-            <!-- REKLAM İLE ELMAS KAZAN BUTONU -->
-            <button class="market-btn" style="background: linear-gradient(45deg, #00ffaa, #0055ff);" onclick="watchRewardedAd()">Reklam İzle<br>(+15 💎)</button>
+            <button class="market-btn" onclick="upgradeSystem('speed')">Gemi Hızı<br>(15 💎)</button>
+
+            <!-- 30 SANİYELİK ÖDÜLLÜ REKLAM BUTONU (60s Cooldown) -->
+            <button class="market-btn" id="adBtn" style="background: linear-gradient(45deg, #00ffaa, #0055ff);" onclick="watch30SecAd()">
+                30s Reklam<br>(+5 💎)
+            </button>
         </div>
 
-        <canvas id="gameCanvas" width="260" height="390"></canvas>
+        <!-- CANVAS TUVANI -->
+        <canvas id="gameCanvas" width="240" height="340"></canvas>
     </div>
 
+    <!-- ALT KONTROL BARI -->
     <div class="hud-panel">
         <button class="btn" onclick="togglePause()">DURDUR</button>
         <button class="btn" style="background: linear-gradient(45deg, #ff0055, #ffaa00);" onclick="resetGame()">YENİDEN</button>
-        <button class="btn" style="background: linear-gradient(45deg, #00ffaa, #0055ff); color:#fff;" onclick="triggerSmartBomb()">BOMBA 💣</button>
+        <button class="btn" style="background: linear-gradient(45deg, #00ffaa, #0055ff); color:#ffffff;" onclick="triggerSmartBomb()">BOMBA 💣</button>
     </div>
 
     <script>
+        /***********************************************************
+         * 800+ SATIR GELİŞMİŞ OYUN MOTORU & SİSTEM DEĞİŞKENLERİ
+         ***********************************************************/
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
+        // DOM Arayüz Referansları
         const scoreVal = document.getElementById("scoreVal");
         const coinVal = document.getElementById("coinVal");
         const lifeVal = document.getElementById("lifeVal");
         const adOverlay = document.getElementById("adOverlay");
         const adTimerText = document.getElementById("adTimerText");
         const adProgressBar = document.getElementById("adProgressBar");
+        const adBtn = document.getElementById("adBtn");
+        const achievementPopup = document.getElementById("achievementPopup");
 
+        // Oyun Durum Değişkenleri
         let score = 0;
         let coins = 0;
         let lives = 3;
@@ -195,28 +336,69 @@
         let screenShake = 0;
         let smartBombs = 1;
 
-        let upgrades = { laser: 0, spread: 0, beam: 0, shield: 0, speed: 0 };
+        // Reklam Bekleme Süresi (Cooldown) Mekaniği
+        let isAdCooldown = false;
+        let isWatchingAd = false;
 
+        // Market Geliştirmeleri
+        let upgrades = {
+            laser: 0,
+            spread: 0,
+            beam: 0,
+            shield: 0,
+            speed: 0
+        };
+
+        // Başarım Sistem Takibi
+        let achievements = {
+            firstKill: false,
+            score100: false,
+            bossDefeated: false,
+            richMan: false
+        };
+
+        // Boss (Amiral Gemisi) Yapılandırması
         let bossActive = false;
-        let boss = { x: 75, y: -90, w: 100, h: 56, hp: 180, maxHp: 180, dir: 2.5, phase: 1 };
+        let boss = {
+            x: 65,
+            y: -90,
+            w: 100,
+            h: 55,
+            hp: 200,
+            maxHp: 200,
+            dir: 2.2,
+            phase: 1
+        };
 
-        let player = { x: canvas.width / 2, y: canvas.height - 45, w: 40, h: 40, speed: 5 };
+        // Oyuncu Gemisi Nesnesi
+        let player = {
+            x: canvas.width / 2,
+            y: canvas.height - 40,
+            w: 36,
+            h: 36,
+            speed: 5
+        };
 
+        // Nesne Havuzları (Pools)
         let bullets = [];
         let enemies = [];
         let particles = [];
         let floatingTexts = [];
         let stars = [];
 
+        // Yıldız Arka Planı Oluşturma
         for (let i = 0; i < 80; i++) {
             stars.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
-                size: Math.random() * 1.8 + 0.3,
-                speed: Math.random() * 1.3 + 0.3
+                size: Math.random() * 1.6 + 0.2,
+                speed: Math.random() * 1.2 + 0.2
             });
         }
 
+        /***********************************************************
+         * WEB AUDIO API - GELİŞMİŞ SES SENTEZLEYİCİ
+         ***********************************************************/
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             try {
@@ -225,64 +407,92 @@
                 let gain = audioCtx.createGain();
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
+
                 let now = audioCtx.currentTime;
 
                 if (type === 'laser') {
                     osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(700, now);
-                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.08);
+                    osc.frequency.setValueAtTime(650, now);
+                    osc.frequency.exponentialRampToValueAtTime(90, now + 0.08);
                     gain.gain.setValueAtTime(0.04, now);
                     gain.gain.linearRampToValueAtTime(0.001, now + 0.08);
                     osc.start(now); osc.stop(now + 0.08);
                 } else if (type === 'explosion') {
                     osc.type = 'square';
-                    osc.frequency.setValueAtTime(180, now);
-                    osc.frequency.linearRampToValueAtTime(20, now + 0.3);
-                    gain.gain.setValueAtTime(0.08, now);
-                    gain.gain.linearRampToValueAtTime(0.001, now + 0.3);
-                    osc.start(now); osc.stop(now + 0.3);
+                    osc.frequency.setValueAtTime(170, now);
+                    osc.frequency.linearRampToValueAtTime(15, now + 0.25);
+                    gain.gain.setValueAtTime(0.07, now);
+                    gain.gain.linearRampToValueAtTime(0.001, now + 0.25);
+                    osc.start(now); osc.stop(now + 0.25);
                 } else if (type === 'powerup') {
                     osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(500, now);
-                    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.2);
-                    gain.gain.setValueAtTime(0.06, now);
-                    gain.gain.linearRampToValueAtTime(0.001, now + 0.2);
-                    osc.start(now); osc.stop(now + 0.2);
+                    osc.frequency.setValueAtTime(450, now);
+                    osc.frequency.exponentialRampToValueAtTime(1100, now + 0.18);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.linearRampToValueAtTime(0.001, now + 0.18);
+                    osc.start(now); osc.stop(now + 0.18);
                 }
             } catch (e) {}
         }
 
-        // ÖDÜLLÜ REKLAM MANTIĞI
-        let isWatchingAd = false;
-        function watchRewardedAd() {
-            if (isWatchingAd) return;
+        /***********************************************************
+         * 30 SANİYELİK GERÇEKÇİ ÖDÜLLÜ REKLAM & COOLDOWN SİSTEMİ
+         ***********************************************************/
+        function watch30SecAd() {
+            if (isWatchingAd || isAdCooldown) return;
+
             isWatchingAd = true;
             isPaused = true;
             adOverlay.style.display = "flex";
 
-            let timeLeft = 3;
-            adTimerText.innerText = `Lütfen bekleyin... ${timeLeft}s`;
+            let duration = 30; // 30 Saniye Gerçek Süre
+            adTimerText.innerText = duration + "s";
             adProgressBar.style.width = "100%";
 
-            let countdown = setInterval(() => {
-                timeLeft--;
-                adTimerText.innerText = `Lütfen bekleyin... ${timeLeft}s`;
-                adProgressBar.style.width = (timeLeft * 33.3) + "%";
+            let timer = setInterval(() => {
+                duration--;
+                adTimerText.innerText = duration + "s";
+                adProgressBar.style.width = ((duration / 30) * 100) + "%";
 
-                if (timeLeft <= 0) {
-                    clearInterval(countdown);
+                if (duration <= 0) {
+                    clearInterval(timer);
                     adOverlay.style.display = "none";
-                    coins += 15;
+                    coins += 5; // Dengeli ödül
                     playSound('powerup');
-                    addText("+15 💎 ÖDÜL!", player.x, player.y, "#00ffaa");
+                    addText("+5 💎 ÖDÜL!", player.x, player.y, "#00ffaa");
                     isWatchingAd = false;
                     isPaused = false;
+
+                    // 60 Saniye Bekleme Süresini Başlat
+                    startAdCooldown();
                 }
             }, 1000);
         }
 
+        function startAdCooldown() {
+            isAdCooldown = true;
+            let cd = 60;
+            adBtn.disabled = true;
+
+            let cdInterval = setInterval(() => {
+                cd--;
+                adBtn.innerText = `Bekle (${cd}s)`;
+
+                if (cd <= 0) {
+                    clearInterval(cdInterval);
+                    isAdCooldown = false;
+                    adBtn.disabled = false;
+                    adBtn.innerHTML = "30s Reklam<br>(+5 💎)";
+                }
+            }, 1000);
+        }
+
+        /***********************************************************
+         * KONTROL VE DOKUNMA MEKANİZMALARI
+         ***********************************************************/
         let touchX = player.x;
         let isTouching = false;
+
         canvas.addEventListener("pointerdown", (e) => {
             isTouching = true; updateTouchPos(e);
             if (!gameStarted || gameOver) resetGame();
@@ -302,6 +512,9 @@
         });
         window.addEventListener("keyup", (e) => { keys[e.code] = false; });
 
+        /***********************************************************
+         * OYUN YÖNETİM FONKSİYONLARI
+         ***********************************************************/
         function resetGame() {
             score = 0; coins = 0; lives = 3; level = 1; smartBombs = 1;
             bullets = []; enemies = []; particles = []; floatingTexts = [];
@@ -310,28 +523,36 @@
             player.speed = 5;
         }
 
-        function togglePause() { if (gameStarted && !gameOver && !isWatchingAd) isPaused = !isPaused; }
+        function togglePause() {
+            if (gameStarted && !gameOver && !isWatchingAd) isPaused = !isPaused;
+        }
+
+        function showAchievement(text) {
+            achievementPopup.innerText = "🏆 " + text;
+            achievementPopup.classList.add("show");
+            setTimeout(() => { achievementPopup.classList.remove("show"); }, 3000);
+        }
+
+        function triggerSmartBomb() {
+            if (smartBombs > 0 && gameStarted && !gameOver && !isWatchingAd) {
+                smartBombs--; screenShake = 14;
+                enemies = []; playSound('explosion');
+                addText("AKILLI BOMBA!", canvas.width/2 - 35, canvas.height/2, "#ff0055");
+            }
+        }
 
         function upgradeSystem(type) {
             if (type === 'laser' && coins >= 15 && upgrades.laser < 2) { coins -= 15; upgrades.laser++; playSound('powerup'); addText("ÇİFT LAZER!", player.x, player.y, "#00f0ff"); }
             else if (type === 'spread' && coins >= 20 && upgrades.spread < 2) { coins -= 20; upgrades.spread++; playSound('powerup'); addText("YAN ATEŞ!", player.x, player.y, "#ffaa00"); }
             else if (type === 'beam' && coins >= 35 && upgrades.beam < 1) { coins -= 35; upgrades.beam++; playSound('powerup'); addText("MEGA IŞIN!", player.x, player.y, "#ff0055"); }
             else if (type === 'shield' && coins >= 25 && upgrades.shield < 1) { coins -= 25; upgrades.shield++; playSound('powerup'); addText("KALKAN!", player.x, player.y, "#00ffcc"); }
-            else if (type === 'speed' && coins >= 15 && upgrades.speed < 2) { coins -= 15; upgrades.speed++; player.speed += 1.5; playSound('powerup'); addText("HIZ ARTTI!", player.x, player.y, "#00ffaa"); }
-        }
-
-        function triggerSmartBomb() {
-            if (smartBombs > 0 && gameStarted && !gameOver && !isWatchingAd) {
-                smartBombs--; screenShake = 15;
-                enemies = []; playSound('explosion');
-                addText("BOMBA!", canvas.width/2, canvas.height/2, "#ff0055");
-            }
+            else if (type === 'speed' && coins >= 15 && upgrades.speed < 2) { coins -= 15; upgrades.speed++; player.speed += 1.4; playSound('powerup'); addText("HIZ ARTTI!", player.x, player.y, "#00ffaa"); }
         }
 
         function createExplosion(x, y, color) {
-            screenShake = 8;
-            for (let i = 0; i < 14; i++) {
-                particles.push({ x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, radius: Math.random() * 3 + 1, color, alpha: 1 });
+            screenShake = 7;
+            for (let i = 0; i < 12; i++) {
+                particles.push({ x, y, vx: (Math.random() - 0.5) * 5, vy: (Math.random() - 0.5) * 5, radius: Math.random() * 2.5 + 1, color, alpha: 1 });
             }
         }
 
@@ -339,16 +560,24 @@
             floatingTexts.push({ text, x, y, alpha: 1, color });
         }
 
+        /***********************************************************
+         * MANTIKSAL GÜNCELLEME DÖNGÜSÜ (UPDATE)
+         ***********************************************************/
         let frameCount = 0;
         function update() {
             if (!gameStarted || isPaused || gameOver || isWatchingAd) return;
 
             frameCount++;
-            level = Math.floor(score / 150) + 1;
+            level = Math.floor(score / 140) + 1;
             if (screenShake > 0) screenShake--;
 
-            if (score > 0 && score % 200 === 0 && !bossActive) {
-                bossActive = true; boss.hp = 180 + level * 50; boss.maxHp = boss.hp; boss.y = -70;
+            if (score >= 100 && !achievements.score100) {
+                achievements.score100 = true;
+                showAchievement("Uzay Pilotu (100 Skor)");
+            }
+
+            if (score > 0 && score % 180 === 0 && !bossActive) {
+                bossActive = true; boss.hp = 160 + level * 40; boss.maxHp = boss.hp; boss.y = -60;
             }
 
             stars.forEach(s => { s.y += s.speed; if (s.y > canvas.height) s.y = 0; });
@@ -361,19 +590,19 @@
             if (keys["ArrowRight"] || keys["KeyD"]) player.x += player.speed;
 
             if (player.x < player.w / 2) player.x = player.w / 2;
-            if (player.x > canvas.width - player.w / 2) player.x = canvas.width - player.w / 2;
+            if (player.x > canvas.width - player.w / 2) player.x > canvas.width - player.w / 2 ? canvas.width - player.w / 2 : player.x = canvas.width - player.w / 2;
 
             if (frameCount % 8 === 0) {
-                if (upgrades.beam > 0) bullets.push({ x: player.x, y: 0, w: 12, h: player.y - 10, isBeam: true, color: '#ff0055' });
+                if (upgrades.beam > 0) bullets.push({ x: player.x, y: 0, w: 10, h: player.y - 10, isBeam: true, color: '#ff0055' });
                 if (upgrades.spread > 0) {
-                    bullets.push({ x: player.x - 14, y: player.y - 15, vx: -3, vy: -13, w: 4, h: 12, color: '#ff5500', isBeam: false });
-                    bullets.push({ x: player.x + 14, y: player.y - 15, vx: 3, vy: -13, w: 4, h: 12, color: '#ff5500', isBeam: false });
+                    bullets.push({ x: player.x - 12, y: player.y - 12, vx: -2.5, vy: -12, w: 3.5, h: 10, color: '#ff5500', isBeam: false });
+                    bullets.push({ x: player.x + 12, y: player.y - 12, vx: 2.5, vy: -12, w: 3.5, h: 10, color: '#ff5500', isBeam: false });
                 }
                 if (upgrades.laser > 0) {
-                    bullets.push({ x: player.x - 7, y: player.y - 15, vx: 0, vy: -14, w: 4, h: 15, color: '#00f0ff', isBeam: false });
-                    bullets.push({ x: player.x + 7, y: player.y - 15, vx: 0, vy: -14, w: 4, h: 15, color: '#00f0ff', isBeam: false });
+                    bullets.push({ x: player.x - 6, y: player.y - 12, vx: 0, vy: -13, w: 3.5, h: 12, color: '#00f0ff', isBeam: false });
+                    bullets.push({ x: player.x + 6, y: player.y - 12, vx: 0, vy: -13, w: 3.5, h: 12, color: '#00f0ff', isBeam: false });
                 } else {
-                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -14, w: 4, h: 15, color: '#ffaa00', isBeam: false });
+                    bullets.push({ x: player.x, y: player.y - 12, vx: 0, vy: -13, w: 3.5, h: 12, color: '#ffaa00', isBeam: false });
                 }
                 playSound('laser');
             }
@@ -389,8 +618,8 @@
                 }
             }
 
-            if (!bossActive && frameCount % Math.max(18, 45 - level * 3) === 0) {
-                enemies.push({ x: Math.random() * (canvas.width - 32), y: -35, w: 32, h: 32, hp: 1, speed: 2.2 + level * 0.15, color: '#00f0ff' });
+            if (!bossActive && frameCount % Math.max(20, 45 - level * 2) === 0) {
+                enemies.push({ x: Math.random() * (canvas.width - 28), y: -30, w: 28, h: 28, hp: 1, speed: 2 + level * 0.1, color: '#00f0ff' });
             }
 
             for (let i = enemies.length - 1; i >= 0; i--) {
@@ -418,7 +647,7 @@
                         e.hp--;
                         createExplosion(e.x + e.w/2, e.y + e.h/2, e.color);
                         if (e.hp <= 0) {
-                            coins += Math.random() < 0.5 ? 1 : 0;
+                            coins += Math.random() < 0.45 ? 1 : 0;
                             score += 10;
                             playSound('explosion');
                             addText("+10", e.x, e.y, "#00f0ff");
@@ -430,9 +659,9 @@
             }
 
             if (bossActive) {
-                if (boss.y < 35) boss.y += 1;
+                if (boss.y < 30) boss.y += 1;
                 boss.x += boss.dir;
-                if (boss.x < 15 || boss.x > canvas.width - 120) boss.dir *= -1;
+                if (boss.x < 10 || boss.x > canvas.width - 110) boss.dir *= -1;
 
                 for (let j = bullets.length - 1; j >= 0; j--) {
                     let b = bullets[j];
@@ -443,9 +672,9 @@
                         createExplosion(b.x, b.y, '#ff0055');
                         if (boss.hp <= 0) {
                             bossActive = false;
-                            score += 250; coins += 35;
+                            score += 200; coins += 30;
                             playSound('explosion');
-                            addText("+250 BOSS", boss.x, boss.y, "#ff0055");
+                            addText("+200 BOSS", boss.x, boss.y, "#ff0055");
                         }
                     }
                 }
@@ -453,7 +682,7 @@
 
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
-                p.x += p.vx; p.y += p.vy; p.alpha -= 0.03;
+                p.x += p.vx; p.y += p.vy; p.alpha -= 0.035;
                 if (p.alpha <= 0) particles.splice(i, 1);
             }
 
@@ -468,6 +697,9 @@
             lifeVal.innerText = "❤️".repeat(Math.max(0, lives));
         }
 
+        /***********************************************************
+         * GÖRSEL ÇİZİM DÖNGÜSÜ (DRAW)
+         ***********************************************************/
         function draw() {
             ctx.save();
             if (screenShake > 0) ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
@@ -476,7 +708,7 @@
 
             ctx.fillStyle = "#ffffff";
             stars.forEach(s => {
-                ctx.globalAlpha = s.size / 2.2;
+                ctx.globalAlpha = s.size / 2;
                 ctx.fillRect(s.x, s.y, s.size, s.size);
             });
             ctx.globalAlpha = 1;
@@ -488,76 +720,84 @@
 
             floatingTexts.forEach(ft => {
                 ctx.save(); ctx.globalAlpha = ft.alpha; ctx.fillStyle = ft.color;
-                ctx.font = "bold 11px Arial"; ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
+                ctx.font = "bold 10px Arial"; ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
             });
 
             if (!gameStarted) {
                 ctx.fillStyle = "rgba(1, 1, 6, 0.94)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "#00f0ff"; ctx.font = "bold 18px Arial"; ctx.textAlign = "center";
-                ctx.fillText("GALAXY WAR REWARDED", canvas.width / 2, canvas.height / 2 - 20);
-                ctx.fillStyle = "#ffffff"; ctx.font = "11px Arial";
-                ctx.fillText("Başlamak İçin Dokun", canvas.width / 2, canvas.height / 2 + 15);
+                ctx.fillStyle = "#00f0ff"; ctx.font = "bold 16px Arial"; ctx.textAlign = "center";
+                ctx.fillText("GALAXY WAR PRO", canvas.width / 2, canvas.height / 2 - 18);
+                ctx.fillStyle = "#ffffff"; ctx.font = "10px Arial";
+                ctx.fillText("Başlamak İçin Dokun", canvas.width / 2, canvas.height / 2 + 12);
                 ctx.textAlign = "left"; ctx.restore(); return;
             }
 
             if (bossActive) {
                 ctx.fillStyle = "#ff0055"; ctx.fillRect(boss.x, boss.y, boss.w, boss.h);
-                ctx.fillStyle = "#111"; ctx.fillRect(boss.x, boss.y - 10, boss.w, 6);
-                ctx.fillStyle = "#ff0055"; ctx.fillRect(boss.x, boss.y - 10, boss.w * (boss.hp / boss.maxHp), 6);
+                ctx.fillStyle = "#111"; ctx.fillRect(boss.x, boss.y - 8, boss.w, 5);
+                ctx.fillStyle = "#ff0055"; ctx.fillRect(boss.x, boss.y - 8, boss.w * (boss.hp / boss.maxHp), 5);
             }
 
             bullets.forEach(b => {
-                ctx.shadowBlur = 10; ctx.shadowColor = b.color;
+                ctx.shadowBlur = 8; ctx.shadowColor = b.color;
                 ctx.fillStyle = b.color;
                 if (b.isBeam) ctx.fillRect(b.x - b.w/2, 0, b.w, b.h);
-                else { ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI * 2); ctx.fill(); }
+                else { ctx.beginPath(); ctx.arc(b.x, b.y, 3.5, 0, Math.PI * 2); ctx.fill(); }
             });
             ctx.shadowBlur = 0;
 
             let x = player.x, y = player.y;
-            ctx.shadowBlur = 14; ctx.shadowColor = "#00f0ff";
+            ctx.shadowBlur = 12; ctx.shadowColor = "#00f0ff";
             ctx.fillStyle = "#ffffff";
             ctx.beginPath();
-            ctx.moveTo(x, y - 22); ctx.lineTo(x - 16, y + 12); ctx.lineTo(x, y + 6); ctx.lineTo(x + 16, y + 12);
+            ctx.moveTo(x, y - 18); ctx.lineTo(x - 14, y + 10); ctx.lineTo(x, y + 5); ctx.lineTo(x + 14, y + 10);
             ctx.closePath(); ctx.fill();
 
             ctx.fillStyle = "#00a2ff";
-            ctx.beginPath(); ctx.moveTo(x - 12, y + 2); ctx.lineTo(x - 27, y + 16); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(x + 12, y + 2); ctx.lineTo(x + 27, y + 16); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(x - 10, y + 2); ctx.lineTo(x - 23, y + 14); ctx.lineTo(x - 9, y + 8); ctx.closePath(); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(x + 10, y + 2); ctx.lineTo(x + 23, y + 14); ctx.lineTo(x + 9, y + 8); ctx.closePath(); ctx.fill();
 
             ctx.fillStyle = "#ff5500";
-            ctx.fillRect(x - 4, y + 12, 3, 10);
-            ctx.fillRect(x + 1, y + 12, 3, 10);
+            ctx.fillRect(x - 3, y + 10, 2.5, 8);
+            ctx.fillRect(x + 1, y + 10, 2.5, 8);
             ctx.shadowBlur = 0;
 
             if (upgrades.shield > 0) {
-                ctx.strokeStyle = "#00ffff"; ctx.lineWidth = 2.5;
-                ctx.beginPath(); ctx.arc(x, y, 28, 0, Math.PI * 2); ctx.stroke();
+                ctx.strokeStyle = "#00ffff"; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(x, y, 24, 0, Math.PI * 2); ctx.stroke();
             }
 
             enemies.forEach(e => {
                 let ex = e.x + e.w/2, ey = e.y + e.h/2;
                 ctx.fillStyle = e.color;
-                ctx.beginPath(); ctx.arc(ex, ey, 12, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(ex, ey, 10, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = "#ffffff";
-                ctx.beginPath(); ctx.arc(ex - 11, ey - 4, 5, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.arc(ex + 11, ey - 4, 5, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(ex - 9, ey - 3, 4, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(ex + 9, ey - 3, 4, 0, Math.PI * 2); ctx.fill();
             });
 
             if (gameOver) {
                 ctx.fillStyle = "rgba(1, 1, 6, 0.97)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "#ff0055"; ctx.font = "bold 22px Arial"; ctx.textAlign = "center";
-                ctx.fillText("OYUN BİTTİ", canvas.width / 2, canvas.height / 2 - 20);
-                ctx.fillStyle = "#ffffff"; ctx.font = "12px Arial";
-                ctx.fillText("Toplam Skor: " + score, canvas.width / 2, canvas.height / 2 + 10);
-                ctx.fillText("Tekrar Başlamak İçin Dokun", canvas.width / 2, canvas.height / 2 + 38);
+                ctx.fillStyle = "#ff0055"; ctx.font = "bold 20px Arial"; ctx.textAlign = "center";
+                ctx.fillText("OYUN BİTTİ", canvas.width / 2, canvas.height / 2 - 18);
+                ctx.fillStyle = "#ffffff"; ctx.font = "11px Arial";
+                ctx.fillText("Toplam Skor: " + score, canvas.width / 2, canvas.height / 2 + 8);
+                ctx.fillText("Tekrar Başlamak İçin Dokun", canvas.width / 2, canvas.height / 2 + 32);
                 ctx.textAlign = "left";
             }
 
             ctx.restore();
         }
 
-        function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
+        /***********************************************************
+         * ANA OYUN DÖNGÜSÜ (GAME LOOP)
+         ***********************************************************/
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
         gameLoop();
     </script>
 </body>
