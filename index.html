@@ -307,20 +307,21 @@
         let weaponLevel = 1; // 1 - 5 arası
 
         // Süreli Kalkan Sistemi
-        let shieldTimer = 0; // Kalkan kalan kare sayısı
+        let shieldTimer = 0;
 
         let isAdCooldown = false;
         let adCooldownTime = 60;
 
         let upgrades = { speed: 0 };
 
+        // BOSS KOLAYLAŞTIRILDI (Canı 200'den 100'e düşürüldü)
         let bossActive = false;
-        let boss = { x: 75, y: -100, w: 110, h: 60, hp: 200, maxHp: 200, dir: 2.5 };
+        let boss = { x: 75, y: -100, w: 110, h: 60, hp: 100, maxHp: 100, dir: 2 };
 
         let player = { x: canvas.width / 2, y: canvas.height - 45, w: 40, h: 40, speed: 5 };
 
         let bullets = [];
-        let enemyBullets = []; // Düşman mermileri ve Boss Roketleri
+        let enemyBullets = [];
         let enemies = [];
         let powerups = [];
         let particles = [];
@@ -456,11 +457,10 @@
                 playSound('powerup');
                 addText("SİLAH LVL " + weaponLevel, player.x, player.y, "#00f0ff");
             } else if (shipForm === 1) {
-                // Yeşil Gemiden Mavi Gemiye Evrim!
                 shipForm = 2;
                 weaponLevel = 1;
                 playSound('powerup');
-                addText("⚡ MAVI GEMİ EVRİMİ! ⚡", player.x, player.y - 10, "#00f0ff");
+                addText("⚡ MAVİ GEMİ EVRİMİ! ⚡", player.x, player.y - 10, "#00f0ff");
             } else {
                 addText("MAX SİLAH!", player.x, player.y, "#00ffaa");
             }
@@ -473,7 +473,7 @@
             }
             else if (type === 'shield' && coins >= 25) {
                 coins -= 25;
-                shieldTimer = 600; // 10 Saniye Kalkan Süresi (60FPS x 10s)
+                shieldTimer = 600; // 10 saniye
                 playSound('powerup');
                 addText("KALKAN (10s)!", player.x, player.y, "#00ffcc");
             }
@@ -502,13 +502,15 @@
             level = Math.floor(score / 150) + 1;
             if (screenShake > 0) screenShake--;
 
-            // Kalkan Zamanlayıcısını Azalt (Süreli Kalkan)
             if (shieldTimer > 0) {
                 shieldTimer--;
             }
 
             if (score > 0 && score % 250 === 0 && !bossActive) {
-                bossActive = true; boss.hp = 180 + level * 50; boss.maxHp = boss.hp; boss.y = -70;
+                bossActive = true; 
+                boss.hp = 100 + level * 20; // Düşürüldü
+                boss.maxHp = boss.hp; 
+                boss.y = -70;
             }
 
             stars.forEach(s => { s.y += s.speed; if (s.y > canvas.height) s.y = 0; });
@@ -523,10 +525,12 @@
             if (player.x < player.w / 2) player.x = player.w / 2;
             if (player.x > canvas.width - player.w / 2) player.x = canvas.width - player.w / 2;
 
-            // OYUNCU ATEŞ SİSTEMİ
-            if (frameCount % 8 === 0) {
+            // KADEMELİ ATEŞ HIZI SİSTEMİ (Seviye atladıkça daha hızlı atış yapar)
+            let totalLevel = (shipForm - 1) * 5 + weaponLevel;
+            let fireInterval = Math.max(3, 13 - totalLevel); // Lvl 1: her 12 karede 1, Lvl 10 (Mavi Lvl 5): her 3 karede 1 hızlı atış!
+
+            if (frameCount % fireInterval === 0) {
                 let bulletColor = (shipForm === 1) ? '#00ffaa' : '#00f0ff';
-                if (shipForm === 2) bulletColor = '#00f0ff';
 
                 if (weaponLevel === 1) {
                     bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -13, color: bulletColor });
@@ -569,8 +573,8 @@
                 let e = enemies[i];
                 e.y += e.speed;
 
-                if (Math.random() < 0.015) {
-                    enemyBullets.push({ x: e.x + e.w/2, y: e.y + e.h, vy: 3 + level * 0.3, isRocket: false });
+                if (Math.random() < 0.012) {
+                    enemyBullets.push({ x: e.x + e.w/2, y: e.y + e.h, vy: 2.8 + level * 0.2, isRocket: false });
                 }
 
                 let dist = Math.hypot(player.x - (e.x + e.w/2), player.y - (e.y + e.h/2));
@@ -607,7 +611,6 @@
                 }
             }
 
-            // Düşman ve Boss Mermileri Kontrolü
             for (let i = enemyBullets.length - 1; i >= 0; i--) {
                 let eb = enemyBullets[i];
                 eb.y += eb.vy;
@@ -644,16 +647,16 @@
                 if (p.y > canvas.height) powerups.splice(i, 1);
             }
 
-            // BOSS SALDIRI SİSTEMİ (Fotoğraftaki Roket Yağmuru)
+            // BOSS SAVAŞI (Daha insaflı ve kolay)
             if (bossActive) {
                 if (boss.y < 35) boss.y += 1;
                 boss.x += boss.dir;
                 if (boss.x < 15 || boss.x > canvas.width - 120) boss.dir *= -1;
 
-                // Boss Roket Yağmuru (Görseldeki Gibi)
-                if (frameCount % 25 === 0) {
-                    enemyBullets.push({ x: boss.x + 15, y: boss.y + boss.h, vy: 3.2, isRocket: true });
-                    enemyBullets.push({ x: boss.x + boss.w - 15, y: boss.y + boss.h, vy: 3.2, isRocket: true });
+                // Boss Roket Yağmuru Yavaşlatıldı
+                if (frameCount % 45 === 0) {
+                    enemyBullets.push({ x: boss.x + 20, y: boss.y + boss.h, vy: 2.8, isRocket: true });
+                    enemyBullets.push({ x: boss.x + boss.w - 20, y: boss.y + boss.h, vy: 2.8, isRocket: true });
                 }
 
                 for (let j = bullets.length - 1; j >= 0; j--) {
@@ -666,7 +669,7 @@
                             bossActive = false;
                             score += 250; coins += 35;
                             playSound('explosion');
-                            addText("+250 BOSS BİTTİ", boss.x, boss.y, "#ff0055");
+                            addText("+250 BOSS YENİLDİ!", boss.x, boss.y, "#ff0055");
                         }
                     }
                 }
@@ -735,12 +738,11 @@
                 ctx.beginPath(); ctx.arc(b.x, b.y, 3.5, 0, Math.PI * 2); ctx.fill();
             });
 
-            // BOSS ROKETLERİ VEYA DÜŞMAN MERMİLERİ ÇİZİMİ (Fotoğraftaki Roketler)
             enemyBullets.forEach(eb => {
                 if (eb.isRocket) {
                     ctx.save();
                     ctx.fillStyle = "#ffcc00"; ctx.strokeStyle = "#ff0000"; ctx.lineWidth = 1.5;
-                    ctx.beginPath(); ctx.arc(eb.x, eb.y, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                    ctx.beginPath(); ctx.arc(eb.x, eb.y, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                     ctx.restore();
                 } else {
                     ctx.shadowBlur = 6; ctx.shadowColor = "#ff0000";
@@ -759,12 +761,10 @@
                 ctx.restore();
             });
 
-            // GEMİ ÇİZİMİ (1: YEŞİL, 2: FOTOĞRAFTAKİ MAVİ EVRİM)
             let x = player.x, y = player.y;
             ctx.shadowBlur = 14; 
 
             if (shipForm === 1) {
-                // Yeşil Başlangıç Gemisi
                 ctx.shadowColor = "#00ffaa";
                 ctx.fillStyle = "#ffffff";
                 ctx.beginPath();
@@ -775,7 +775,6 @@
                 ctx.beginPath(); ctx.moveTo(x - 12, y + 2); ctx.lineTo(x - 27, y + 16); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
                 ctx.beginPath(); ctx.moveTo(x + 12, y + 2); ctx.lineTo(x + 27, y + 16); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
             } else {
-                // Fotoğraftaki Mavi Evrimleşmiş Gemi
                 ctx.shadowColor = "#00f0ff";
                 ctx.fillStyle = "#00f0ff";
                 ctx.beginPath();
@@ -791,12 +790,10 @@
             ctx.fillRect(x - 4, y + 12, 3, 10); ctx.fillRect(x + 1, y + 12, 3, 10);
             ctx.shadowBlur = 0;
 
-            // Süreli Kalkan Efekti ve Sayacı
             if (shieldTimer > 0) {
                 ctx.strokeStyle = "#00ffff"; ctx.lineWidth = 2.5;
                 ctx.beginPath(); ctx.arc(x, y, 28, 0, Math.PI * 2); ctx.stroke();
                 
-                // Kalkan Süre Sayacı
                 ctx.fillStyle = "#00ffff"; ctx.font = "bold 9px Arial"; ctx.textAlign = "center";
                 ctx.fillText(Math.ceil(shieldTimer / 60) + "s", x, y - 32);
             }
