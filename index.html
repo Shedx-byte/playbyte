@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PlayByte - Galaxy War Ultimate Professional 1000</title>
+    <title>PlayByte - Galaxy War Ultimate Professional 1200+</title>
     <style>
+        /* ==========================================================
+         * 1. CSS STİL VE TEMA YAPILANDIRMASI
+         * ========================================================== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -129,6 +132,66 @@
             transform: scale(0.95);
         }
 
+        /* ==========================================================
+         * 2. ANA MENÜ EKRANI (MAIN MENU OVERLAY)
+         * ========================================================== */
+        #menuOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #101035 0%, #010108 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            padding: 20px;
+        }
+        .menu-box {
+            background: rgba(10, 10, 30, 0.95);
+            border: 2px solid #00f0ff;
+            padding: 30px;
+            border-radius: 16px;
+            width: 320px;
+            box-shadow: 0 0 35px rgba(0,240,255,0.6);
+            text-align: center;
+        }
+        .menu-title {
+            color: #00f0ff;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+            text-shadow: 0 0 15px rgba(0,240,255,0.9);
+        }
+        .menu-sub {
+            font-size: 11px;
+            color: #aaaacc;
+            margin-bottom: 24px;
+        }
+        .menu-btn {
+            background: linear-gradient(45deg, #00ffaa, #0055ff);
+            color: #000000;
+            border: none;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,255,170,0.5);
+            width: 100%;
+            margin-bottom: 10px;
+            transition: transform 0.1s;
+        }
+        .menu-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* ==========================================================
+         * 3. REKLAM VE BİLDİRİM PANELLERİ
+         * ========================================================== */
         #adOverlay {
             display: none;
             position: fixed;
@@ -206,8 +269,20 @@
 </head>
 <body>
 
+    <!-- BAŞARIM BİLDİRİMİ -->
     <div id="achievementPopup">🏆 BAŞARIM KAZANILDI!</div>
 
+    <!-- ANA MENÜ EKRANI -->
+    <div id="menuOverlay">
+        <div class="menu-box">
+            <div class="menu-title">⚡ GALAXY WAR ⚡</div>
+            <div class="menu-sub">Ultimate Professional Edition</div>
+            <button class="menu-btn" onclick="startGameFromMenu()">OYUNA BAŞLA</button>
+            <div style="font-size: 9px; color: #777799; margin-top: 15px;">PlayByte Entertainment © 2026</div>
+        </div>
+    </div>
+
+    <!-- REKLAM EKRANI -->
     <div id="adOverlay">
         <div class="ad-box">
             <div class="ad-title">🎬 SPONSORLU REKLAM</div>
@@ -249,8 +324,8 @@
             <button class="market-btn" onclick="upgradeSystem('shield')">Kalkan (10s)<br>(25 💎)</button>
             <button class="market-btn" onclick="upgradeSystem('speed')">Gemi Hızı<br>(15 💎)</button>
             <button class="market-btn" style="background: linear-gradient(45deg, #00f0ff, #0055ff);" onclick="upgradeSystem('drone')">Yardımcı Drone<br>(100 💎)</button>
-            <button class="market-btn" style="background: linear-gradient(45deg, #ffd700, #ff5500);" onclick="upgradeSystem('ultimate')">Süper Işın<br>(50 💎)</button>
-            <button class="market-btn" style="background: linear-gradient(45deg, #a000ff, #ff00ff);" onclick="upgradeSystem('skin')">Neon Motor İzi<br>(30 💎)</button>
+            <button class="market-btn" style="background: linear-gradient(45deg, #a000ff, #ff00ff);" onclick="upgradeSystem('ultimate')">Mor Süper Işın<br>(50 💎)</button>
+            <button class="market-btn" style="background: linear-gradient(45deg, #ff00ff, #7f00ff);" onclick="upgradeSystem('skin')">Neon İzi<br>(30 💎)</button>
             <button class="market-btn" id="adBtn" style="background: linear-gradient(45deg, #00ffaa, #0055ff);" onclick="watch30SecAd()">
                 30s Reklam<br>(+5 💎)
             </button>
@@ -281,6 +356,9 @@
     </div>
 
     <script>
+        /***********************************************************
+         * 4. OYUN MOTORU VE KÜRESEL DEĞİŞKENLER
+         ***********************************************************/
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
@@ -294,20 +372,24 @@
         const adProgressBar = document.getElementById("adProgressBar");
         const adBtn = document.getElementById("adBtn");
         const achievementPopup = document.getElementById("achievementPopup");
+        const menuOverlay = document.getElementById("menuOverlay");
 
         let score = 0;
         let highScore = parseInt(localStorage.getItem("galaxyHighScore") || "0");
 
-        let coins = 20; 
+        let coins = 30; 
         let lives = 5; 
         let isPaused = false;
         let gameOver = false;
-        let gameStarted = false;
+        let gameStarted = false; // Menü kontrolü için başlangıçta false
         let gameLevel = 1; 
         let screenShake = 0;
         let smartBombs = 1;
 
-        // KOMBO VE DERİ (SKIN) SİSTEMİ
+        // MOR SÜPER IŞIN VE ÖZEL EFEKT DEĞİŞKENLERİ
+        let purpleRayActive = false;
+        let purpleRayTimer = 0;
+
         let comboCount = 0;
         let comboTimer = 0;
         let neonEngineTrail = false;
@@ -346,6 +428,9 @@
             });
         }
 
+        /***********************************************************
+         * 5. SES SENTEZLEYİCİSİ (WEB AUDIO API)
+         ***********************************************************/
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             if (isMuted) return;
@@ -377,6 +462,13 @@
                     gain.gain.setValueAtTime(0.08, now);
                     gain.gain.linearRampToValueAtTime(0.001, now + 0.2);
                     osc.start(now); osc.stop(now + 0.2);
+                } else if (type === 'purpleray') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(900, now + 0.6);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.linearRampToValueAtTime(0.001, now + 0.6);
+                    osc.start(now); osc.stop(now + 0.6);
                 }
             } catch (e) {}
         }
@@ -390,6 +482,14 @@
             achievementPopup.innerText = "🏆 " + text;
             achievementPopup.classList.add("show");
             setTimeout(() => { achievementPopup.classList.remove("show"); }, 2500);
+        }
+
+        /***********************************************************
+         * 6. MENÜ VE KONTROL YÖNETİCİSİ
+         ***********************************************************/
+        function startGameFromMenu() {
+            menuOverlay.style.display = "none";
+            resetGame();
         }
 
         let isWatchingAd = false;
@@ -435,7 +535,7 @@
         let isTouching = false;
         canvas.addEventListener("pointerdown", (e) => {
             isTouching = true; updateTouchPos(e);
-            if (!gameStarted || gameOver) resetGame();
+            if (!gameStarted && menuOverlay.style.display === "none") resetGame();
         });
         canvas.addEventListener("pointermove", (e) => { if (isTouching) updateTouchPos(e); });
         canvas.addEventListener("pointerup", () => { isTouching = false; });
@@ -448,21 +548,21 @@
         let keys = {};
         window.addEventListener("keydown", (e) => {
             keys[e.code] = true;
-            if(e.code === "Space" && (!gameStarted || gameOver)) resetGame();
+            if(e.code === "Space" && (!gameStarted || gameOver) && menuOverlay.style.display === "none") resetGame();
         });
         window.addEventListener("keyup", (e) => { keys[e.code] = false; });
 
         function resetGame() {
-            score = 0; coins = 20; lives = 5; gameLevel = 1; smartBombs = 1; 
+            score = 0; coins = 30; lives = 5; gameLevel = 1; smartBombs = 1; 
             shipForm = 1; weaponLevel = 1; shieldTimer = 0; droneUnlocked = false; neonEngineTrail = false;
-            comboCount = 0; comboTimer = 0;
+            comboCount = 0; comboTimer = 0; purpleRayActive = false; purpleRayTimer = 0;
             bullets = []; enemyBullets = []; enemies = []; meteors = []; mines = []; powerups = []; particles = []; floatingTexts = [];
             upgrades = { speed: 0 };
             bossActive = false; nextBossThreshold = 300; gameOver = false; gameStarted = true; player.speed = 5;
         }
 
         function togglePause() {
-            if (gameStarted && !gameOver && !isWatchingAd) isPaused = !isPaused;
+            if (gameStarted && !gameOver && !isWatchingAd && menuOverlay.style.display === "none") isPaused = !isPaused;
         }
 
         function triggerSmartBomb() {
@@ -473,6 +573,9 @@
             }
         }
 
+        /***********************************************************
+         * 7. MARKET VE YÜKSELTME SİSTEMİ
+         ***********************************************************/
         function upgradeWeaponLevel() {
             if (weaponLevel < 5) {
                 weaponLevel++;
@@ -499,19 +602,21 @@
                 addText("DRONE AKTİF!", player.x, player.y, "#00f0ff");
                 showAchievement("YARDIMCI DRONE KAZANILDI!");
             }
-            else if (type === 'ultimate' && coins >= 50) {
+            else if (type === 'ultimate' && coins >= 50) { // MOR SÜPER IŞIN 50 ELMAS
                 coins -= 50;
+                purpleRayActive = true;
+                purpleRayTimer = 90; // 1.5 saniye boyunca ekranda kalır
                 screenShake = 22;
                 enemies = []; enemyBullets = []; meteors = []; mines = [];
-                if (bossActive) { boss.hp -= 180; if(boss.hp <= 0) boss.hp = 0; }
-                playSound('explosion');
-                addText("✨ SÜPER IŞIN PATLAMASI! ✨", canvas.width/2 - 75, canvas.height/2, "#ffd700");
-                showAchievement("SÜPER NÜKLEER IŞIN!");
+                if (bossActive) { boss.hp -= 220; if(boss.hp <= 0) boss.hp = 0; }
+                playSound('purpleray');
+                addText("💜 İLERİYE DOĞRU MOR IŞIN! 💜", canvas.width/2 - 80, canvas.height/2, "#a000ff");
+                showAchievement("MOR NÜKLEER IŞIN!");
             }
             else if (type === 'skin' && coins >= 30 && !neonEngineTrail) {
                 coins -= 30; neonEngineTrail = true; playSound('powerup');
                 addText("NEON MOTOR İZİ!", player.x, player.y, "#a000ff");
-                showAchievement("NEON MOTORY DERİSİ!");
+                showAchievement("NEON MOTOR DERİSİ!");
             }
         }
 
@@ -526,6 +631,9 @@
             floatingTexts.push({ text, x, y, alpha: 1, color });
         }
 
+        /***********************************************************
+         * 8. OYUN GÜNCELLEME VE FİZİK DÖNGÜSÜ (UPDATE)
+         ***********************************************************/
         let frameCount = 0;
         function update() {
             if (!gameStarted || isPaused || gameOver || isWatchingAd) return;
@@ -533,6 +641,9 @@
             frameCount++;
             if (screenShake > 0) screenShake--;
             if (shieldTimer > 0) shieldTimer--;
+
+            if (purpleRayTimer > 0) purpleRayTimer--;
+            else purpleRayActive = false;
 
             if (comboTimer > 0) {
                 comboTimer--;
@@ -577,7 +688,6 @@
                 if (shipForm === 6) bulletColor = '#e0e0e0';
                 if (shipForm === 7) bulletColor = '#ffd700';
 
-                // KRİTİK VURUŞ MANTIĞI (%10 ŞANSLA 2 KAT HASAR)
                 let isCritical = Math.random() < 0.10;
                 let dmg = isCritical ? 2 : 1;
                 if (isCritical) bulletColor = '#ffff00';
@@ -616,7 +726,7 @@
                 if (b.y < 0 || b.x < 0 || b.x > canvas.width) bullets.splice(i, 1);
             }
 
-            // UZAY MAYINLARI
+            // MAYINLAR
             if (!bossActive && frameCount % 240 === 0) {
                 mines.push({ x: Math.random() * (canvas.width - 20) + 10, y: -20, r: 8, vy: 0.8 });
             }
@@ -656,7 +766,7 @@
                 if (m.y > canvas.height + 30) meteors.splice(i, 1);
             }
 
-            // KÜÇÜK, KAMİKAZE VE BUZ DÜŞMANLARI
+            // DÜŞMANLAR
             let spawnRate = Math.max(12, 45 - gameLevel * 3);
             if (!bossActive && frameCount % spawnRate === 0) {
                 let isKamikaze = Math.random() < (0.15 + gameLevel * 0.03);
@@ -704,12 +814,10 @@
                         e.hp -= (b.dmg || 1);
                         createExplosion(b.x, b.y, e.color);
                         if (e.hp <= 0) {
-                            // KOMBO ÇARPANINI ARTIR
                             comboCount++;
-                            comboTimer = 120; // 2 saniye vakit
+                            comboTimer = 120;
                             let bonusMultiplier = Math.min(5, Math.floor(comboCount / 3) + 1);
 
-                            // TAM %5 CAN DÜŞME ŞANSI (%100 ÜZERİNDEN %5)
                             if (Math.random() < 0.05) {
                                 powerups.push({ x: e.x + e.w/2, y: e.y + e.h/2, vy: 1.8, type: 'health' });
                             } else if (Math.random() < 0.35) {
@@ -828,6 +936,9 @@
             }
         }
 
+        /***********************************************************
+         * 9. ÇİZİM VE GRAFİK RENDER MOTORU (DRAW)
+         ***********************************************************/
         function draw() {
             ctx.save();
             if (screenShake > 0) ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
@@ -848,6 +959,17 @@
             });
             ctx.globalAlpha = 1;
 
+            // MOR SÜPER IŞIN ANİMASYONU (İleriye Doğru Işın Fırlatma)
+            if (purpleRayActive) {
+                ctx.save();
+                ctx.shadowBlur = 25; ctx.shadowColor = "#a000ff";
+                ctx.fillStyle = "rgba(160, 0, 255, 0.75)";
+                ctx.fillRect(player.x - 8, 0, 16, player.y);
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(player.x - 2, 0, 4, player.y);
+                ctx.restore();
+            }
+
             particles.forEach(p => {
                 ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
                 ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
@@ -859,12 +981,7 @@
             });
 
             if (!gameStarted) {
-                ctx.fillStyle = "rgba(1, 1, 6, 0.94)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "#00f0ff"; ctx.font = "bold 18px Arial"; ctx.textAlign = "center";
-                ctx.fillText("GALAXY WAR PRO", canvas.width / 2, canvas.height / 2 - 20);
-                ctx.fillStyle = "#ffffff"; ctx.font = "11px Arial";
-                ctx.fillText("Başlamak İçin Dokun", canvas.width / 2, canvas.height / 2 + 15);
-                ctx.textAlign = "left"; ctx.restore(); return;
+                ctx.restore(); return;
             }
 
             if (bossActive) {
@@ -934,9 +1051,6 @@
             if (shipForm === 1) {
                 ctx.shadowColor = "#00ffaa"; ctx.fillStyle = "#ffffff";
                 ctx.beginPath(); ctx.moveTo(x, y - 24); ctx.lineTo(x - 16, y + 14); ctx.lineTo(x, y + 8); ctx.lineTo(x + 16, y + 14); ctx.closePath(); ctx.fill();
-                ctx.fillStyle = "#00ffaa";
-                ctx.beginPath(); ctx.moveTo(x - 12, y + 2); ctx.lineTo(x - 28, y + 18); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(x + 12, y + 2); ctx.lineTo(x + 28, y + 18); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
             } else if (shipForm === 2) {
                 ctx.shadowColor = "#00f0ff"; ctx.fillStyle = "#00f0ff";
                 ctx.beginPath(); ctx.moveTo(x, y - 26); ctx.lineTo(x - 22, y + 16); ctx.lineTo(x, y + 6); ctx.lineTo(x + 22, y + 16); ctx.closePath(); ctx.fill();
