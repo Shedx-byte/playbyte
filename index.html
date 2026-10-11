@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PlayByte - Galaxy War Ultimate Professional 800+</title>
     <style>
+        /* ==========================================
+         * STİL VE DÜZEN YAPILANDIRMASI
+         * ========================================== */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -278,6 +281,9 @@
     </div>
 
     <script>
+        /***********************************************************
+         * TEMEL DEĞİŞKENLER VE KURULUM
+         ***********************************************************/
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
@@ -290,10 +296,9 @@
         const adTimerText = document.getElementById("adTimerText");
         const adProgressBar = document.getElementById("adProgressBar");
         const adBtn = document.getElementById("adBtn");
-        const achievementPopup = document.getElementById("achievementPopup");
 
         let score = 0;
-        let highScore = localStorage.getItem("galaxyHighScore") || 0;
+        let highScore = parseInt(localStorage.getItem("galaxyHighScore") || "0");
         highScoreVal.innerText = highScore;
 
         let coins = 0;
@@ -305,7 +310,9 @@
         let screenShake = 0;
         let smartBombs = 1;
 
-        let shipForm = 1; // 1: Yeşil, 2: Mavi Evrim
+        // 5 AŞAMALI DEV EVRİM SİSTEMİ
+        // Form 1: Yeşil | Form 2: Mavi | Form 3: Mor Plazma | Form 4: Kırmızı Anka | Form 5: ALTIN TANRI
+        let shipForm = 1; 
         let weaponLevel = 1;
         let shieldTimer = 0;
         let isMuted = false;
@@ -313,10 +320,9 @@
         let isAdCooldown = false;
         let upgrades = { speed: 0 };
 
-        // Boss Yalnızca Bir Kez Çıkacak
         let bossSpawnedOnce = false;
         let bossActive = false;
-        let boss = { x: 75, y: -100, w: 110, h: 60, hp: 100, maxHp: 100, dir: 2 };
+        let boss = { x: 75, y: -100, w: 110, h: 60, hp: 120, maxHp: 120, dir: 2 };
 
         let player = { x: canvas.width / 2, y: canvas.height - 45, w: 40, h: 40, speed: 5 };
 
@@ -337,6 +343,9 @@
             });
         }
 
+        /***********************************************************
+         * SES SENTEZLEYİCİSİ (WEB AUDIO API)
+         ***********************************************************/
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             if (isMuted) return;
@@ -377,6 +386,9 @@
             soundBtn.innerText = isMuted ? "SES: KAPALI" : "SES: AÇIK";
         }
 
+        /***********************************************************
+         * REKLAM VE KONTROL MEKANİZMALARI
+         ***********************************************************/
         let isWatchingAd = false;
         function watch30SecAd() {
             if (isWatchingAd || isAdCooldown) return;
@@ -457,18 +469,36 @@
             }
         }
 
+        /***********************************************************
+         * 5 AŞAMALI GELİŞMİŞ EVRİM MOTORU
+         ***********************************************************/
         function upgradeWeaponLevel() {
             if (weaponLevel < 5) {
                 weaponLevel++;
                 playSound('powerup');
                 addText("SİLAH LVL " + weaponLevel, player.x, player.y, "#00f0ff");
             } else if (shipForm === 1) {
-                shipForm = 2;
+                shipForm = 2; // Mavi Form
                 weaponLevel = 1;
                 playSound('powerup');
-                addText("⚡ MAVİ EVRİM! ⚡", player.x, player.y - 10, "#00f0ff");
+                addText("⚡ 2. AŞAMA: MAVİ SAVAŞÇI! ⚡", player.x, player.y - 10, "#00f0ff");
+            } else if (shipForm === 2) {
+                shipForm = 3; // Mor Plazma
+                weaponLevel = 1;
+                playSound('powerup');
+                addText("💜 3. AŞAMA: MOR PLAZMA! 💜", player.x, player.y - 10, "#a000ff");
+            } else if (shipForm === 3) {
+                shipForm = 4; // Kırmızı Anka
+                weaponLevel = 1;
+                playSound('powerup');
+                addText("🔥 4. AŞAMA: KIRMIZI ANKA! 🔥", player.x, player.y - 10, "#ff0033");
+            } else if (shipForm === 4) {
+                shipForm = 5; // TANRI FORMU
+                weaponLevel = 5;
+                playSound('powerup');
+                addText("👑 5. AŞAMA: ALTIN TANRI FORMU! 👑", player.x, player.y - 15, "#ffd700");
             } else {
-                addText("MAX SİLAH!", player.x, player.y, "#00ffaa");
+                addText("MAX TANRI GÜCÜ!", player.x, player.y, "#ffd700");
             }
         }
 
@@ -500,6 +530,9 @@
             floatingTexts.push({ text, x, y, alpha: 1, color });
         }
 
+        /***********************************************************
+         * OYUN DÖNGÜSÜ MANTIĞI (UPDATE)
+         ***********************************************************/
         let frameCount = 0;
         function update() {
             if (!gameStarted || isPaused || gameOver || isWatchingAd) return;
@@ -510,7 +543,12 @@
 
             if (shieldTimer > 0) shieldTimer--;
 
-            // Boss Yalnızca Bir Kez Çıkar (Skor 300 olunca)
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem("galaxyHighScore", highScore.toString());
+                highScoreVal.innerText = highScore;
+            }
+
             if (score >= 300 && !bossSpawnedOnce && !bossActive) {
                 bossSpawnedOnce = true;
                 bossActive = true; 
@@ -531,33 +569,48 @@
             if (player.x < player.w / 2) player.x = player.w / 2;
             if (player.x > canvas.width - player.w / 2) player.x = canvas.width - player.w / 2;
 
-            // Kademeli Ateş Hızı (Seviye atladıkça roket gibi hızlı atar)
+            // Ateş Hızı (Evrimleştikçe Süper Hızlanır)
             let totalLevel = (shipForm - 1) * 5 + weaponLevel;
-            let fireInterval = Math.max(3, 13 - totalLevel);
+            let fireInterval = Math.max(2, 13 - totalLevel);
 
             if (frameCount % fireInterval === 0) {
-                let bulletColor = (shipForm === 1) ? '#00ffaa' : '#00f0ff';
+                let bulletColor = '#00ffaa';
+                if (shipForm === 2) bulletColor = '#00f0ff';
+                if (shipForm === 3) bulletColor = '#a000ff';
+                if (shipForm === 4) bulletColor = '#ff0033';
+                if (shipForm === 5) bulletColor = '#ffd700';
 
-                if (weaponLevel === 1) {
-                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -14, color: bulletColor });
-                } else if (weaponLevel === 2) {
-                    bullets.push({ x: player.x - 8, y: player.y - 15, vx: 0, vy: -14, color: bulletColor });
-                    bullets.push({ x: player.x + 8, y: player.y - 15, vx: 0, vy: -14, color: bulletColor });
-                } else if (weaponLevel === 3) {
-                    bullets.push({ x: player.x - 10, y: player.y - 15, vx: -2, vy: -14, color: '#ffaa00' });
-                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -14, color: bulletColor });
-                    bullets.push({ x: player.x + 10, y: player.y - 15, vx: 2, vy: -14, color: '#ffaa00' });
-                } else if (weaponLevel === 4) {
-                    bullets.push({ x: player.x - 12, y: player.y - 15, vx: -3, vy: -14, color: '#ff0055' });
-                    bullets.push({ x: player.x - 4, y: player.y - 15, vx: -1, vy: -14, color: bulletColor });
-                    bullets.push({ x: player.x + 4, y: player.y - 15, vx: 1, vy: -14, color: bulletColor });
-                    bullets.push({ x: player.x + 12, y: player.y - 15, vx: 3, vy: -14, color: '#ff0055' });
-                } else if (weaponLevel >= 5) {
-                    bullets.push({ x: player.x - 14, y: player.y - 15, vx: -4, vy: -14, color: '#7f00ff' });
-                    bullets.push({ x: player.x - 7, y: player.y - 15, vx: -2, vy: -14, color: '#00f0ff' });
-                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -14, color: '#00ffaa' });
-                    bullets.push({ x: player.x + 7, y: player.y - 15, vx: 2, vy: -14, color: '#00f0ff' });
-                    bullets.push({ x: player.x + 14, y: player.y - 15, vx: 4, vy: -14, color: '#7f00ff' });
+                if (shipForm === 5) {
+                    // 5. AŞAMA: ALTIN TANRI FORMU DEVASE 7'Lİ LAZER SAĞANAGI
+                    bullets.push({ x: player.x - 20, y: player.y - 15, vx: -5, vy: -16, color: '#ff0055' });
+                    bullets.push({ x: player.x - 13, y: player.y - 15, vx: -3, vy: -16, color: '#ffd700' });
+                    bullets.push({ x: player.x - 7, y: player.y - 15, vx: -1, vy: -16, color: '#ffd700' });
+                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -16, color: '#ffffff' });
+                    bullets.push({ x: player.x + 7, y: player.y - 15, vx: 1, vy: -16, color: '#ffd700' });
+                    bullets.push({ x: player.x + 13, y: player.y - 15, vx: 3, vy: -16, color: '#ffd700' });
+                    bullets.push({ x: player.x + 20, y: player.y - 15, vx: 5, vy: -16, color: '#ff0055' });
+                } else {
+                    if (weaponLevel === 1) {
+                        bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -14, color: bulletColor });
+                    } else if (weaponLevel === 2) {
+                        bullets.push({ x: player.x - 8, y: player.y - 15, vx: 0, vy: -14, color: bulletColor });
+                        bullets.push({ x: player.x + 8, y: player.y - 15, vx: 0, vy: -14, color: bulletColor });
+                    } else if (weaponLevel === 3) {
+                        bullets.push({ x: player.x - 10, y: player.y - 15, vx: -2, vy: -14, color: '#ffaa00' });
+                        bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -14, color: bulletColor });
+                        bullets.push({ x: player.x + 10, y: player.y - 15, vx: 2, vy: -14, color: '#ffaa00' });
+                    } else if (weaponLevel === 4) {
+                        bullets.push({ x: player.x - 12, y: player.y - 15, vx: -3, vy: -14, color: '#ff0055' });
+                        bullets.push({ x: player.x - 4, y: player.y - 15, vx: -1, vy: -14, color: bulletColor });
+                        bullets.push({ x: player.x + 4, y: player.y - 15, vx: 1, vy: -14, color: bulletColor });
+                        bullets.push({ x: player.x + 12, y: player.y - 15, vx: 3, vy: -14, color: '#ff0055' });
+                    } else if (weaponLevel >= 5) {
+                        bullets.push({ x: player.x - 14, y: player.y - 15, vx: -4, vy: -14, color: '#7f00ff' });
+                        bullets.push({ x: player.x - 7, y: player.y - 15, vx: -2, vy: -14, color: bulletColor });
+                        bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -14, color: '#ffffff' });
+                        bullets.push({ x: player.x + 7, y: player.y - 15, vx: 2, vy: -14, color: bulletColor });
+                        bullets.push({ x: player.x + 14, y: player.y - 15, vx: 4, vy: -14, color: '#7f00ff' });
+                    }
                 }
                 playSound('laser');
             }
@@ -568,7 +621,6 @@
                 if (b.y < 0 || b.x < 0 || b.x > canvas.width) bullets.splice(i, 1);
             }
 
-            // Normal Düşmanlar ve Zikzak Düşman Türü
             if (!bossActive && frameCount % Math.max(18, 45 - level * 2) === 0) {
                 let isZigZag = Math.random() < 0.35;
                 enemies.push({
@@ -661,7 +713,6 @@
                 if (p.y > canvas.height) powerups.splice(i, 1);
             }
 
-            // Boss Savaşı (Yalnızca 1 kez çıkar, sonrasında normal küçükler devam eder)
             if (bossActive) {
                 if (boss.y < 35) boss.y += 1;
                 boss.x += boss.dir;
@@ -673,9 +724,6 @@
 
                 for (let j = bullets.length - 1; j >= 0; j--) {
                     let b = bullets[j];
-                    if (b.x > boss.x && b.x < b.x + boss.w && b.y > boss.y && b.y < boss.y + boss.h) {
-                        // Sadece doğru hit kontrolü
-                    }
                     if (b.x > boss.x && b.x < boss.x + boss.w && b.y > boss.y && b.y < boss.y + boss.h) {
                         bullets.splice(j, 1);
                         boss.hp--;
@@ -711,17 +759,21 @@
             gameOver = true;
             if (score > highScore) {
                 highScore = score;
-                localStorage.setItem("galaxyHighScore", highScore);
+                localStorage.setItem("galaxyHighScore", highScore.toString());
                 highScoreVal.innerText = highScore;
             }
         }
 
+        /***********************************************************
+         * GÖRSEL ÇİZİM VE GRAFİK MOTORU (DRAW)
+         ***********************************************************/
         function draw() {
             ctx.save();
             if (screenShake > 0) ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Yıldızlar
             ctx.fillStyle = "#ffffff";
             stars.forEach(s => {
                 ctx.globalAlpha = s.size / 2.2;
@@ -729,11 +781,13 @@
             });
             ctx.globalAlpha = 1;
 
+            // Efekt Parçacıkları
             particles.forEach(p => {
                 ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
                 ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
             });
 
+            // Yüzen Metinler
             floatingTexts.forEach(ft => {
                 ctx.save(); ctx.globalAlpha = ft.alpha; ctx.fillStyle = ft.color;
                 ctx.font = "bold 11px Arial"; ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
@@ -795,29 +849,45 @@
                 ctx.restore();
             });
 
+            // GEMİ VE EVRİM FORMLARI ÇİZİMİ (1: Yeşil, 2: Mavi, 3: Mor, 4: Kırmızı, 5: ALTIN TANRI)
             let x = player.x, y = player.y;
-            ctx.shadowBlur = 16; 
+            ctx.shadowBlur = 18; 
 
             if (shipForm === 1) {
-                ctx.shadowColor = "#00ffaa";
-                ctx.fillStyle = "#ffffff";
-                ctx.beginPath();
-                ctx.moveTo(x, y - 24); ctx.lineTo(x - 16, y + 14); ctx.lineTo(x, y + 8); ctx.lineTo(x + 16, y + 14);
-                ctx.closePath(); ctx.fill();
-
+                // Form 1: Yeşil Fırtına
+                ctx.shadowColor = "#00ffaa"; ctx.fillStyle = "#ffffff";
+                ctx.beginPath(); ctx.moveTo(x, y - 24); ctx.lineTo(x - 16, y + 14); ctx.lineTo(x, y + 8); ctx.lineTo(x + 16, y + 14); ctx.closePath(); ctx.fill();
                 ctx.fillStyle = "#00ffaa";
                 ctx.beginPath(); ctx.moveTo(x - 12, y + 2); ctx.lineTo(x - 28, y + 18); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
                 ctx.beginPath(); ctx.moveTo(x + 12, y + 2); ctx.lineTo(x + 28, y + 18); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
-            } else {
-                ctx.shadowColor = "#00f0ff";
-                ctx.fillStyle = "#00f0ff";
-                ctx.beginPath();
-                ctx.moveTo(x, y - 26); ctx.lineTo(x - 22, y + 16); ctx.lineTo(x, y + 6); ctx.lineTo(x + 22, y + 16);
-                ctx.closePath(); ctx.fill();
-
+            } else if (shipForm === 2) {
+                // Form 2: Mavi Savaşçı
+                ctx.shadowColor = "#00f0ff"; ctx.fillStyle = "#00f0ff";
+                ctx.beginPath(); ctx.moveTo(x, y - 26); ctx.lineTo(x - 22, y + 16); ctx.lineTo(x, y + 6); ctx.lineTo(x + 22, y + 16); ctx.closePath(); ctx.fill();
                 ctx.fillStyle = "#ffffff";
                 ctx.beginPath(); ctx.moveTo(x - 8, y - 6); ctx.lineTo(x - 30, y + 20); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
                 ctx.beginPath(); ctx.moveTo(x + 8, y - 6); ctx.lineTo(x + 30, y + 20); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
+            } else if (shipForm === 3) {
+                // Form 3: Mor Plazma Kruvazör
+                ctx.shadowColor = "#a000ff"; ctx.fillStyle = "#a000ff";
+                ctx.beginPath(); ctx.moveTo(x, y - 28); ctx.lineTo(x - 24, y + 16); ctx.lineTo(x, y + 4); ctx.lineTo(x + 24, y + 16); ctx.closePath(); ctx.fill();
+                ctx.fillStyle = "#00f0ff";
+                ctx.beginPath(); ctx.moveTo(x - 10, y - 8); ctx.lineTo(x - 32, y + 22); ctx.lineTo(x - 12, y + 12); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(x + 10, y - 8); ctx.lineTo(x + 32, y + 22); ctx.lineTo(x + 12, y + 12); ctx.closePath(); ctx.fill();
+            } else if (shipForm === 4) {
+                // Form 4: Kırmızı Anka Destroyer
+                ctx.shadowColor = "#ff0033"; ctx.fillStyle = "#ff0033";
+                ctx.beginPath(); ctx.moveTo(x, y - 30); ctx.lineTo(x - 26, y + 18); ctx.lineTo(x, y + 6); ctx.lineTo(x + 26, y + 18); ctx.closePath(); ctx.fill();
+                ctx.fillStyle = "#ffcc00";
+                ctx.beginPath(); ctx.moveTo(x - 12, y - 10); ctx.lineTo(x - 34, y + 24); ctx.lineTo(x - 14, y + 14); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(x + 12, y - 10); ctx.lineTo(x + 34, y + 24); ctx.lineTo(x + 14, y + 14); ctx.closePath(); ctx.fill();
+            } else {
+                // Form 5: ALTIN TANRI FORMU
+                ctx.shadowColor = "#ffd700"; ctx.fillStyle = "#ffd700";
+                ctx.beginPath(); ctx.moveTo(x, y - 32); ctx.lineTo(x - 28, y + 20); ctx.lineTo(x, y + 8); ctx.lineTo(x + 28, y + 20); ctx.closePath(); ctx.fill();
+                ctx.fillStyle = "#ffffff";
+                ctx.beginPath(); ctx.moveTo(x - 14, y - 12); ctx.lineTo(x - 38, y + 26); ctx.lineTo(x - 16, y + 16); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(x + 14, y - 12); ctx.lineTo(x + 38, y + 26); ctx.lineTo(x + 16, y + 16); ctx.closePath(); ctx.fill();
             }
 
             ctx.fillStyle = "#ff5500";
