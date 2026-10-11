@@ -99,7 +99,7 @@
         }
 
         #gameCanvas {
-            background: radial-gradient(circle at center, #101035 0%, #02020a 100%);
+            background: #02020a;
             display: block;
             border-radius: 8px;
             border: 1px solid #00f0ff;
@@ -222,8 +222,8 @@
     <header>
         <h1>⚡ GALAXY WAR ULTIMATE PRO</h1>
         <div class="stats-bar">
-            <div>SKOR: <span id="scoreVal">0</span> | EN YÜKSEK: <span id="highScoreVal">0</span></div>
-            <div>💎 <span id="coinVal">0</span> | CAN: <span id="lifeVal">❤️❤️❤️</span></div>
+            <div>SKOR: <span id="scoreVal">0</span> | BÖLÜM: <span id="levelVal" style="color:#00f0ff;">1</span></div>
+            <div>💎 <span id="coinVal">0</span> | CAN: <span id="lifeVal">❤️❤️❤️❤️❤️</span></div>
         </div>
     </header>
 
@@ -285,7 +285,7 @@
         const ctx = canvas.getContext("2d");
 
         const scoreVal = document.getElementById("scoreVal");
-        const highScoreVal = document.getElementById("highScoreVal");
+        const levelVal = document.getElementById("levelVal");
         const coinVal = document.getElementById("coinVal");
         const lifeVal = document.getElementById("lifeVal");
         const soundBtn = document.getElementById("soundBtn");
@@ -296,19 +296,18 @@
 
         let score = 0;
         let highScore = parseInt(localStorage.getItem("galaxyHighScore") || "0");
-        highScoreVal.innerText = highScore;
 
         let coins = 0;
-        let lives = 3;
+        let lives = 5; // 5 CAN SİSTEMİ
         let isPaused = false;
         let gameOver = false;
         let gameStarted = false;
-        let level = 1;
+        let gameLevel = 1; // Bölüm seviyesi
         let screenShake = 0;
         let smartBombs = 1;
 
         // 7 AŞAMALI DEV EVRİM SİSTEMİ
-        let shipForm = 1; // 1: Yeşil, 2: Mavi, 3: Mor, 4: Kırmızı, 5: Turuncu, 6: Platin, 7: ALTIN TANRI
+        let shipForm = 1; 
         let weaponLevel = 1;
         let shieldTimer = 0;
         let isMuted = false;
@@ -316,9 +315,9 @@
         let isAdCooldown = false;
         let upgrades = { speed: 0 };
 
-        // TEKRAR EDEN VE GİDİKÇE GÜÇLENEN BOSS SİSTEMİ
+        // BÖLÜM BAZLI BOSS SİSTEMİ
         let bossActive = false;
-        let lastBossScore = -1;
+        let bossSpawnedForLevel = false;
         let boss = { x: 75, y: -100, w: 110, h: 60, hp: 100, maxHp: 100, dir: 2 };
 
         let player = { x: canvas.width / 2, y: canvas.height - 45, w: 40, h: 40, speed: 5 };
@@ -447,11 +446,11 @@
         window.addEventListener("keyup", (e) => { keys[e.code] = false; });
 
         function resetGame() {
-            score = 0; coins = 0; lives = 3; level = 1; smartBombs = 1; 
+            score = 0; coins = 0; lives = 5; gameLevel = 1; smartBombs = 1; 
             shipForm = 1; weaponLevel = 1; shieldTimer = 0;
             bullets = []; enemyBullets = []; enemies = []; powerups = []; particles = []; floatingTexts = [];
             upgrades = { speed: 0 };
-            bossActive = false; lastBossScore = -1; gameOver = false; gameStarted = true; player.speed = 5;
+            bossActive = false; bossSpawnedForLevel = false; gameOver = false; gameStarted = true; player.speed = 5;
         }
 
         function togglePause() {
@@ -514,14 +513,13 @@
         }
 
         /***********************************************************
-         * OYUN DÖNGÜSÜ VE ZORLUK ÖLÇEKLEMESİ (UPDATE)
+         * OYUN DÖNGÜSÜ VE DÜZENLİ BÖLÜM/BOSS MANTIĞI (UPDATE)
          ***********************************************************/
         let frameCount = 0;
         function update() {
             if (!gameStarted || isPaused || gameOver || isWatchingAd) return;
 
             frameCount++;
-            level = Math.floor(score / 150) + 1;
             if (screenShake > 0) screenShake--;
 
             if (shieldTimer > 0) shieldTimer--;
@@ -529,15 +527,14 @@
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem("galaxyHighScore", highScore.toString());
-                highScoreVal.innerText = highScore;
             }
 
-            // TEKRAR EDEN VE GİDİKÇE GÜÇLENEN BOSS SİSTEMİ (Her 400 skorda bir)
-            if (score > 0 && score % 400 === 0 && !bossActive && score !== lastBossScore) {
-                lastBossScore = score;
+            // HER BÖLÜMDE SKOR HEDEFİNE ULAŞINCA BOSS GELİR (Aşama aşama akış)
+            let targetScoreForBoss = gameLevel * 300;
+            if (score >= targetScoreForBoss && !bossSpawnedForLevel && !bossActive) {
+                bossSpawnedForLevel = true;
                 bossActive = true;
-                let multiplier = Math.floor(score / 400);
-                boss.hp = 100 + (multiplier * 40); // Her gelen boss daha da güçlü!
+                boss.hp = 90 + (gameLevel * 30); // Her bölüm boss biraz daha güçlü
                 boss.maxHp = boss.hp;
                 boss.y = -70;
             }
@@ -554,7 +551,7 @@
             if (player.x < player.w / 2) player.x = player.w / 2;
             if (player.x > canvas.width - player.w / 2) player.x = canvas.width - player.w / 2;
 
-            // Ateş Hızı (Geliştikçe hızlanır)
+            // Ateş Hızı
             let totalLevel = (shipForm - 1) * 5 + weaponLevel;
             let fireInterval = Math.max(2, 14 - totalLevel);
 
@@ -568,7 +565,6 @@
                 if (shipForm === 7) bulletColor = '#ffd700';
 
                 if (shipForm === 7) {
-                    // 7. AŞAMA: ALTIN TANRI FORMU DEVASE 7'Lİ LAZER SAĞANAGI
                     bullets.push({ x: player.x - 20, y: player.y - 15, vx: -5, vy: -16, color: '#ff0055' });
                     bullets.push({ x: player.x - 13, y: player.y - 15, vx: -3, vy: -16, color: '#ffd700' });
                     bullets.push({ x: player.x - 7, y: player.y - 15, vx: -1, vy: -16, color: '#ffd700' });
@@ -608,12 +604,12 @@
                 if (b.y < 0 || b.x < 0 || b.x > canvas.width) bullets.splice(i, 1);
             }
 
-            // DÜŞMANLAR (İlerledikçe canı, hızı ve zorluğu artar)
-            let spawnRate = Math.max(15, 45 - level * 2);
+            // KÜÇÜK DÜŞMANLAR (Bölüm arttıkça kademeli zorlaşır)
+            let spawnRate = Math.max(12, 45 - gameLevel * 3);
             if (!bossActive && frameCount % spawnRate === 0) {
-                let isZigZag = Math.random() < 0.4;
-                let enemyHp = 1 + Math.floor(score / 200) + Math.floor(level / 2);
-                let enemySpeed = 1.8 + level * 0.12;
+                let isZigZag = Math.random() < (0.25 + gameLevel * 0.05);
+                let enemyHp = 1 + Math.floor(gameLevel / 2);
+                let enemySpeed = 1.6 + gameLevel * 0.15;
                 enemies.push({
                     x: Math.random() * (canvas.width - 30), y: -30, w: 26, h: 26,
                     hp: enemyHp, speed: enemySpeed,
@@ -630,8 +626,9 @@
                     e.x += Math.sin(e.angle) * 2.5;
                 }
 
-                if (Math.random() < 0.015) {
-                    enemyBullets.push({ x: e.x + e.w/2, y: e.y + e.h, vy: 2.8 + level * 0.25, isRocket: false });
+                // Ateş frekansı bölüm seviyesine göre artar
+                if (Math.random() < (0.01 + gameLevel * 0.003)) {
+                    enemyBullets.push({ x: e.x + e.w/2, y: e.y + e.h, vy: 2.5 + gameLevel * 0.2, isRocket: false });
                 }
 
                 let dist = Math.hypot(player.x - (e.x + e.w/2), player.y - (e.y + e.h/2));
@@ -704,13 +701,14 @@
                 if (p.y > canvas.height) powerups.splice(i, 1);
             }
 
+            // BOSS SAVAŞI VE YENİLİNCE YENİ BÖLÜME GEÇİŞ
             if (bossActive) {
                 if (boss.y < 35) boss.y += 1;
                 boss.x += boss.dir;
                 if (boss.x < 15 || boss.x > canvas.width - 120) boss.dir *= -1;
 
-                if (frameCount % 40 === 0) {
-                    enemyBullets.push({ x: boss.x + boss.w / 2, y: boss.y + boss.h, vy: 3.2, isRocket: true });
+                if (frameCount % Math.max(25, 45 - gameLevel * 2) === 0) {
+                    enemyBullets.push({ x: boss.x + boss.w / 2, y: boss.y + boss.h, vy: 3.0 + gameLevel * 0.1, isRocket: true });
                 }
 
                 for (let j = bullets.length - 1; j >= 0; j--) {
@@ -721,9 +719,11 @@
                         createExplosion(b.x, b.y, '#ff0055');
                         if (boss.hp <= 0) {
                             bossActive = false;
-                            score += 400; coins += 50;
+                            bossSpawnedForLevel = false;
+                            gameLevel++; // BOSS YENİLDİ -> BÖLÜM ATLAMA!
+                            score += 300; coins += 40;
                             playSound('explosion');
-                            addText("+400 BOSS YENİLDİ!", boss.x, boss.y, "#ff0055");
+                            addText(`🎉 BÖLÜM ${gameLevel} TEMİZLENDİ!`, canvas.width/2 - 60, canvas.height/2, "#00ffaa");
                         }
                     }
                 }
@@ -742,6 +742,7 @@
             }
 
             scoreVal.innerText = score;
+            levelVal.innerText = gameLevel;
             coinVal.innerText = coins;
             lifeVal.innerText = "❤️".repeat(Math.max(0, lives));
         }
@@ -751,18 +752,25 @@
             if (score > highScore) {
                 highScore = score;
                 localStorage.setItem("galaxyHighScore", highScore.toString());
-                highScoreVal.innerText = highScore;
             }
         }
 
         /***********************************************************
-         * GÖRSEL ÇİZİM VE GRAFİK MOTORU (DRAW)
+         * GÖRSEL ÇİZİM VE DİNAMİK ARKA PLAN MOTORU (DRAW)
          ***********************************************************/
         function draw() {
             ctx.save();
             if (screenShake > 0) ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // BÖLÜM ATLAYIKÇA YAVAŞÇA KIRMIZILAŞAN UZAY ARKA PLANI
+            let redIntensity = Math.min(180, (gameLevel - 1) * 25);
+            let blueIntensity = Math.max(10, 55 - (gameLevel - 1) * 8);
+            let bgGradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 10, canvas.width/2, canvas.height/2, 220);
+            bgGradient.addColorStop(0, `rgb(${redIntensity + 15}, 10, ${blueIntensity + 30})`);
+            bgGradient.addColorStop(1, `rgb(${Math.floor(redIntensity / 3)}, 2, 10)`);
+            
+            ctx.fillStyle = bgGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // Yıldızlar
             ctx.fillStyle = "#ffffff";
@@ -845,49 +853,42 @@
             ctx.shadowBlur = 18; 
 
             if (shipForm === 1) {
-                // 1: Yeşil
                 ctx.shadowColor = "#00ffaa"; ctx.fillStyle = "#ffffff";
                 ctx.beginPath(); ctx.moveTo(x, y - 24); ctx.lineTo(x - 16, y + 14); ctx.lineTo(x, y + 8); ctx.lineTo(x + 16, y + 14); ctx.closePath(); ctx.fill();
                 ctx.fillStyle = "#00ffaa";
                 ctx.beginPath(); ctx.moveTo(x - 12, y + 2); ctx.lineTo(x - 28, y + 18); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
                 ctx.beginPath(); ctx.moveTo(x + 12, y + 2); ctx.lineTo(x + 28, y + 18); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
             } else if (shipForm === 2) {
-                // 2: Mavi
                 ctx.shadowColor = "#00f0ff"; ctx.fillStyle = "#00f0ff";
                 ctx.beginPath(); ctx.moveTo(x, y - 26); ctx.lineTo(x - 22, y + 16); ctx.lineTo(x, y + 6); ctx.lineTo(x + 22, y + 16); ctx.closePath(); ctx.fill();
                 ctx.fillStyle = "#ffffff";
                 ctx.beginPath(); ctx.moveTo(x - 8, y - 6); ctx.lineTo(x - 30, y + 20); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
                 ctx.beginPath(); ctx.moveTo(x + 8, y - 6); ctx.lineTo(x + 30, y + 20); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
             } else if (shipForm === 3) {
-                // 3: Mor
                 ctx.shadowColor = "#a000ff"; ctx.fillStyle = "#a000ff";
                 ctx.beginPath(); ctx.moveTo(x, y - 28); ctx.lineTo(x - 24, y + 16); ctx.lineTo(x, y + 4); ctx.lineTo(x + 24, y + 16); ctx.closePath(); ctx.fill();
                 ctx.fillStyle = "#00f0ff";
                 ctx.beginPath(); ctx.moveTo(x - 10, y - 8); ctx.lineTo(x - 32, y + 22); ctx.lineTo(x - 12, y + 12); ctx.closePath(); ctx.fill();
                 ctx.beginPath(); ctx.moveTo(x + 10, y - 8); ctx.lineTo(x + 32, y + 22); ctx.lineTo(x + 12, y + 12); ctx.closePath(); ctx.fill();
             } else if (shipForm === 4) {
-                // 4: Kırmızı
                 ctx.shadowColor = "#ff0033"; ctx.fillStyle = "#ff0033";
                 ctx.beginPath(); ctx.moveTo(x, y - 30); ctx.lineTo(x - 26, y + 18); ctx.lineTo(x, y + 6); ctx.lineTo(x + 26, y + 18); ctx.closePath(); ctx.fill();
                 ctx.fillStyle = "#ffcc00";
                 ctx.beginPath(); ctx.moveTo(x - 12, y - 10); ctx.lineTo(x - 34, y + 24); ctx.lineTo(x - 14, y + 14); ctx.closePath(); ctx.fill();
                 ctx.beginPath(); ctx.moveTo(x + 12, y - 10); ctx.lineTo(x + 34, y + 24); ctx.lineTo(x + 14, y + 14); ctx.closePath(); ctx.fill();
             } else if (shipForm === 5) {
-                // 5: Turuncu Bronz
                 ctx.shadowColor = "#ff8800"; ctx.fillStyle = "#ff8800";
                 ctx.beginPath(); ctx.moveTo(x, y - 31); ctx.lineTo(x - 27, y + 19); ctx.lineTo(x, y + 7); ctx.lineTo(x + 27, y + 19); ctx.closePath(); ctx.fill();
                 ctx.fillStyle = "#ffffff";
                 ctx.beginPath(); ctx.moveTo(x - 13, y - 11); ctx.lineTo(x - 36, y + 25); ctx.lineTo(x - 15, y + 15); ctx.closePath(); ctx.fill();
                 ctx.beginPath(); ctx.moveTo(x + 13, y - 11); ctx.lineTo(x + 36, y + 25); ctx.lineTo(x + 15, y + 15); ctx.closePath(); ctx.fill();
             } else if (shipForm === 6) {
-                // 6: Platin Gümüş
                 ctx.shadowColor = "#e0e0e0"; ctx.fillStyle = "#e0e0e0";
                 ctx.beginPath(); ctx.moveTo(x, y - 32); ctx.lineTo(x - 28, y + 20); ctx.lineTo(x, y + 8); ctx.lineTo(x + 28, y + 20); ctx.closePath(); ctx.fill();
                 ctx.fillStyle = "#00f0ff";
                 ctx.beginPath(); ctx.moveTo(x - 14, y - 12); ctx.lineTo(x - 38, y + 26); ctx.lineTo(x - 16, y + 16); ctx.closePath(); ctx.fill();
                 ctx.beginPath(); ctx.moveTo(x + 14, y - 12); ctx.lineTo(x + 38, y + 26); ctx.lineTo(x + 16, y + 16); ctx.closePath(); ctx.fill();
             } else {
-                // 7: ALTIN TANRI FORMU (ZİRVE)
                 ctx.shadowColor = "#ffd700"; ctx.fillStyle = "#ffd700";
                 ctx.beginPath(); ctx.moveTo(x, y - 34); ctx.lineTo(x - 30, y + 22); ctx.lineTo(x, y + 9); ctx.lineTo(x + 30, y + 22); ctx.closePath(); ctx.fill();
                 ctx.fillStyle = "#ffffff";
@@ -921,9 +922,10 @@
                 ctx.fillStyle = "#ff0055"; ctx.font = "bold 22px Arial"; ctx.textAlign = "center";
                 ctx.fillText("OYUN BİTTİ", canvas.width / 2, canvas.height / 2 - 25);
                 ctx.fillStyle = "#ffffff"; ctx.font = "12px Arial";
-                ctx.fillText("Skor: " + score, canvas.width / 2, canvas.height / 2 + 2);
-                ctx.fillText("En Yüksek Skor: " + highScore, canvas.width / 2, canvas.height / 2 + 22);
-                ctx.fillText("Tekrar Başlamak İçin Dokun", canvas.width / 2, canvas.height / 2 + 50);
+                ctx.fillText("Ulaşılan Bölüm: " + gameLevel, canvas.width / 2, canvas.height / 2 + 2);
+                ctx.fillText("Toplam Skor: " + score, canvas.width / 2, canvas.height / 2 + 20);
+                ctx.fillText("En Yüksek Skor: " + highScore, canvas.width / 2, canvas.height / 2 + 38);
+                ctx.fillText("Tekrar Başlamak İçin Dokun", canvas.width / 2, canvas.height / 2 + 62);
                 ctx.textAlign = "left";
             }
 
