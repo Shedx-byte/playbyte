@@ -278,9 +278,6 @@
     </div>
 
     <script>
-        /***********************************************************
-         * TEMEL DEĞİŞKENLER VE KURULUM
-         ***********************************************************/
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
@@ -298,15 +295,14 @@
         let highScore = parseInt(localStorage.getItem("galaxyHighScore") || "0");
 
         let coins = 0;
-        let lives = 5; // 5 CAN SİSTEMİ
+        let lives = 5; 
         let isPaused = false;
         let gameOver = false;
         let gameStarted = false;
-        let gameLevel = 1; // Bölüm seviyesi
+        let gameLevel = 1; 
         let screenShake = 0;
         let smartBombs = 1;
 
-        // 7 AŞAMALI DEV EVRİM SİSTEMİ
         let shipForm = 1; 
         let weaponLevel = 1;
         let shieldTimer = 0;
@@ -315,7 +311,7 @@
         let isAdCooldown = false;
         let upgrades = { speed: 0 };
 
-        // BÖLÜM BAZLI BOSS SİSTEMİ
+        // BOSS AKIŞ DEĞİŞKENLERİ
         let bossActive = false;
         let bossSpawnedForLevel = false;
         let boss = { x: 75, y: -100, w: 110, h: 60, hp: 100, maxHp: 100, dir: 2 };
@@ -339,9 +335,6 @@
             });
         }
 
-        /***********************************************************
-         * SES SENTEZLEYİCİSİ (WEB AUDIO API)
-         ***********************************************************/
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             if (isMuted) return;
@@ -382,9 +375,6 @@
             soundBtn.innerText = isMuted ? "SES: KAPALI" : "SES: AÇIK";
         }
 
-        /***********************************************************
-         * REKLAM VE KONTROL MEKANİZMALARI
-         ***********************************************************/
         let isWatchingAd = false;
         function watch30SecAd() {
             if (isWatchingAd || isAdCooldown) return;
@@ -465,9 +455,6 @@
             }
         }
 
-        /***********************************************************
-         * 7 AŞAMALI EVRİM SİSTEMİ
-         ***********************************************************/
         function upgradeWeaponLevel() {
             if (weaponLevel < 5) {
                 weaponLevel++;
@@ -512,9 +499,6 @@
             floatingTexts.push({ text, x, y, alpha: 1, color });
         }
 
-        /***********************************************************
-         * OYUN DÖNGÜSÜ VE DÜZENLİ BÖLÜM/BOSS MANTIĞI (UPDATE)
-         ***********************************************************/
         let frameCount = 0;
         function update() {
             if (!gameStarted || isPaused || gameOver || isWatchingAd) return;
@@ -529,14 +513,15 @@
                 localStorage.setItem("galaxyHighScore", highScore.toString());
             }
 
-            // HER BÖLÜMDE SKOR HEDEFİNE ULAŞINCA BOSS GELİR (Aşama aşama akış)
+            // BOSS GELECEĞİ ZAMAN: Sadece bölüm skoruna ulaşınca 1 kez çıkar!
             let targetScoreForBoss = gameLevel * 300;
             if (score >= targetScoreForBoss && !bossSpawnedForLevel && !bossActive) {
                 bossSpawnedForLevel = true;
                 bossActive = true;
-                boss.hp = 90 + (gameLevel * 30); // Her bölüm boss biraz daha güçlü
+                boss.hp = 90 + (gameLevel * 30);
                 boss.maxHp = boss.hp;
                 boss.y = -70;
+                enemies = []; // Boss gelince ekrandaki küçükler temizlenir
             }
 
             stars.forEach(s => { s.y += s.speed; if (s.y > canvas.height) s.y = 0; });
@@ -551,7 +536,6 @@
             if (player.x < player.w / 2) player.x = player.w / 2;
             if (player.x > canvas.width - player.w / 2) player.x = canvas.width - player.w / 2;
 
-            // Ateş Hızı
             let totalLevel = (shipForm - 1) * 5 + weaponLevel;
             let fireInterval = Math.max(2, 14 - totalLevel);
 
@@ -604,7 +588,7 @@
                 if (b.y < 0 || b.x < 0 || b.x > canvas.width) bullets.splice(i, 1);
             }
 
-            // KÜÇÜK DÜŞMANLAR (Bölüm arttıkça kademeli zorlaşır)
+            // KÜÇÜK DÜŞMANLAR (Boss varken doğmazlar, Boss bitince daha zorlaşarak akarlar)
             let spawnRate = Math.max(12, 45 - gameLevel * 3);
             if (!bossActive && frameCount % spawnRate === 0) {
                 let isZigZag = Math.random() < (0.25 + gameLevel * 0.05);
@@ -626,7 +610,6 @@
                     e.x += Math.sin(e.angle) * 2.5;
                 }
 
-                // Ateş frekansı bölüm seviyesine göre artar
                 if (Math.random() < (0.01 + gameLevel * 0.003)) {
                     enemyBullets.push({ x: e.x + e.w/2, y: e.y + e.h, vy: 2.5 + gameLevel * 0.2, isRocket: false });
                 }
@@ -701,7 +684,7 @@
                 if (p.y > canvas.height) powerups.splice(i, 1);
             }
 
-            // BOSS SAVAŞI VE YENİLİNCE YENİ BÖLÜME GEÇİŞ
+            // BOSS SAVAŞI KONTROLÜ
             if (bossActive) {
                 if (boss.y < 35) boss.y += 1;
                 boss.x += boss.dir;
@@ -720,10 +703,10 @@
                         if (boss.hp <= 0) {
                             bossActive = false;
                             bossSpawnedForLevel = false;
-                            gameLevel++; // BOSS YENİLDİ -> BÖLÜM ATLAMA!
+                            gameLevel++; // BOSS YENİLDİ -> BÖLÜM ATLANDI, KÜÇÜKLER DÖNÜYOR!
                             score += 300; coins += 40;
                             playSound('explosion');
-                            addText(`🎉 BÖLÜM ${gameLevel} TEMİZLENDİ!`, canvas.width/2 - 60, canvas.height/2, "#00ffaa");
+                            addText(`🎉 BÖLÜM ${gameLevel} BAŞLADI!`, canvas.width/2 - 60, canvas.height/2, "#00ffaa");
                         }
                     }
                 }
@@ -755,14 +738,11 @@
             }
         }
 
-        /***********************************************************
-         * GÖRSEL ÇİZİM VE DİNAMİK ARKA PLAN MOTORU (DRAW)
-         ***********************************************************/
         function draw() {
             ctx.save();
             if (screenShake > 0) ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
 
-            // BÖLÜM ATLAYIKÇA YAVAŞÇA KIRMIZILAŞAN UZAY ARKA PLANI
+            // BÖLÜME GÖRE DİNAMİK KIRMIZILAŞAN UZAY ARKA PLANI
             let redIntensity = Math.min(180, (gameLevel - 1) * 25);
             let blueIntensity = Math.max(10, 55 - (gameLevel - 1) * 8);
             let bgGradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 10, canvas.width/2, canvas.height/2, 220);
@@ -772,7 +752,6 @@
             ctx.fillStyle = bgGradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Yıldızlar
             ctx.fillStyle = "#ffffff";
             stars.forEach(s => {
                 ctx.globalAlpha = s.size / 2.2;
@@ -780,13 +759,11 @@
             });
             ctx.globalAlpha = 1;
 
-            // Parçacıklar
             particles.forEach(p => {
                 ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
                 ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
             });
 
-            // Yüzen Metinler
             floatingTexts.forEach(ft => {
                 ctx.save(); ctx.globalAlpha = ft.alpha; ctx.fillStyle = ft.color;
                 ctx.font = "bold 11px Arial"; ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
@@ -848,7 +825,6 @@
                 ctx.restore();
             });
 
-            // 7 AŞAMALI GEMİ FORMLARI ÇİZİMİ
             let x = player.x, y = player.y;
             ctx.shadowBlur = 18; 
 
