@@ -33,7 +33,7 @@
         }
         h1 {
             color: #00f0ff;
-            font-size: 15px;
+            font-size: 14px;
             letter-spacing: 2px;
             text-shadow: 0 0 10px rgba(0,240,255,0.8);
         }
@@ -129,7 +129,7 @@
             transform: scale(0.95);
         }
 
-        /* ANA MENÜ EKRANI */
+        /* ANA MENÜ EKRANI STİLİ */
         #menuOverlay {
             position: fixed;
             top: 0;
@@ -175,8 +175,15 @@
             color: #ffffff;
             font-size: 12px;
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 6px;
             outline: none;
+        }
+        .error-msg {
+            color: #ff0055;
+            font-size: 9px;
+            font-weight: bold;
+            min-height: 14px;
+            margin-bottom: 8px;
         }
         .high-score-board {
             background: rgba(0, 240, 255, 0.1);
@@ -289,10 +296,11 @@
             <div class="menu-title">⚡ GALAXY WAR ⚡</div>
             <div class="menu-sub">Ultimate Professional Edition</div>
             
-            <input type="text" id="playerNameInput" class="player-input" placeholder="Oyuncu Adınızı Girin" maxlength="12">
-            
+            <input type="text" id="playerNameInput" class="player-input" placeholder="İsminizi Girin" maxlength="12">
+            <div id="errorMsg" class="error-msg"></div>
+
             <div class="high-score-board">
-                🏆 EN YÜKSEK SKOR:<br>
+                👑 EN YÜKSEK SKOR SAHİBİ:<br>
                 <span id="highScoreHolder" style="font-weight:bold; color:#00f0ff;">-</span> : <span id="highScoreMenuVal">0</span>
             </div>
 
@@ -318,6 +326,7 @@
         <h1>⚡ GALAXY WAR ULTIMATE PRO</h1>
         <div class="stats-bar">
             <div>SKOR: <span id="scoreVal">0</span> | BÖLÜM: <span id="levelVal" style="color:#00f0ff;">1</span></div>
+            <div>👑 LİDER: <span id="topLeaderVal" style="color:#ffd700;">-</span></div>
             <div>💎 <span id="coinVal">0</span> | CAN: <span id="lifeVal">❤️❤️❤️❤️❤️</span></div>
         </div>
     </header>
@@ -390,18 +399,22 @@
         const achievementPopup = document.getElementById("achievementPopup");
         const menuOverlay = document.getElementById("menuOverlay");
         const playerNameInput = document.getElementById("playerNameInput");
+        const errorMsg = document.getElementById("errorMsg");
         const highScoreHolder = document.getElementById("highScoreHolder");
         const highScoreMenuVal = document.getElementById("highScoreMenuVal");
+        const topLeaderVal = document.getElementById("topLeaderVal");
 
         let score = 0;
         let highScore = parseInt(localStorage.getItem("galaxyHighScore") || "0");
-        let highScoreUser = localStorage.getItem("galaxyHighScoreUser") || "Oyuncu";
+        let highScoreUser = localStorage.getItem("galaxyHighScoreUser") || "Yok";
         let currentPlayerName = "Oyuncu";
 
         function updateMenuUI() {
             highScoreMenuVal.innerText = highScore;
             highScoreHolder.innerText = highScoreUser;
+            topLeaderVal.innerText = `${highScoreUser} (${highScore})`;
             playerNameInput.value = localStorage.getItem("galaxyLastUser") || "";
+            errorMsg.innerText = "";
         }
         updateMenuUI();
 
@@ -510,12 +523,21 @@
 
         function startGameFromMenu() {
             let inputVal = playerNameInput.value.trim();
-            if (inputVal !== "") {
-                currentPlayerName = inputVal;
-                localStorage.setItem("galaxyLastUser", currentPlayerName);
-            } else {
-                currentPlayerName = "Oyuncu";
+            
+            if (inputVal === "") {
+                errorMsg.innerText = "Lütfen bir isim girin!";
+                return;
             }
+
+            // AYNI İSİM TAKMA ENGELİ KONTROLÜ
+            if (highScore > 0 && inputVal.toLowerCase() === highScoreUser.toLowerCase()) {
+                errorMsg.innerText = "Bu isim Liderlik Skoruna sahip! Başka isim girin.";
+                return;
+            }
+
+            currentPlayerName = inputVal;
+            localStorage.setItem("galaxyLastUser", currentPlayerName);
+            errorMsg.innerText = "";
             menuOverlay.style.display = "none";
             resetGame();
         }
@@ -684,6 +706,7 @@
                 highScoreUser = currentPlayerName;
                 localStorage.setItem("galaxyHighScore", highScore.toString());
                 localStorage.setItem("galaxyHighScoreUser", highScoreUser);
+                topLeaderVal.innerText = `${highScoreUser} (${highScore})`;
             }
 
             if (score >= nextBossThreshold && !bossActive) {
@@ -846,7 +869,6 @@
                             comboTimer = 120;
                             let bonusMultiplier = Math.min(5, Math.floor(comboCount / 3) + 1);
 
-                            // CAN DÜŞMESİ KALDIRILDI
                             if (Math.random() < 0.35) {
                                 powerups.push({ x: e.x + e.w/2, y: e.y + e.h/2, vy: 1.8, type: 'weapon' });
                             } else if (Math.random() < 0.40) {
@@ -949,7 +971,6 @@
             lifeVal.innerText = "❤️".repeat(Math.max(0, lives));
         }
 
-        // ÖLDÜĞÜNDE DOĞRUDAN MENÜYE YÖNLENDİRİR
         function handleGameOver() {
             gameOver = true;
             if (score > highScore) {
@@ -960,7 +981,7 @@
             }
             setTimeout(() => {
                 returnToMenu();
-            }, 1000);
+            }, 1200);
         }
 
         function draw() {
