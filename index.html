@@ -302,19 +302,14 @@
         let screenShake = 0;
         let smartBombs = 1;
 
-        // GEMİ EVRİM DEĞİŞKENLERİ
-        let shipForm = 1; // 1: Yeşil Gemi, 2: Mavi Evrimleşmiş Gemi
-        let weaponLevel = 1; // 1 - 5 arası
-
-        // Süreli Kalkan Sistemi
+        let shipForm = 1; // 1: Yeşil, 2: Mavi Evrim
+        let weaponLevel = 1;
         let shieldTimer = 0;
 
         let isAdCooldown = false;
         let adCooldownTime = 60;
-
         let upgrades = { speed: 0 };
 
-        // BOSS KOLAYLAŞTIRILDI (Canı 200'den 100'e düşürüldü)
         let bossActive = false;
         let boss = { x: 75, y: -100, w: 110, h: 60, hp: 100, maxHp: 100, dir: 2 };
 
@@ -460,7 +455,7 @@
                 shipForm = 2;
                 weaponLevel = 1;
                 playSound('powerup');
-                addText("⚡ MAVİ GEMİ EVRİMİ! ⚡", player.x, player.y - 10, "#00f0ff");
+                addText("⚡ MAVİ EVRİM! ⚡", player.x, player.y - 10, "#00f0ff");
             } else {
                 addText("MAX SİLAH!", player.x, player.y, "#00ffaa");
             }
@@ -473,7 +468,7 @@
             }
             else if (type === 'shield' && coins >= 25) {
                 coins -= 25;
-                shieldTimer = 600; // 10 saniye
+                shieldTimer = 600;
                 playSound('powerup');
                 addText("KALKAN (10s)!", player.x, player.y, "#00ffcc");
             }
@@ -502,13 +497,11 @@
             level = Math.floor(score / 150) + 1;
             if (screenShake > 0) screenShake--;
 
-            if (shieldTimer > 0) {
-                shieldTimer--;
-            }
+            if (shieldTimer > 0) shieldTimer--;
 
             if (score > 0 && score % 250 === 0 && !bossActive) {
                 bossActive = true; 
-                boss.hp = 100 + level * 20; // Düşürüldü
+                boss.hp = 100 + level * 20; 
                 boss.maxHp = boss.hp; 
                 boss.y = -70;
             }
@@ -525,33 +518,33 @@
             if (player.x < player.w / 2) player.x = player.w / 2;
             if (player.x > canvas.width - player.w / 2) player.x = canvas.width - player.w / 2;
 
-            // KADEMELİ ATEŞ HIZI SİSTEMİ (Seviye atladıkça daha hızlı atış yapar)
+            // Seviye atladıkça katlanarak artan yüksek ateş hızı
             let totalLevel = (shipForm - 1) * 5 + weaponLevel;
-            let fireInterval = Math.max(3, 13 - totalLevel); // Lvl 1: her 12 karede 1, Lvl 10 (Mavi Lvl 5): her 3 karede 1 hızlı atış!
+            let fireInterval = Math.max(3, 13 - totalLevel);
 
             if (frameCount % fireInterval === 0) {
                 let bulletColor = (shipForm === 1) ? '#00ffaa' : '#00f0ff';
 
                 if (weaponLevel === 1) {
-                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -13, color: bulletColor });
+                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -14, color: bulletColor });
                 } else if (weaponLevel === 2) {
-                    bullets.push({ x: player.x - 8, y: player.y - 15, vx: 0, vy: -13, color: bulletColor });
-                    bullets.push({ x: player.x + 8, y: player.y - 15, vx: 0, vy: -13, color: bulletColor });
+                    bullets.push({ x: player.x - 8, y: player.y - 15, vx: 0, vy: -14, color: bulletColor });
+                    bullets.push({ x: player.x + 8, y: player.y - 15, vx: 0, vy: -14, color: bulletColor });
                 } else if (weaponLevel === 3) {
-                    bullets.push({ x: player.x - 10, y: player.y - 15, vx: -2, vy: -13, color: '#ffaa00' });
-                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -13, color: bulletColor });
-                    bullets.push({ x: player.x + 10, y: player.y - 15, vx: 2, vy: -13, color: '#ffaa00' });
+                    bullets.push({ x: player.x - 10, y: player.y - 15, vx: -2, vy: -14, color: '#ffaa00' });
+                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -14, color: bulletColor });
+                    bullets.push({ x: player.x + 10, y: player.y - 15, vx: 2, vy: -14, color: '#ffaa00' });
                 } else if (weaponLevel === 4) {
-                    bullets.push({ x: player.x - 12, y: player.y - 15, vx: -3, vy: -13, color: '#ff0055' });
-                    bullets.push({ x: player.x - 4, y: player.y - 15, vx: -1, vy: -13, color: bulletColor });
-                    bullets.push({ x: player.x + 4, y: player.y - 15, vx: 1, vy: -13, color: bulletColor });
-                    bullets.push({ x: player.x + 12, y: player.y - 15, vx: 3, vy: -13, color: '#ff0055' });
+                    bullets.push({ x: player.x - 12, y: player.y - 15, vx: -3, vy: -14, color: '#ff0055' });
+                    bullets.push({ x: player.x - 4, y: player.y - 15, vx: -1, vy: -14, color: bulletColor });
+                    bullets.push({ x: player.x + 4, y: player.y - 15, vx: 1, vy: -14, color: bulletColor });
+                    bullets.push({ x: player.x + 12, y: player.y - 15, vx: 3, vy: -14, color: '#ff0055' });
                 } else if (weaponLevel >= 5) {
-                    bullets.push({ x: player.x - 14, y: player.y - 15, vx: -4, vy: -13, color: '#7f00ff' });
-                    bullets.push({ x: player.x - 7, y: player.y - 15, vx: -2, vy: -13, color: '#00f0ff' });
-                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -13, color: '#00ffaa' });
-                    bullets.push({ x: player.x + 7, y: player.y - 15, vx: 2, vy: -13, color: '#00f0ff' });
-                    bullets.push({ x: player.x + 14, y: player.y - 15, vx: 4, vy: -13, color: '#7f00ff' });
+                    bullets.push({ x: player.x - 14, y: player.y - 15, vx: -4, vy: -14, color: '#7f00ff' });
+                    bullets.push({ x: player.x - 7, y: player.y - 15, vx: -2, vy: -14, color: '#00f0ff' });
+                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -14, color: '#00ffaa' });
+                    bullets.push({ x: player.x + 7, y: player.y - 15, vx: 2, vy: -14, color: '#00f0ff' });
+                    bullets.push({ x: player.x + 14, y: player.y - 15, vx: 4, vy: -14, color: '#7f00ff' });
                 }
                 playSound('laser');
             }
@@ -647,16 +640,15 @@
                 if (p.y > canvas.height) powerups.splice(i, 1);
             }
 
-            // BOSS SAVAŞI (Daha insaflı ve kolay)
+            // BOSS TEK MERKEZDEN (TEK YERDEN) ATEŞ ETME SİSTEMİ
             if (bossActive) {
                 if (boss.y < 35) boss.y += 1;
                 boss.x += boss.dir;
                 if (boss.x < 15 || boss.x > canvas.width - 120) boss.dir *= -1;
 
-                // Boss Roket Yağmuru Yavaşlatıldı
+                // Boss sadece tam ortadaki ana namludan 1 adet roket atar
                 if (frameCount % 45 === 0) {
-                    enemyBullets.push({ x: boss.x + 20, y: boss.y + boss.h, vy: 2.8, isRocket: true });
-                    enemyBullets.push({ x: boss.x + boss.w - 20, y: boss.y + boss.h, vy: 2.8, isRocket: true });
+                    enemyBullets.push({ x: boss.x + boss.w / 2, y: boss.y + boss.h, vy: 3.0, isRocket: true });
                 }
 
                 for (let j = bullets.length - 1; j >= 0; j--) {
@@ -700,6 +692,7 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+            // Yıldızlar
             ctx.fillStyle = "#ffffff";
             stars.forEach(s => {
                 ctx.globalAlpha = s.size / 2.2;
@@ -707,11 +700,13 @@
             });
             ctx.globalAlpha = 1;
 
+            // Parçacıklar
             particles.forEach(p => {
                 ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
                 ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
             });
 
+            // Yüzen Metinler
             floatingTexts.forEach(ft => {
                 ctx.save(); ctx.globalAlpha = ft.alpha; ctx.fillStyle = ft.color;
                 ctx.font = "bold 11px Arial"; ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
@@ -726,70 +721,93 @@
                 ctx.textAlign = "left"; ctx.restore(); return;
             }
 
+            // BOSS ÇİZİMİ (Detaylı Neon Efektli)
             if (bossActive) {
-                ctx.fillStyle = "#ff0055"; ctx.fillRect(boss.x, boss.y, boss.w, boss.h);
+                ctx.shadowBlur = 15; ctx.shadowColor = "#ff0055";
+                ctx.fillStyle = "#220022"; ctx.strokeStyle = "#ff0055"; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.roundRect(boss.x, boss.y, boss.w, boss.h, [10]); ctx.fill(); ctx.stroke();
+                
+                // Boss Gözü / Ana Namlu
+                ctx.fillStyle = "#ff5500";
+                ctx.beginPath(); ctx.arc(boss.x + boss.w / 2, boss.y + boss.h / 2 + 5, 12, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = "#ffff00";
+                ctx.beginPath(); ctx.arc(boss.x + boss.w / 2, boss.y + boss.h / 2 + 5, 5, 0, Math.PI * 2); ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Boss Can Barı
                 ctx.fillStyle = "#111"; ctx.fillRect(boss.x, boss.y - 10, boss.w, 6);
                 ctx.fillStyle = "#ff0055"; ctx.fillRect(boss.x, boss.y - 10, boss.w * (boss.hp / boss.maxHp), 6);
             }
 
+            // Oyuncu Mermileri (Neon Parlamalı)
             bullets.forEach(b => {
-                ctx.shadowBlur = 8; ctx.shadowColor = b.color;
+                ctx.shadowBlur = 10; ctx.shadowColor = b.color;
                 ctx.fillStyle = b.color;
-                ctx.beginPath(); ctx.arc(b.x, b.y, 3.5, 0, Math.PI * 2); ctx.fill();
+                ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI * 2); ctx.fill();
             });
+            ctx.shadowBlur = 0;
 
+            // Düşman ve Boss Mermileri
             enemyBullets.forEach(eb => {
                 if (eb.isRocket) {
                     ctx.save();
+                    ctx.shadowBlur = 10; ctx.shadowColor = "#ffaa00";
                     ctx.fillStyle = "#ffcc00"; ctx.strokeStyle = "#ff0000"; ctx.lineWidth = 1.5;
-                    ctx.beginPath(); ctx.arc(eb.x, eb.y, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                    ctx.beginPath(); ctx.arc(eb.x, eb.y, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                     ctx.restore();
                 } else {
-                    ctx.shadowBlur = 6; ctx.shadowColor = "#ff0000";
+                    ctx.shadowBlur = 8; ctx.shadowColor = "#ff0000";
                     ctx.fillStyle = "#ff0055";
                     ctx.beginPath(); ctx.arc(eb.x, eb.y, 4, 0, Math.PI * 2); ctx.fill();
                     ctx.shadowBlur = 0;
                 }
             });
 
+            // Power-Up Simgeleri
             powerups.forEach(p => {
                 ctx.save();
+                ctx.shadowBlur = 10; ctx.shadowColor = "#00f0ff";
                 ctx.fillStyle = "#00f0ff"; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5;
-                ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-                ctx.fillStyle = "#000"; ctx.font = "bold 10px Arial"; ctx.textAlign = "center";
-                ctx.fillText("⚡", p.x, p.y + 3);
+                ctx.beginPath(); ctx.arc(p.x, p.y, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = "#000"; ctx.font = "bold 11px Arial"; ctx.textAlign = "center";
+                ctx.fillText("⚡", p.x, p.y + 4);
                 ctx.restore();
             });
 
+            // GÜZELLEŞTİRİLMİŞ GEMİ ÇİZİMLERİ (Canvas Vektör Sanatı)
             let x = player.x, y = player.y;
-            ctx.shadowBlur = 14; 
+            ctx.shadowBlur = 16; 
 
             if (shipForm === 1) {
+                // Şık Yeşil Gemi Tasarımı
                 ctx.shadowColor = "#00ffaa";
                 ctx.fillStyle = "#ffffff";
                 ctx.beginPath();
-                ctx.moveTo(x, y - 22); ctx.lineTo(x - 16, y + 12); ctx.lineTo(x, y + 6); ctx.lineTo(x + 16, y + 12);
+                ctx.moveTo(x, y - 24); ctx.lineTo(x - 16, y + 14); ctx.lineTo(x, y + 8); ctx.lineTo(x + 16, y + 14);
                 ctx.closePath(); ctx.fill();
 
                 ctx.fillStyle = "#00ffaa";
-                ctx.beginPath(); ctx.moveTo(x - 12, y + 2); ctx.lineTo(x - 27, y + 16); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(x + 12, y + 2); ctx.lineTo(x + 27, y + 16); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(x - 12, y + 2); ctx.lineTo(x - 28, y + 18); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(x + 12, y + 2); ctx.lineTo(x + 28, y + 18); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
             } else {
+                // Gelişmiş Mavi Evrimleşmiş Gemi Tasarımı (Fotoğraftaki Stil)
                 ctx.shadowColor = "#00f0ff";
                 ctx.fillStyle = "#00f0ff";
                 ctx.beginPath();
-                ctx.moveTo(x, y - 24); ctx.lineTo(x - 22, y + 14); ctx.lineTo(x, y + 4); ctx.lineTo(x + 22, y + 14);
+                ctx.moveTo(x, y - 26); ctx.lineTo(x - 22, y + 16); ctx.lineTo(x, y + 6); ctx.lineTo(x + 22, y + 16);
                 ctx.closePath(); ctx.fill();
 
                 ctx.fillStyle = "#ffffff";
-                ctx.beginPath(); ctx.moveTo(x - 8, y - 5); ctx.lineTo(x - 28, y + 18); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
-                ctx.beginPath(); ctx.moveTo(x + 8, y - 5); ctx.lineTo(x + 28, y + 18); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(x - 8, y - 6); ctx.lineTo(x - 30, y + 20); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(x + 8, y - 6); ctx.lineTo(x + 30, y + 20); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
             }
 
+            // Gemi Motoru Alev Efekti
             ctx.fillStyle = "#ff5500";
-            ctx.fillRect(x - 4, y + 12, 3, 10); ctx.fillRect(x + 1, y + 12, 3, 10);
+            ctx.fillRect(x - 4, y + 14, 3, 10); ctx.fillRect(x + 1, y + 14, 3, 10);
             ctx.shadowBlur = 0;
 
+            // Kalkan ve Sayacı
             if (shieldTimer > 0) {
                 ctx.strokeStyle = "#00ffff"; ctx.lineWidth = 2.5;
                 ctx.beginPath(); ctx.arc(x, y, 28, 0, Math.PI * 2); ctx.stroke();
@@ -798,6 +816,7 @@
                 ctx.fillText(Math.ceil(shieldTimer / 60) + "s", x, y - 32);
             }
 
+            // Düşman Gemileri
             enemies.forEach(e => {
                 let ex = e.x + e.w/2, ey = e.y + e.h/2;
                 ctx.fillStyle = e.color;
