@@ -224,7 +224,7 @@
         <div class="stats-bar">
             <div>SKOR: <span id="scoreVal">0</span></div>
             <div>💎 <span id="coinVal">0</span></div>
-            <div>SİLAH LVL: <span id="weaponLvlVal" style="color:#00f0ff;">1</span></div>
+            <div>GEMİ: <span id="shipTypeVal" style="color:#00ffaa;">YEŞİL (Lvl 1)</span></div>
             <div>CAN: <span id="lifeVal">❤️❤️❤️</span></div>
         </div>
     </header>
@@ -247,7 +247,7 @@
         <div class="side-market">
             <h3>MARKET</h3>
             <button class="market-btn" onclick="upgradeSystem('weapon')">Silah Artır<br>(15 💎)</button>
-            <button class="market-btn" onclick="upgradeSystem('shield')">Kalkan<br>(25 💎)</button>
+            <button class="market-btn" onclick="upgradeSystem('shield')">Kalkan (10s)<br>(25 💎)</button>
             <button class="market-btn" onclick="upgradeSystem('speed')">Gemi Hızı<br>(15 💎)</button>
 
             <button class="market-btn" id="adBtn" style="background: linear-gradient(45deg, #00ffaa, #0055ff);" onclick="watch30SecAd()">
@@ -284,7 +284,7 @@
 
         const scoreVal = document.getElementById("scoreVal");
         const coinVal = document.getElementById("coinVal");
-        const weaponLvlVal = document.getElementById("weaponLvlVal");
+        const shipTypeVal = document.getElementById("shipTypeVal");
         const lifeVal = document.getElementById("lifeVal");
         const adOverlay = document.getElementById("adOverlay");
         const adTimerText = document.getElementById("adTimerText");
@@ -302,12 +302,17 @@
         let screenShake = 0;
         let smartBombs = 1;
 
-        let weaponLevel = 1; // Silah seviyesi (1 ile 5 arası)
+        // GEMİ EVRİM DEĞİŞKENLERİ
+        let shipForm = 1; // 1: Yeşil Gemi, 2: Mavi Evrimleşmiş Gemi
+        let weaponLevel = 1; // 1 - 5 arası
+
+        // Süreli Kalkan Sistemi
+        let shieldTimer = 0; // Kalkan kalan kare sayısı
 
         let isAdCooldown = false;
         let adCooldownTime = 60;
 
-        let upgrades = { shield: 0, speed: 0 };
+        let upgrades = { speed: 0 };
 
         let bossActive = false;
         let boss = { x: 75, y: -100, w: 110, h: 60, hp: 200, maxHp: 200, dir: 2.5 };
@@ -315,9 +320,9 @@
         let player = { x: canvas.width / 2, y: canvas.height - 45, w: 40, h: 40, speed: 5 };
 
         let bullets = [];
-        let enemyBullets = []; // Düşman mermileri
+        let enemyBullets = []; // Düşman mermileri ve Boss Roketleri
         let enemies = [];
-        let powerups = []; // Düşen güçlendirmeler
+        let powerups = [];
         let particles = [];
         let floatingTexts = [];
         let stars = [];
@@ -426,9 +431,10 @@
         window.addEventListener("keyup", (e) => { keys[e.code] = false; });
 
         function resetGame() {
-            score = 0; coins = 0; lives = 3; level = 1; smartBombs = 1; weaponLevel = 1;
+            score = 0; coins = 0; lives = 3; level = 1; smartBombs = 1; 
+            shipForm = 1; weaponLevel = 1; shieldTimer = 0;
             bullets = []; enemyBullets = []; enemies = []; powerups = []; particles = []; floatingTexts = [];
-            upgrades = { shield: 0, speed: 0 };
+            upgrades = { speed: 0 };
             bossActive = false; gameOver = false; gameStarted = true; player.speed = 5;
         }
 
@@ -444,14 +450,32 @@
             }
         }
 
-        function upgradeSystem(type) {
-            if (type === 'weapon' && coins >= 15 && weaponLevel < 5) {
-                coins -= 15; weaponLevel++; playSound('powerup');
-                addText("SİLAH LVL " + weaponLevel + "!", player.x, player.y, "#00f0ff");
+        function upgradeWeaponLevel() {
+            if (weaponLevel < 5) {
+                weaponLevel++;
+                playSound('powerup');
+                addText("SİLAH LVL " + weaponLevel, player.x, player.y, "#00f0ff");
+            } else if (shipForm === 1) {
+                // Yeşil Gemiden Mavi Gemiye Evrim!
+                shipForm = 2;
+                weaponLevel = 1;
+                playSound('powerup');
+                addText("⚡ MAVI GEMİ EVRİMİ! ⚡", player.x, player.y - 10, "#00f0ff");
+            } else {
+                addText("MAX SİLAH!", player.x, player.y, "#00ffaa");
             }
-            else if (type === 'shield' && coins >= 25 && upgrades.shield < 1) {
-                coins -= 25; upgrades.shield = 1; playSound('powerup');
-                addText("KALKAN!", player.x, player.y, "#00ffcc");
+        }
+
+        function upgradeSystem(type) {
+            if (type === 'weapon' && coins >= 15) {
+                coins -= 15;
+                upgradeWeaponLevel();
+            }
+            else if (type === 'shield' && coins >= 25) {
+                coins -= 25;
+                shieldTimer = 600; // 10 Saniye Kalkan Süresi (60FPS x 10s)
+                playSound('powerup');
+                addText("KALKAN (10s)!", player.x, player.y, "#00ffcc");
             }
             else if (type === 'speed' && coins >= 15 && upgrades.speed < 2) {
                 coins -= 15; upgrades.speed++; player.speed += 1.5; playSound('powerup');
@@ -478,6 +502,11 @@
             level = Math.floor(score / 150) + 1;
             if (screenShake > 0) screenShake--;
 
+            // Kalkan Zamanlayıcısını Azalt (Süreli Kalkan)
+            if (shieldTimer > 0) {
+                shieldTimer--;
+            }
+
             if (score > 0 && score % 250 === 0 && !bossActive) {
                 bossActive = true; boss.hp = 180 + level * 50; boss.maxHp = boss.hp; boss.y = -70;
             }
@@ -494,40 +523,41 @@
             if (player.x < player.w / 2) player.x = player.w / 2;
             if (player.x > canvas.width - player.w / 2) player.x = canvas.width - player.w / 2;
 
-            // OYUNCU ATEŞ SİSTEMİ (KADEMELİ GELİŞİM)
+            // OYUNCU ATEŞ SİSTEMİ
             if (frameCount % 8 === 0) {
+                let bulletColor = (shipForm === 1) ? '#00ffaa' : '#00f0ff';
+                if (shipForm === 2) bulletColor = '#00f0ff';
+
                 if (weaponLevel === 1) {
-                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -12, color: '#00ffaa' });
+                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -13, color: bulletColor });
                 } else if (weaponLevel === 2) {
-                    bullets.push({ x: player.x - 8, y: player.y - 15, vx: 0, vy: -12, color: '#00f0ff' });
-                    bullets.push({ x: player.x + 8, y: player.y - 15, vx: 0, vy: -12, color: '#00f0ff' });
+                    bullets.push({ x: player.x - 8, y: player.y - 15, vx: 0, vy: -13, color: bulletColor });
+                    bullets.push({ x: player.x + 8, y: player.y - 15, vx: 0, vy: -13, color: bulletColor });
                 } else if (weaponLevel === 3) {
-                    bullets.push({ x: player.x - 10, y: player.y - 15, vx: -2, vy: -12, color: '#ffaa00' });
-                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -12, color: '#ffaa00' });
-                    bullets.push({ x: player.x + 10, y: player.y - 15, vx: 2, vy: -12, color: '#ffaa00' });
+                    bullets.push({ x: player.x - 10, y: player.y - 15, vx: -2, vy: -13, color: '#ffaa00' });
+                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -13, color: bulletColor });
+                    bullets.push({ x: player.x + 10, y: player.y - 15, vx: 2, vy: -13, color: '#ffaa00' });
                 } else if (weaponLevel === 4) {
-                    bullets.push({ x: player.x - 12, y: player.y - 15, vx: -3, vy: -12, color: '#ff0055' });
-                    bullets.push({ x: player.x - 4, y: player.y - 15, vx: -1, vy: -12, color: '#ff0055' });
-                    bullets.push({ x: player.x + 4, y: player.y - 15, vx: 1, vy: -12, color: '#ff0055' });
-                    bullets.push({ x: player.x + 12, y: player.y - 15, vx: 3, vy: -12, color: '#ff0055' });
+                    bullets.push({ x: player.x - 12, y: player.y - 15, vx: -3, vy: -13, color: '#ff0055' });
+                    bullets.push({ x: player.x - 4, y: player.y - 15, vx: -1, vy: -13, color: bulletColor });
+                    bullets.push({ x: player.x + 4, y: player.y - 15, vx: 1, vy: -13, color: bulletColor });
+                    bullets.push({ x: player.x + 12, y: player.y - 15, vx: 3, vy: -13, color: '#ff0055' });
                 } else if (weaponLevel >= 5) {
-                    bullets.push({ x: player.x - 14, y: player.y - 15, vx: -4, vy: -12, color: '#7f00ff' });
-                    bullets.push({ x: player.x - 7, y: player.y - 15, vx: -2, vy: -12, color: '#7f00ff' });
-                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -12, color: '#7f00ff' });
-                    bullets.push({ x: player.x + 7, y: player.y - 15, vx: 2, vy: -12, color: '#7f00ff' });
-                    bullets.push({ x: player.x + 14, y: player.y - 15, vx: 4, vy: -12, color: '#7f00ff' });
+                    bullets.push({ x: player.x - 14, y: player.y - 15, vx: -4, vy: -13, color: '#7f00ff' });
+                    bullets.push({ x: player.x - 7, y: player.y - 15, vx: -2, vy: -13, color: '#00f0ff' });
+                    bullets.push({ x: player.x, y: player.y - 15, vx: 0, vy: -13, color: '#00ffaa' });
+                    bullets.push({ x: player.x + 7, y: player.y - 15, vx: 2, vy: -13, color: '#00f0ff' });
+                    bullets.push({ x: player.x + 14, y: player.y - 15, vx: 4, vy: -13, color: '#7f00ff' });
                 }
                 playSound('laser');
             }
 
-            // Oyuncu Mermilerini Güncelle
             for (let i = bullets.length - 1; i >= 0; i--) {
                 let b = bullets[i];
                 b.x += b.vx; b.y += b.vy;
                 if (b.y < 0 || b.x < 0 || b.x > canvas.width) bullets.splice(i, 1);
             }
 
-            // Düşman Oluşturma
             if (!bossActive && frameCount % Math.max(20, 50 - level * 3) === 0) {
                 enemies.push({
                     x: Math.random() * (canvas.width - 30), y: -30, w: 28, h: 28,
@@ -535,20 +565,17 @@
                 });
             }
 
-            // Düşman Mantığı ve ATEŞ ETMELERİ
             for (let i = enemies.length - 1; i >= 0; i--) {
                 let e = enemies[i];
                 e.y += e.speed;
 
-                // Düşmanların Rastgele Ateş Etmesi (Fotoğraftaki Gibi)
                 if (Math.random() < 0.015) {
-                    enemyBullets.push({ x: e.x + e.w/2, y: e.y + e.h, vy: 3 + level * 0.3 });
+                    enemyBullets.push({ x: e.x + e.w/2, y: e.y + e.h, vy: 3 + level * 0.3, isRocket: false });
                 }
 
-                // Gövde Çarpmaları
                 let dist = Math.hypot(player.x - (e.x + e.w/2), player.y - (e.y + e.h/2));
                 if (dist < player.w / 2 + e.w / 2) {
-                    if (upgrades.shield > 0) { upgrades.shield = 0; addText("KALKAN!", player.x, player.y, "#00f0ff"); }
+                    if (shieldTimer > 0) { shieldTimer = 0; addText("KALKAN KIRILDI!", player.x, player.y, "#00f0ff"); }
                     else { lives--; }
                     createExplosion(e.x + e.w/2, e.y + e.h/2, '#ff0055');
                     playSound('explosion');
@@ -559,7 +586,6 @@
 
                 if (e.y > canvas.height) { enemies.splice(i, 1); continue; }
 
-                // Mermi-Düşman Vuruşu
                 for (let j = bullets.length - 1; j >= 0; j--) {
                     let b = bullets[j];
                     if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
@@ -567,8 +593,7 @@
                         e.hp--;
                         createExplosion(b.x, b.y, e.color);
                         if (e.hp <= 0) {
-                            // %30 İhtimalle Power-up Düşsün (Gelişim Simgesi)
-                            if (Math.random() < 0.30) {
+                            if (Math.random() < 0.35) {
                                 powerups.push({ x: e.x + e.w/2, y: e.y + e.h/2, vy: 1.8 });
                             } else if (Math.random() < 0.4) {
                                 coins += 1;
@@ -582,7 +607,7 @@
                 }
             }
 
-            // Düşman Mermilerini Güncelle ve Oyuncuya Çarpmasını Kontrol Et
+            // Düşman ve Boss Mermileri Kontrolü
             for (let i = enemyBullets.length - 1; i >= 0; i--) {
                 let eb = enemyBullets[i];
                 eb.y += eb.vy;
@@ -590,8 +615,8 @@
                 let dist = Math.hypot(player.x - eb.x, player.y - eb.y);
                 if (dist < player.w / 2) {
                     enemyBullets.splice(i, 1);
-                    if (upgrades.shield > 0) {
-                        upgrades.shield = 0;
+                    if (shieldTimer > 0) {
+                        shieldTimer = 0;
                         addText("KALKAN KORUDU!", player.x, player.y, "#00f0ff");
                     } else {
                         lives--;
@@ -605,7 +630,6 @@
                 if (eb.y > canvas.height) enemyBullets.splice(i, 1);
             }
 
-            // Güçlendirmeleri (Power-up) Güncelle ve Topla
             for (let i = powerups.length - 1; i >= 0; i--) {
                 let p = powerups[i];
                 p.y += p.vy;
@@ -613,24 +637,23 @@
                 let dist = Math.hypot(player.x - p.x, player.y - p.y);
                 if (dist < player.w / 2 + 12) {
                     powerups.splice(i, 1);
-                    if (weaponLevel < 5) weaponLevel++;
-                    playSound('powerup');
-                    addText("SİLAH GELİŞTİ ⚡", player.x, player.y, "#00f0ff");
+                    upgradeWeaponLevel();
                     continue;
                 }
 
                 if (p.y > canvas.height) powerups.splice(i, 1);
             }
 
-            // Boss Ateşi ve Mantığı
+            // BOSS SALDIRI SİSTEMİ (Fotoğraftaki Roket Yağmuru)
             if (bossActive) {
                 if (boss.y < 35) boss.y += 1;
                 boss.x += boss.dir;
                 if (boss.x < 15 || boss.x > canvas.width - 120) boss.dir *= -1;
 
-                if (Math.random() < 0.05) {
-                    enemyBullets.push({ x: boss.x + 20, y: boss.y + boss.h, vy: 3.5 });
-                    enemyBullets.push({ x: boss.x + boss.w - 20, y: boss.y + boss.h, vy: 3.5 });
+                // Boss Roket Yağmuru (Görseldeki Gibi)
+                if (frameCount % 25 === 0) {
+                    enemyBullets.push({ x: boss.x + 15, y: boss.y + boss.h, vy: 3.2, isRocket: true });
+                    enemyBullets.push({ x: boss.x + boss.w - 15, y: boss.y + boss.h, vy: 3.2, isRocket: true });
                 }
 
                 for (let j = bullets.length - 1; j >= 0; j--) {
@@ -663,7 +686,8 @@
 
             scoreVal.innerText = score;
             coinVal.innerText = coins;
-            weaponLvlVal.innerText = weaponLevel;
+            shipTypeVal.innerText = (shipForm === 1 ? "YEŞİL" : "MAVİ EVRİM") + " (Lvl " + weaponLevel + ")";
+            shipTypeVal.style.color = (shipForm === 1 ? "#00ffaa" : "#00f0ff");
             lifeVal.innerText = "❤️".repeat(Math.max(0, lives));
         }
 
@@ -673,7 +697,6 @@
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Yıldızlar
             ctx.fillStyle = "#ffffff";
             stars.forEach(s => {
                 ctx.globalAlpha = s.size / 2.2;
@@ -681,13 +704,11 @@
             });
             ctx.globalAlpha = 1;
 
-            // Parçacıklar
             particles.forEach(p => {
                 ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
                 ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
             });
 
-            // Yüzen Metinler
             floatingTexts.forEach(ft => {
                 ctx.save(); ctx.globalAlpha = ft.alpha; ctx.fillStyle = ft.color;
                 ctx.font = "bold 11px Arial"; ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
@@ -702,60 +723,84 @@
                 ctx.textAlign = "left"; ctx.restore(); return;
             }
 
-            // Boss Çizimi
             if (bossActive) {
                 ctx.fillStyle = "#ff0055"; ctx.fillRect(boss.x, boss.y, boss.w, boss.h);
                 ctx.fillStyle = "#111"; ctx.fillRect(boss.x, boss.y - 10, boss.w, 6);
                 ctx.fillStyle = "#ff0055"; ctx.fillRect(boss.x, boss.y - 10, boss.w * (boss.hp / boss.maxHp), 6);
             }
 
-            // Oyuncu Mermileri
             bullets.forEach(b => {
                 ctx.shadowBlur = 8; ctx.shadowColor = b.color;
                 ctx.fillStyle = b.color;
                 ctx.beginPath(); ctx.arc(b.x, b.y, 3.5, 0, Math.PI * 2); ctx.fill();
             });
 
-            // Düşman Mermileri (Kırmızı Mermiler)
-            ctx.shadowBlur = 8; ctx.shadowColor = "#ff0000";
-            ctx.fillStyle = "#ff0055";
+            // BOSS ROKETLERİ VEYA DÜŞMAN MERMİLERİ ÇİZİMİ (Fotoğraftaki Roketler)
             enemyBullets.forEach(eb => {
-                ctx.beginPath(); ctx.arc(eb.x, eb.y, 4, 0, Math.PI * 2); ctx.fill();
+                if (eb.isRocket) {
+                    ctx.save();
+                    ctx.fillStyle = "#ffcc00"; ctx.strokeStyle = "#ff0000"; ctx.lineWidth = 1.5;
+                    ctx.beginPath(); ctx.arc(eb.x, eb.y, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+                    ctx.restore();
+                } else {
+                    ctx.shadowBlur = 6; ctx.shadowColor = "#ff0000";
+                    ctx.fillStyle = "#ff0055";
+                    ctx.beginPath(); ctx.arc(eb.x, eb.y, 4, 0, Math.PI * 2); ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
             });
-            ctx.shadowBlur = 0;
 
-            // Güçlendirmeler (Sarı Ok Şekilli Power-Up'lar)
             powerups.forEach(p => {
                 ctx.save();
                 ctx.fillStyle = "#00f0ff"; ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.5;
                 ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
                 ctx.fillStyle = "#000"; ctx.font = "bold 10px Arial"; ctx.textAlign = "center";
-                ctx.fillText("⬆", p.x, p.y + 3);
+                ctx.fillText("⚡", p.x, p.y + 3);
                 ctx.restore();
             });
 
-            // Oyuncu Gemisi
+            // GEMİ ÇİZİMİ (1: YEŞİL, 2: FOTOĞRAFTAKİ MAVİ EVRİM)
             let x = player.x, y = player.y;
-            ctx.shadowBlur = 14; ctx.shadowColor = "#00f0ff";
-            ctx.fillStyle = "#ffffff";
-            ctx.beginPath();
-            ctx.moveTo(x, y - 22); ctx.lineTo(x - 16, y + 12); ctx.lineTo(x, y + 6); ctx.lineTo(x + 16, y + 12);
-            ctx.closePath(); ctx.fill();
+            ctx.shadowBlur = 14; 
 
-            ctx.fillStyle = "#00a2ff";
-            ctx.beginPath(); ctx.moveTo(x - 12, y + 2); ctx.lineTo(x - 27, y + 16); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(x + 12, y + 2); ctx.lineTo(x + 27, y + 16); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
+            if (shipForm === 1) {
+                // Yeşil Başlangıç Gemisi
+                ctx.shadowColor = "#00ffaa";
+                ctx.fillStyle = "#ffffff";
+                ctx.beginPath();
+                ctx.moveTo(x, y - 22); ctx.lineTo(x - 16, y + 12); ctx.lineTo(x, y + 6); ctx.lineTo(x + 16, y + 12);
+                ctx.closePath(); ctx.fill();
+
+                ctx.fillStyle = "#00ffaa";
+                ctx.beginPath(); ctx.moveTo(x - 12, y + 2); ctx.lineTo(x - 27, y + 16); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(x + 12, y + 2); ctx.lineTo(x + 27, y + 16); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
+            } else {
+                // Fotoğraftaki Mavi Evrimleşmiş Gemi
+                ctx.shadowColor = "#00f0ff";
+                ctx.fillStyle = "#00f0ff";
+                ctx.beginPath();
+                ctx.moveTo(x, y - 24); ctx.lineTo(x - 22, y + 14); ctx.lineTo(x, y + 4); ctx.lineTo(x + 22, y + 14);
+                ctx.closePath(); ctx.fill();
+
+                ctx.fillStyle = "#ffffff";
+                ctx.beginPath(); ctx.moveTo(x - 8, y - 5); ctx.lineTo(x - 28, y + 18); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
+                ctx.beginPath(); ctx.moveTo(x + 8, y - 5); ctx.lineTo(x + 28, y + 18); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
+            }
 
             ctx.fillStyle = "#ff5500";
             ctx.fillRect(x - 4, y + 12, 3, 10); ctx.fillRect(x + 1, y + 12, 3, 10);
             ctx.shadowBlur = 0;
 
-            if (upgrades.shield > 0) {
+            // Süreli Kalkan Efekti ve Sayacı
+            if (shieldTimer > 0) {
                 ctx.strokeStyle = "#00ffff"; ctx.lineWidth = 2.5;
                 ctx.beginPath(); ctx.arc(x, y, 28, 0, Math.PI * 2); ctx.stroke();
+                
+                // Kalkan Süre Sayacı
+                ctx.fillStyle = "#00ffff"; ctx.font = "bold 9px Arial"; ctx.textAlign = "center";
+                ctx.fillText(Math.ceil(shieldTimer / 60) + "s", x, y - 32);
             }
 
-            // Düşman Gemileri
             enemies.forEach(e => {
                 let ex = e.x + e.w/2, ey = e.y + e.h/2;
                 ctx.fillStyle = e.color;
