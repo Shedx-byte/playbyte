@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PlayByte - Galaxy War Ultimate 1000+</title>
+    <title>PlayByte - Galaxy War Ultimate</title>
     <style>
         * {
             box-sizing: border-box;
@@ -63,7 +63,7 @@
             flex-direction: column;
             gap: 4px;
             box-shadow: 0 0 12px rgba(0,240,255,0.3);
-            max-height: 400px;
+            max-height: 410px;
             overflow-y: auto;
         }
         .side-market h3 {
@@ -110,34 +110,42 @@
             border-radius: 10px;
             cursor: pointer;
         }
-        /* Başarım Bildirim Kutusu */
-        #achievementPopup {
+        /* Reklam İzleme Overlay Ekranı */
+        #adOverlay {
+            display: none;
             position: fixed;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-50px);
-            background: linear-gradient(45deg, #ff0055, #7f00ff);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-            box-shadow: 0 0 15px rgba(255,0,85,0.6);
-            transition: transform 0.4s ease;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 2, 10, 0.95);
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             z-index: 100;
-            pointer-events: none;
         }
-        #achievementPopup.show {
-            transform: translateX(-50%) translateY(0);
+        .ad-box {
+            background: #101030;
+            border: 2px solid #00f0ff;
+            padding: 20px;
+            border-radius: 10px;
+            width: 280px;
+            box-shadow: 0 0 20px rgba(0,240,255,0.5);
         }
     </style>
 </head>
 <body>
 
-    <div id="achievementPopup">🏆 BAŞARIM KAZANILDI!</div>
+    <!-- REKLAM İZLEME EKRANI -->
+    <div id="adOverlay">
+        <div class="ad-box">
+            <h3 style="color: #00f0ff; margin-bottom: 10px;">REKLAM OYNATILIYOR</h3>
+            <p id="adTimerText" style="font-size: 13px; color: #aaa; margin-bottom: 15px;">Lütfen bekleyin... 3s</p>
+            <div style="background: #222; height: 6px; border-radius: 3px; overflow: hidden;">
+                <div id="adProgressBar" style="background: #ff0055; width: 100%; height: 100%; transition: width 1s linear;"></div>
+            </div>
+        </div>
+    </div>
 
     <header>
-        <h1>⚡ GALAXY WAR ULTIMATE (1000+)</h1>
+        <h1>⚡ GALAXY WAR REWARDED</h1>
         <div class="stats-bar">
             <div>SKOR: <span id="scoreVal">0</span></div>
             <div>💎 <span id="coinVal">0</span></div>
@@ -152,8 +160,9 @@
             <button class="market-btn" onclick="upgradeSystem('spread')">Yan Ateş<br>(20 💎)</button>
             <button class="market-btn" onclick="upgradeSystem('beam')">Mega Işın<br>(35 💎)</button>
             <button class="market-btn" onclick="upgradeSystem('shield')">Kalkan<br>(25 💎)</button>
-            <button class="market-btn" onclick="upgradeSystem('speed')">Gemi Hızı<br>(15 💎)</button>
-            <button class="market-btn" onclick="upgradeSystem('bomb')">Akıllı Bomba<br>(40 💎)</button>
+            <button class="market-btn" onclick="upgradeSystem('speed')">Hız<br>(15 💎)</button>
+            <!-- REKLAM İLE ELMAS KAZAN BUTONU -->
+            <button class="market-btn" style="background: linear-gradient(45deg, #00ffaa, #0055ff);" onclick="watchRewardedAd()">Reklam İzle<br>(+15 💎)</button>
         </div>
 
         <canvas id="gameCanvas" width="260" height="390"></canvas>
@@ -166,21 +175,16 @@
     </div>
 
     <script>
-        /***********************************************************
-         * PLAYBYTE - GALAXY WAR ULTIMATE (1000+ SATIR KOD MİMARİSİ)
-         * Gelişmiş Oyun Motoru, Fizik, Parçacıklar, Ses ve Boss Sistemi
-         ***********************************************************/
-
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        // UI DOM Elementleri
         const scoreVal = document.getElementById("scoreVal");
         const coinVal = document.getElementById("coinVal");
         const lifeVal = document.getElementById("lifeVal");
-        const achievementPopup = document.getElementById("achievementPopup");
+        const adOverlay = document.getElementById("adOverlay");
+        const adTimerText = document.getElementById("adTimerText");
+        const adProgressBar = document.getElementById("adProgressBar");
 
-        // Oyun Değişkenleri
         let score = 0;
         let coins = 0;
         let lives = 3;
@@ -191,68 +195,28 @@
         let screenShake = 0;
         let smartBombs = 1;
 
-        // Mağaza Geliştirme Seviyeleri
-        let upgrades = {
-            laser: 0,
-            spread: 0,
-            beam: 0,
-            shield: 0,
-            speed: 0,
-            bomb: 0
-        };
+        let upgrades = { laser: 0, spread: 0, beam: 0, shield: 0, speed: 0 };
 
-        // Başarımlar Sistemi
-        let achievements = {
-            firstKill: false,
-            score100: false,
-            bossDefeated: false,
-            richMan: false
-        };
-
-        // Boss Yapısı (3 Farklı Aşamalı Dev Amiral Gemisi)
         let bossActive = false;
-        let boss = {
-            x: 75,
-            y: -100,
-            w: 110,
-            h: 60,
-            hp: 200,
-            maxHp: 200,
-            dir: 2.5,
-            phase: 1,
-            attackTimer: 0
-        };
+        let boss = { x: 75, y: -90, w: 100, h: 56, hp: 180, maxHp: 180, dir: 2.5, phase: 1 };
 
-        // Oyuncu Gemisi Yapısı
-        let player = {
-            x: canvas.width / 2,
-            y: canvas.height - 45,
-            w: 40,
-            h: 40,
-            speed: 5
-        };
+        let player = { x: canvas.width / 2, y: canvas.height - 45, w: 40, h: 40, speed: 5 };
 
-        // Nesne Havuzları (Arrays)
         let bullets = [];
-        let enemyBullets = [];
         let enemies = [];
         let particles = [];
         let floatingTexts = [];
         let stars = [];
 
-        // Arka Plan Parallax Yıldız Sistemi
-        for (let i = 0; i < 90; i++) {
+        for (let i = 0; i < 80; i++) {
             stars.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
                 size: Math.random() * 1.8 + 0.3,
-                speed: Math.random() * 1.4 + 0.3
+                speed: Math.random() * 1.3 + 0.3
             });
         }
 
-        /***********************************************************
-         * WEB AUDIO API - PROFESYONEL SES EFEKTİ ÜRETİCİSİ
-         ***********************************************************/
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(type) {
             try {
@@ -261,7 +225,6 @@
                 let gain = audioCtx.createGain();
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
-
                 let now = audioCtx.currentTime;
 
                 if (type === 'laser') {
@@ -278,35 +241,50 @@
                     gain.gain.setValueAtTime(0.08, now);
                     gain.gain.linearRampToValueAtTime(0.001, now + 0.3);
                     osc.start(now); osc.stop(now + 0.3);
-                } else if (type === 'coin') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(880, now);
-                    osc.frequency.setValueAtTime(1320, now + 0.08);
-                    gain.gain.setValueAtTime(0.05, now);
-                    gain.gain.linearRampToValueAtTime(0.001, now + 0.2);
-                    osc.start(now); osc.stop(now + 0.2);
                 } else if (type === 'powerup') {
                     osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.setValueAtTime(500, now);
                     osc.frequency.exponentialRampToValueAtTime(1200, now + 0.2);
                     gain.gain.setValueAtTime(0.06, now);
                     gain.gain.linearRampToValueAtTime(0.001, now + 0.2);
                     osc.start(now); osc.stop(now + 0.2);
                 }
-            } catch (e) {
-                // Tarayıcı ses politikası hatalarını yutmak için
-            }
+            } catch (e) {}
         }
 
-        /***********************************************************
-         * KONTROL MEKANİZMALARI (DOKUNMA VE KLAVYE)
-         ***********************************************************/
+        // ÖDÜLLÜ REKLAM MANTIĞI
+        let isWatchingAd = false;
+        function watchRewardedAd() {
+            if (isWatchingAd) return;
+            isWatchingAd = true;
+            isPaused = true;
+            adOverlay.style.display = "flex";
+
+            let timeLeft = 3;
+            adTimerText.innerText = `Lütfen bekleyin... ${timeLeft}s`;
+            adProgressBar.style.width = "100%";
+
+            let countdown = setInterval(() => {
+                timeLeft--;
+                adTimerText.innerText = `Lütfen bekleyin... ${timeLeft}s`;
+                adProgressBar.style.width = (timeLeft * 33.3) + "%";
+
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    adOverlay.style.display = "none";
+                    coins += 15;
+                    playSound('powerup');
+                    addText("+15 💎 ÖDÜL!", player.x, player.y, "#00ffaa");
+                    isWatchingAd = false;
+                    isPaused = false;
+                }
+            }, 1000);
+        }
+
         let touchX = player.x;
         let isTouching = false;
-
         canvas.addEventListener("pointerdown", (e) => {
-            isTouching = true;
-            updateTouchPos(e);
+            isTouching = true; updateTouchPos(e);
             if (!gameStarted || gameOver) resetGame();
         });
         canvas.addEventListener("pointermove", (e) => { if (isTouching) updateTouchPos(e); });
@@ -321,79 +299,39 @@
         window.addEventListener("keydown", (e) => {
             keys[e.code] = true;
             if(e.code === "Space" && (!gameStarted || gameOver)) resetGame();
-            if(e.code === "KeyB") triggerSmartBomb();
         });
         window.addEventListener("keyup", (e) => { keys[e.code] = false; });
 
-        /***********************************************************
-         * OYUN YÖNETİMİ VE DURUM FONKSİYONLARI
-         ***********************************************************/
         function resetGame() {
             score = 0; coins = 0; lives = 3; level = 1; smartBombs = 1;
-            bullets = []; enemyBullets = []; enemies = []; particles = []; floatingTexts = [];
-            upgrades = { laser: 0, spread: 0, beam: 0, shield: 0, speed: 0, bomb: 0 };
+            bullets = []; enemies = []; particles = []; floatingTexts = [];
+            upgrades = { laser: 0, spread: 0, beam: 0, shield: 0, speed: 0 };
             bossActive = false; gameOver = false; gameStarted = true;
             player.speed = 5;
         }
 
-        function togglePause() {
-            if (gameStarted && !gameOver) isPaused = !isPaused;
-        }
+        function togglePause() { if (gameStarted && !gameOver && !isWatchingAd) isPaused = !isPaused; }
 
-        function showAchievement(text) {
-            achievementPopup.innerText = "🏆 " + text;
-            achievementPopup.classList.add("show");
-            setTimeout(() => {
-                achievementPopup.classList.remove("show");
-            }, 3000);
+        function upgradeSystem(type) {
+            if (type === 'laser' && coins >= 15 && upgrades.laser < 2) { coins -= 15; upgrades.laser++; playSound('powerup'); addText("ÇİFT LAZER!", player.x, player.y, "#00f0ff"); }
+            else if (type === 'spread' && coins >= 20 && upgrades.spread < 2) { coins -= 20; upgrades.spread++; playSound('powerup'); addText("YAN ATEŞ!", player.x, player.y, "#ffaa00"); }
+            else if (type === 'beam' && coins >= 35 && upgrades.beam < 1) { coins -= 35; upgrades.beam++; playSound('powerup'); addText("MEGA IŞIN!", player.x, player.y, "#ff0055"); }
+            else if (type === 'shield' && coins >= 25 && upgrades.shield < 1) { coins -= 25; upgrades.shield++; playSound('powerup'); addText("KALKAN!", player.x, player.y, "#00ffcc"); }
+            else if (type === 'speed' && coins >= 15 && upgrades.speed < 2) { coins -= 15; upgrades.speed++; player.speed += 1.5; playSound('powerup'); addText("HIZ ARTTI!", player.x, player.y, "#00ffaa"); }
         }
 
         function triggerSmartBomb() {
-            if (smartBombs > 0 && gameStarted && !gameOver) {
-                smartBombs--;
-                screenShake = 15;
-                enemies.forEach(e => {
-                    createExplosion(e.x + e.w/2, e.y + e.h/2, '#ff0055');
-                    score += 15;
-                });
-                enemies = [];
-                enemyBullets = [];
-                playSound('explosion');
-                addText("AKILLI BOMBA PATLADI!", canvas.width/2 - 50, canvas.height/2, "#ff0055");
-            }
-        }
-
-        function upgradeSystem(type) {
-            if (type === 'laser' && coins >= 15 && upgrades.laser < 2) {
-                coins -= 15; upgrades.laser++; playSound('powerup'); addText("ÇİFT LAZER!", player.x, player.y, "#00f0ff");
-            } else if (type === 'spread' && coins >= 20 && upgrades.spread < 2) {
-                coins -= 20; upgrades.spread++; playSound('powerup'); addText("YAN ATEŞ!", player.x, player.y, "#ffaa00");
-            } else if (type === 'beam' && coins >= 35 && upgrades.beam < 1) {
-                coins -= 35; upgrades.beam++; playSound('powerup'); addText("MEGA IŞIN!", player.x, player.y, "#ff0055");
-            } else if (type === 'shield' && coins >= 25 && upgrades.shield < 1) {
-                coins -= 25; upgrades.shield++; playSound('powerup'); addText("KALKAN AKTİF!", player.x, player.y, "#00ffcc");
-            } else if (type === 'speed' && coins >= 15 && upgrades.speed < 2) {
-                coins -= 15; upgrades.speed++; player.speed += 1.5; playSound('powerup'); addText("HIZ ARTTI!", player.x, player.y, "#00ffaa");
-            } else if (type === 'bomb' && coins >= 40) {
-                coins -= 40; smartBombs++; playSound('powerup'); addText("+1 BOMBA!", player.x, player.y, "#ffff00");
-            }
-
-            if (coins >= 50 && !achievements.richMan) {
-                achievements.richMan = true;
-                showAchievement("Zengin Lordu (50+ Elmas)");
+            if (smartBombs > 0 && gameStarted && !gameOver && !isWatchingAd) {
+                smartBombs--; screenShake = 15;
+                enemies = []; playSound('explosion');
+                addText("BOMBA!", canvas.width/2, canvas.height/2, "#ff0055");
             }
         }
 
         function createExplosion(x, y, color) {
             screenShake = 8;
-            for (let i = 0; i < 16; i++) {
-                particles.push({
-                    x, y,
-                    vx: (Math.random() - 0.5) * 7,
-                    vy: (Math.random() - 0.5) * 7,
-                    radius: Math.random() * 3.5 + 1,
-                    color, alpha: 1
-                });
+            for (let i = 0; i < 14; i++) {
+                particles.push({ x, y, vx: (Math.random() - 0.5) * 6, vy: (Math.random() - 0.5) * 6, radius: Math.random() * 3 + 1, color, alpha: 1 });
             }
         }
 
@@ -401,39 +339,20 @@
             floatingTexts.push({ text, x, y, alpha: 1, color });
         }
 
-        /***********************************************************
-         * OYUN MANTIĞI VE FİZİK GÜNCELLEME (UPDATE LOOP)
-         ***********************************************************/
         let frameCount = 0;
         function update() {
-            if (!gameStarted || isPaused || gameOver) return;
+            if (!gameStarted || isPaused || gameOver || isWatchingAd) return;
 
             frameCount++;
             level = Math.floor(score / 150) + 1;
             if (screenShake > 0) screenShake--;
 
-            // Başarım kontrolleri
-            if (score >= 100 && !achievements.score100) {
-                achievements.score100 = true;
-                showAchievement("Uzay Pilotu (100 Skor)");
-            }
-
-            // Boss Tetikleme (Her 200 skorda bir)
             if (score > 0 && score % 200 === 0 && !bossActive) {
-                bossActive = true;
-                boss.hp = 180 + level * 50;
-                boss.maxHp = boss.hp;
-                boss.y = -70;
-                boss.phase = 1;
+                bossActive = true; boss.hp = 180 + level * 50; boss.maxHp = boss.hp; boss.y = -70;
             }
 
-            // Parallax Yıldız Güncellemesi
-            stars.forEach(s => {
-                s.y += s.speed;
-                if (s.y > canvas.height) s.y = 0;
-            });
+            stars.forEach(s => { s.y += s.speed; if (s.y > canvas.height) s.y = 0; });
 
-            // Oyuncu Hareketi ve Sınır Kontrolü
             if (isTouching) {
                 let dx = touchX - player.x;
                 player.x += dx * 0.3;
@@ -444,11 +363,8 @@
             if (player.x < player.w / 2) player.x = player.w / 2;
             if (player.x > canvas.width - player.w / 2) player.x = canvas.width - player.w / 2;
 
-            // Otomatik Ateş Etme Sistemi
             if (frameCount % 8 === 0) {
-                if (upgrades.beam > 0) {
-                    bullets.push({ x: player.x, y: 0, w: 12, h: player.y - 10, isBeam: true, color: '#ff0055' });
-                }
+                if (upgrades.beam > 0) bullets.push({ x: player.x, y: 0, w: 12, h: player.y - 10, isBeam: true, color: '#ff0055' });
                 if (upgrades.spread > 0) {
                     bullets.push({ x: player.x - 14, y: player.y - 15, vx: -3, vy: -13, w: 4, h: 12, color: '#ff5500', isBeam: false });
                     bullets.push({ x: player.x + 14, y: player.y - 15, vx: 3, vy: -13, w: 4, h: 12, color: '#ff5500', isBeam: false });
@@ -462,7 +378,6 @@
                 playSound('laser');
             }
 
-            // Mermi Güncellemeleri
             for (let i = bullets.length - 1; i >= 0; i--) {
                 let b = bullets[i];
                 if (b.isBeam) {
@@ -474,36 +389,18 @@
                 }
             }
 
-            // Düşman Üretimi (Böcek, Tank, Interceptor)
             if (!bossActive && frameCount % Math.max(18, 45 - level * 3) === 0) {
-                let rand = Math.random();
-                let type = rand < 0.25 ? 'tank' : (rand < 0.5 ? 'interceptor' : 'bug');
-                enemies.push({
-                    x: Math.random() * (canvas.width - 32),
-                    y: -35,
-                    w: 32,
-                    h: 32,
-                    hp: type === 'tank' ? 4 : (type === 'interceptor' ? 2 : 1),
-                    speed: type === 'tank' ? 1.4 : (type === 'interceptor' ? 2.8 : 2.1) + level * 0.15,
-                    type,
-                    color: type === 'tank' ? '#ff0055' : (type === 'interceptor' ? '#aa00ff' : '#00f0ff')
-                });
+                enemies.push({ x: Math.random() * (canvas.width - 32), y: -35, w: 32, h: 32, hp: 1, speed: 2.2 + level * 0.15, color: '#00f0ff' });
             }
 
-            // Düşman Çarpışma ve Fizikleri
             for (let i = enemies.length - 1; i >= 0; i--) {
                 let e = enemies[i];
                 e.y += e.speed;
 
-                // Oyuncu ile Çarpışma
                 let dist = Math.hypot(player.x - (e.x + e.w/2), player.y - (e.y + e.h/2));
                 if (dist < player.w / 2 + e.w / 2) {
-                    if (upgrades.shield > 0) {
-                        upgrades.shield = 0;
-                        addText("KALKAN KIRILDI!", player.x, player.y, "#00f0ff");
-                    } else {
-                        lives--;
-                    }
+                    if (upgrades.shield > 0) { upgrades.shield = 0; addText("KALKAN!", player.x, player.y, "#00f0ff"); }
+                    else { lives--; }
                     createExplosion(e.x + e.w/2, e.y + e.h/2, '#ff0055');
                     playSound('explosion');
                     enemies.splice(i, 1);
@@ -513,7 +410,6 @@
 
                 if (e.y > canvas.height) { enemies.splice(i, 1); continue; }
 
-                // Mermi ile Düşman Vurma Kontrolü
                 for (let j = bullets.length - 1; j >= 0; j--) {
                     let b = bullets[j];
                     let hit = b.isBeam ? (b.x > e.x && b.x < e.x + e.w) : (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h);
@@ -523,33 +419,20 @@
                         createExplosion(e.x + e.w/2, e.y + e.h/2, e.color);
                         if (e.hp <= 0) {
                             coins += Math.random() < 0.5 ? 1 : 0;
-                            score += e.type === 'tank' ? 30 : (e.type === 'interceptor' ? 20 : 10);
+                            score += 10;
                             playSound('explosion');
-                            addText("+" + (e.type === 'tank' ? 30 : 10), e.x, e.y, "#00f0ff");
+                            addText("+10", e.x, e.y, "#00f0ff");
                             enemies.splice(i, 1);
-
-                            if (!achievements.firstKill) {
-                                achievements.firstKill = true;
-                                showAchievement("İlk Kan (İlk Düşman)");
-                            }
                         }
                         break;
                     }
                 }
             }
 
-            // Boss Yapay Zekası ve Çoklu Aşama Mantığı
             if (bossActive) {
                 if (boss.y < 35) boss.y += 1;
                 boss.x += boss.dir;
-                if (boss.x < 15 || boss.x > canvas.width - 125) boss.dir *= -1;
-
-                // Boss Can Azaldıkça Aşama Değiştirir
-                if (boss.hp < boss.maxHp * 0.6 && boss.phase === 1) {
-                    boss.phase = 2;
-                    boss.dir *= 1.3;
-                    addText("BOSS ÖFKELENDİ!", canvas.width/2 - 40, 80, "#ff0055");
-                }
+                if (boss.x < 15 || boss.x > canvas.width - 120) boss.dir *= -1;
 
                 for (let j = bullets.length - 1; j >= 0; j--) {
                     let b = bullets[j];
@@ -562,25 +445,18 @@
                             bossActive = false;
                             score += 250; coins += 35;
                             playSound('explosion');
-                            addText("+250 BOSS YOK EDİLDİ!", boss.x, boss.y, "#ff0055");
-
-                            if (!achievements.bossDefeated) {
-                                achievements.bossDefeated = true;
-                                showAchievement("Amiral Katili (Boss Yendi)");
-                            }
+                            addText("+250 BOSS", boss.x, boss.y, "#ff0055");
                         }
                     }
                 }
             }
 
-            // Parçacık Fizik Motoru
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
                 p.x += p.vx; p.y += p.vy; p.alpha -= 0.03;
                 if (p.alpha <= 0) particles.splice(i, 1);
             }
 
-            // Yazan Metin Efektleri
             for (let i = floatingTexts.length - 1; i >= 0; i--) {
                 let ft = floatingTexts[i];
                 ft.y -= 1; ft.alpha -= 0.015;
@@ -592,18 +468,12 @@
             lifeVal.innerText = "❤️".repeat(Math.max(0, lives));
         }
 
-        /***********************************************************
-         * GÖRSEL ÇİZİM MOTORU (RENDER ENGINE)
-         ***********************************************************/
         function draw() {
             ctx.save();
-            if (screenShake > 0) {
-                ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
-            }
+            if (screenShake > 0) ctx.translate((Math.random() - 0.5) * screenShake, (Math.random() - 0.5) * screenShake);
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Yıldız Alanı Çizimi
             ctx.fillStyle = "#ffffff";
             stars.forEach(s => {
                 ctx.globalAlpha = s.size / 2.2;
@@ -611,99 +481,69 @@
             });
             ctx.globalAlpha = 1;
 
-            // Parçacıklar
             particles.forEach(p => {
-                ctx.save();
-                ctx.globalAlpha = p.alpha;
-                ctx.fillStyle = p.color;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill();
-                ctx.restore();
+                ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+                ctx.beginPath(); ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2); ctx.fill(); ctx.restore();
             });
 
-            // Uçan Metinler
             floatingTexts.forEach(ft => {
-                ctx.save();
-                ctx.globalAlpha = ft.alpha;
-                ctx.fillStyle = ft.color;
-                ctx.font = "bold 11px Arial";
-                ctx.fillText(ft.text, ft.x, ft.y);
-                ctx.restore();
+                ctx.save(); ctx.globalAlpha = ft.alpha; ctx.fillStyle = ft.color;
+                ctx.font = "bold 11px Arial"; ctx.fillText(ft.text, ft.x, ft.y); ctx.restore();
             });
 
             if (!gameStarted) {
                 ctx.fillStyle = "rgba(1, 1, 6, 0.94)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = "#00f0ff"; ctx.font = "bold 18px Arial"; ctx.textAlign = "center";
-                ctx.fillText("GALAXY WAR ULTIMATE", canvas.width / 2, canvas.height / 2 - 20);
+                ctx.fillText("GALAXY WAR REWARDED", canvas.width / 2, canvas.height / 2 - 20);
                 ctx.fillStyle = "#ffffff"; ctx.font = "11px Arial";
-                ctx.fillText("Başlamak İçin Ekrana Dokun", canvas.width / 2, canvas.height / 2 + 15);
+                ctx.fillText("Başlamak İçin Dokun", canvas.width / 2, canvas.height / 2 + 15);
                 ctx.textAlign = "left"; ctx.restore(); return;
             }
 
-            // Boss Çizimi ve Can Barı
             if (bossActive) {
-                ctx.fillStyle = boss.phase === 2 ? "#ff00aa" : "#ff0055";
-                ctx.fillRect(boss.x, boss.y, boss.w, boss.h);
-                // Boss Kokpit Detayı
-                ctx.fillStyle = "#00f0ff";
-                ctx.fillRect(boss.x + boss.w/2 - 12, boss.y + 10, 24, 16);
-
-                // Boss Can Barı
+                ctx.fillStyle = "#ff0055"; ctx.fillRect(boss.x, boss.y, boss.w, boss.h);
                 ctx.fillStyle = "#111"; ctx.fillRect(boss.x, boss.y - 10, boss.w, 6);
                 ctx.fillStyle = "#ff0055"; ctx.fillRect(boss.x, boss.y - 10, boss.w * (boss.hp / boss.maxHp), 6);
             }
 
-            // Mermiler ve Işınlar
             bullets.forEach(b => {
                 ctx.shadowBlur = 10; ctx.shadowColor = b.color;
                 ctx.fillStyle = b.color;
-                if (b.isBeam) {
-                    ctx.fillRect(b.x - b.w/2, 0, b.w, b.h);
-                } else {
-                    ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI * 2); ctx.fill();
-                }
+                if (b.isBeam) ctx.fillRect(b.x - b.w/2, 0, b.w, b.h);
+                else { ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI * 2); ctx.fill(); }
             });
             ctx.shadowBlur = 0;
 
-            // Oyuncu Gemisi (Mavi-Beyaz Gelişmiş Kanatlı Görsel)
             let x = player.x, y = player.y;
             ctx.shadowBlur = 14; ctx.shadowColor = "#00f0ff";
             ctx.fillStyle = "#ffffff";
             ctx.beginPath();
-            ctx.moveTo(x, y - 22);
-            ctx.lineTo(x - 16, y + 12);
-            ctx.lineTo(x, y + 6);
-            ctx.lineTo(x + 16, y + 12);
+            ctx.moveTo(x, y - 22); ctx.lineTo(x - 16, y + 12); ctx.lineTo(x, y + 6); ctx.lineTo(x + 16, y + 12);
             ctx.closePath(); ctx.fill();
 
-            // Mavi Kanat Detayları
             ctx.fillStyle = "#00a2ff";
             ctx.beginPath(); ctx.moveTo(x - 12, y + 2); ctx.lineTo(x - 27, y + 16); ctx.lineTo(x - 10, y + 10); ctx.closePath(); ctx.fill();
             ctx.beginPath(); ctx.moveTo(x + 12, y + 2); ctx.lineTo(x + 27, y + 16); ctx.lineTo(x + 10, y + 10); ctx.closePath(); ctx.fill();
 
-            // Motor Alevleri
             ctx.fillStyle = "#ff5500";
             ctx.fillRect(x - 4, y + 12, 3, 10);
             ctx.fillRect(x + 1, y + 12, 3, 10);
             ctx.shadowBlur = 0;
 
-            // Kalkan Halkası
             if (upgrades.shield > 0) {
                 ctx.strokeStyle = "#00ffff"; ctx.lineWidth = 2.5;
                 ctx.beginPath(); ctx.arc(x, y, 28, 0, Math.PI * 2); ctx.stroke();
             }
 
-            // Düşman Böcekler ve Tanklar
             enemies.forEach(e => {
                 let ex = e.x + e.w/2, ey = e.y + e.h/2;
                 ctx.fillStyle = e.color;
-                ctx.beginPath(); ctx.arc(ex, ey, e.type === 'tank' ? 15 : 12, 0, Math.PI * 2); ctx.fill();
-                // Düşman Kanatları
+                ctx.beginPath(); ctx.arc(ex, ey, 12, 0, Math.PI * 2); ctx.fill();
                 ctx.fillStyle = "#ffffff";
                 ctx.beginPath(); ctx.arc(ex - 11, ey - 4, 5, 0, Math.PI * 2); ctx.fill();
                 ctx.beginPath(); ctx.arc(ex + 11, ey - 4, 5, 0, Math.PI * 2); ctx.fill();
             });
 
-            // Oyun Bitti Ekranı
             if (gameOver) {
                 ctx.fillStyle = "rgba(1, 1, 6, 0.97)"; ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = "#ff0055"; ctx.font = "bold 22px Arial"; ctx.textAlign = "center";
@@ -717,13 +557,7 @@
             ctx.restore();
         }
 
-        // Ana Oyun Döngüsü
-        function gameLoop() {
-            update();
-            draw();
-            requestAnimationFrame(gameLoop);
-        }
-
+        function gameLoop() { update(); draw(); requestAnimationFrame(gameLoop); }
         gameLoop();
     </script>
 </body>
