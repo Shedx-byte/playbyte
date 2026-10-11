@@ -311,9 +311,9 @@
         let isAdCooldown = false;
         let upgrades = { speed: 0 };
 
-        // BOSS AKIŞ DEĞİŞKENLERİ
+        // BOSS KONTROL SİSTEMİ (Arka arkaya çıkmayı önleyen eşik yapısı)
         let bossActive = false;
-        let bossSpawnedForLevel = false;
+        let nextBossThreshold = 300; // İlk boss 300 puanda çıkar
         let boss = { x: 75, y: -100, w: 110, h: 60, hp: 100, maxHp: 100, dir: 2 };
 
         let player = { x: canvas.width / 2, y: canvas.height - 45, w: 40, h: 40, speed: 5 };
@@ -440,7 +440,7 @@
             shipForm = 1; weaponLevel = 1; shieldTimer = 0;
             bullets = []; enemyBullets = []; enemies = []; powerups = []; particles = []; floatingTexts = [];
             upgrades = { speed: 0 };
-            bossActive = false; bossSpawnedForLevel = false; gameOver = false; gameStarted = true; player.speed = 5;
+            bossActive = false; nextBossThreshold = 300; gameOver = false; gameStarted = true; player.speed = 5;
         }
 
         function togglePause() {
@@ -513,15 +513,13 @@
                 localStorage.setItem("galaxyHighScore", highScore.toString());
             }
 
-            // BOSS GELECEĞİ ZAMAN: Sadece bölüm skoruna ulaşınca 1 kez çıkar!
-            let targetScoreForBoss = gameLevel * 300;
-            if (score >= targetScoreForBoss && !bossSpawnedForLevel && !bossActive) {
-                bossSpawnedForLevel = true;
+            // BOSS ÇIKIŞ MANTIĞI (Skor belirli eşiğe ulaşınca ve boss aktif değilse)
+            if (score >= nextBossThreshold && !bossActive) {
                 bossActive = true;
                 boss.hp = 90 + (gameLevel * 30);
                 boss.maxHp = boss.hp;
                 boss.y = -70;
-                enemies = []; // Boss gelince ekrandaki küçükler temizlenir
+                enemies = []; // Boss çıkarken küçükleri temizle
             }
 
             stars.forEach(s => { s.y += s.speed; if (s.y > canvas.height) s.y = 0; });
@@ -588,7 +586,7 @@
                 if (b.y < 0 || b.x < 0 || b.x > canvas.width) bullets.splice(i, 1);
             }
 
-            // KÜÇÜK DÜŞMANLAR (Boss varken doğmazlar, Boss bitince daha zorlaşarak akarlar)
+            // KÜÇÜK DÜŞMANLAR (Boss aktifken çıkmazlar)
             let spawnRate = Math.max(12, 45 - gameLevel * 3);
             if (!bossActive && frameCount % spawnRate === 0) {
                 let isZigZag = Math.random() < (0.25 + gameLevel * 0.05);
@@ -684,7 +682,7 @@
                 if (p.y > canvas.height) powerups.splice(i, 1);
             }
 
-            // BOSS SAVAŞI KONTROLÜ
+            // BOSS SAVAŞI VE YENİLİNCE KÜÇÜK DÜŞMANLARA DÖNÜŞ
             if (bossActive) {
                 if (boss.y < 35) boss.y += 1;
                 boss.x += boss.dir;
@@ -702,9 +700,9 @@
                         createExplosion(b.x, b.y, '#ff0055');
                         if (boss.hp <= 0) {
                             bossActive = false;
-                            bossSpawnedForLevel = false;
-                            gameLevel++; // BOSS YENİLDİ -> BÖLÜM ATLANDI, KÜÇÜKLER DÖNÜYOR!
+                            gameLevel++; // BÖLÜM ATLANIYOR
                             score += 300; coins += 40;
+                            nextBossThreshold = score + 300; // SONRAKİ BOSS 300 PUAN SONRA GELECEK!
                             playSound('explosion');
                             addText(`🎉 BÖLÜM ${gameLevel} BAŞLADI!`, canvas.width/2 - 60, canvas.height/2, "#00ffaa");
                         }
