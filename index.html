@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SnakeEvolution.io - Pro Arena</title>
+    <title>BladeStorm.io - Pro Arena</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #2b1d11; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; touch-action: none; }
+        body { margin: 0; overflow: hidden; background: #110822; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; touch-action: none; }
         #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
         .ui-layer { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
         .interactive { pointer-events: auto; cursor: pointer; }
         
-        /* Özel Mobil Oyun UI Stilleri */
-        .panel-wood { background: linear-gradient(135deg, #d97706, #b45309); border: 3px solid #f59e0b; box-shadow: 0 6px 0 #78350f, inset 0 2px 4px rgba(255,255,255,0.4); border-radius: 16px; }
+        /* Mobil Oyun UI Stilleri */
+        .panel-wood { background: linear-gradient(135deg, #7e22ce, #581c87); border: 3px solid #a855f7; box-shadow: 0 6px 0 #3b0764, inset 0 2px 4px rgba(255,255,255,0.4); border-radius: 16px; }
         .btn-play-yellow { background: linear-gradient(180deg, #fde047 0%, #eab308 50%, #ca8a04 100%); border: 4px solid #fef08a; box-shadow: 0 8px 0 #854d0e, 0 15px 25px rgba(0,0,0,0.5); border-radius: 28px; transition: transform 0.1s, box-shadow 0.1s; }
         .btn-play-yellow:active { transform: translateY(6px); box-shadow: 0 2px 0 #854d0e, 0 5px 10px rgba(0,0,0,0.5); }
         .btn-green-event { background: linear-gradient(180deg, #4ade80 0%, #22c55e 50%, #15803d 100%); border: 3px solid #86efac; box-shadow: 0 5px 0 #14532d; border-radius: 20px; }
         .btn-blue-icon { background: linear-gradient(180deg, #38bdf8 0%, #0ea5e9 50%, #0369a1 100%); border: 3px solid #bae6fd; box-shadow: 0 5px 0 #0c4a6e; border-radius: 16px; }
-        .btn-sidebar { background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%); border: 3px solid #93c5fd; box-shadow: 0 4px 0 #1e3a8a; border-radius: 14px; }
+        .btn-sidebar { background: linear-gradient(180deg, #a855f7 0%, #7e22ce 100%); border: 3px solid #e9d5ff; box-shadow: 0 4px 0 #581c87; border-radius: 14px; }
         .modal-bg { background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); }
     </style>
 </head>
@@ -27,23 +27,20 @@
     <!-- 3D OYUN CANVAS -->
     <div id="canvas-container"></div>
 
-    <!-- 🕹️ EKRAN GÖRÜNTÜSÜNDEKİ BİREBİR LOBİ ARAYÜZÜ -->
+    <!-- 🕹️ LOBİ ARAYÜZÜ -->
     <div id="lobby-ui" class="ui-layer flex flex-col justify-between p-4">
         
         <!-- ÜST BAR -->
         <div class="flex justify-between items-start w-full">
-            <!-- Sol: Profil ve UDID -->
+            <!-- Sol: Profil -->
             <div class="flex items-center gap-3 bg-black/40 backdrop-blur-md p-2 rounded-2xl border border-white/20 interactive" onclick="openModal('profileModal')">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-400 to-orange-500 flex items-center justify-center text-2xl shadow-inner border-2 border-amber-200">🦁</div>
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-2xl shadow-inner border-2 border-purple-200">⚔️</div>
                 <div>
                     <div class="flex items-center gap-1">
                         <span id="player-name-display" class="text-white font-extrabold text-sm tracking-wide">Amin</span>
-                        <span class="text-xs text-amber-400 font-bold">✏️</span>
+                        <span class="text-xs text-purple-300 font-bold">✏️</span>
                     </div>
                     <span class="text-[10px] text-gray-300 font-mono">UDID: c4d872dad1c9b574</span>
-                </div>
-                <div class="ml-2 bg-black/30 p-2 rounded-xl border border-white/10">
-                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 </div>
             </div>
 
@@ -51,10 +48,10 @@
             <div class="flex items-center gap-3">
                 <button class="btn-blue-icon px-4 py-2 text-white font-black text-xs flex items-center gap-1 interactive shadow-lg">👥 PARTY</button>
                 
-                <div class="bg-black/50 backdrop-blur-md border border-amber-500/50 px-4 py-2 rounded-2xl flex items-center gap-3 shadow-xl">
-                    <div class="bg-amber-500/20 p-1.5 rounded-xl border border-amber-500">🏆</div>
+                <div class="bg-black/50 backdrop-blur-md border border-purple-500/50 px-4 py-2 rounded-2xl flex items-center gap-3 shadow-xl">
+                    <div class="bg-purple-500/20 p-1.5 rounded-xl border border-purple-500">🏆</div>
                     <div class="text-center">
-                        <div class="text-[10px] text-amber-300 font-bold uppercase tracking-wider">BEST SCORE</div>
+                        <div class="text-[10px] text-purple-300 font-bold uppercase tracking-wider">BEST SCORE</div>
                         <div id="best-score-display" class="text-white font-black text-base font-mono">20 572</div>
                     </div>
                 </div>
@@ -63,44 +60,42 @@
             </div>
 
             <!-- Sağ: Altın / Para Miktarı -->
-            <div class="flex items-center gap-2 bg-black/40 backdrop-blur-md px-4 py-2 rounded-2xl border border-amber-500/40 shadow-xl">
+            <div class="flex items-center gap-2 bg-black/40 backdrop-blur-md px-4 py-2 rounded-2xl border border-purple-500/40 shadow-xl">
                 <span class="text-2xl">🪙</span>
                 <span id="coin-display" class="text-white font-black text-lg">100</span>
-                <button class="w-7 h-7 rounded-xl bg-amber-500 text-white font-black flex items-center justify-center border border-amber-200 interactive shadow" onclick="addCoins(50)">+</button>
+                <button class="w-7 h-7 rounded-xl bg-purple-500 text-white font-black flex items-center justify-center border border-purple-200 interactive shadow" onclick="addCoins(50)">+</button>
             </div>
         </div>
 
         <!-- ORTA ALAN: ZOMBIE NIGHT ETKİNLİK KARTI VE SAĞ KENAR MENÜSÜ -->
         <div class="flex justify-between items-center w-full px-2">
             
-            <!-- Sol: Snake Premium Kartı -->
+            <!-- Sol: Blade Premium Kartı -->
             <div class="panel-wood p-4 w-64 text-white shadow-2xl relative overflow-hidden">
-                <div class="absolute -right-4 -bottom-4 text-6xl opacity-20">👑</div>
-                <div class="text-xs font-black text-amber-200 uppercase tracking-widest mb-1">SNAKE PREMIUM</div>
-                <div class="text-xs font-bold mb-3">2x Rewards & Snake Pass</div>
+                <div class="absolute -right-4 -bottom-4 text-6xl opacity-20">🗡️</div>
+                <div class="text-xs font-black text-purple-200 uppercase tracking-widest mb-1">BLADE PREMIUM</div>
+                <div class="text-xs font-bold mb-3">2x Rewards & Blade Pass</div>
                 <button class="btn-green-event w-full py-2 text-xs font-black uppercase text-white interactive" onclick="openModal('premiumModal')">Learn More</button>
             </div>
 
             <!-- Orta: Zombie Night Etkinlik Kartı -->
-            <div class="bg-gradient-to-b from-amber-900/90 to-amber-950/90 border-4 border-amber-600 rounded-3xl p-5 w-96 text-center shadow-2xl relative backdrop-blur-md">
+            <div class="bg-gradient-to-b from-purple-900/90 to-purple-950/90 border-4 border-purple-500 rounded-3xl p-5 w-96 text-center shadow-2xl relative backdrop-blur-md">
                 <div class="flex justify-between items-center mb-2">
                     <h2 class="text-white font-black text-xl italic tracking-wider drop-shadow">Zombie Night</h2>
-                    <span class="text-xs bg-amber-500/40 text-amber-200 px-2.5 py-1 rounded-full font-mono border border-amber-400">ℹ️ Event</span>
+                    <span class="text-xs bg-purple-500/40 text-purple-200 px-2.5 py-1 rounded-full font-mono border border-purple-400">ℹ️ Event</span>
                 </div>
                 
-                <!-- Ödül Önizleme Satırı -->
                 <div class="flex justify-center gap-3 my-3">
-                    <div class="w-12 h-12 bg-black/40 rounded-xl border border-amber-500/50 flex items-center justify-center text-2xl">🚜</div>
-                    <div class="w-12 h-12 bg-black/40 rounded-xl border border-amber-500/50 flex items-center justify-center text-2xl">🏎️</div>
-                    <div class="w-12 h-12 bg-black/40 rounded-xl border border-amber-500/50 flex items-center justify-center text-2xl">👹</div>
-                    <div class="w-12 h-12 bg-black/40 rounded-xl border border-amber-500/50 flex items-center justify-center text-2xl">🧟</div>
+                    <div class="w-12 h-12 bg-black/40 rounded-xl border border-purple-500/50 flex items-center justify-center text-2xl">⚔️</div>
+                    <div class="w-12 h-12 bg-black/40 rounded-xl border border-purple-500/50 flex items-center justify-center text-2xl">🗡️</div>
+                    <div class="w-12 h-12 bg-black/40 rounded-xl border border-purple-500/50 flex items-center justify-center text-2xl">🪓</div>
+                    <div class="w-12 h-12 bg-black/40 rounded-xl border border-purple-500/50 flex items-center justify-center text-2xl">🛡️</div>
                 </div>
 
-                <p class="text-xs text-amber-200 font-bold mb-3">Play 3 event games!</p>
+                <p class="text-xs text-purple-200 font-bold mb-3">Play 3 event games!</p>
                 
-                <!-- İlerleme Çubuğu -->
-                <div class="w-full bg-black/60 h-4 rounded-full border border-amber-600/60 overflow-hidden relative mb-3">
-                    <div class="bg-gradient-to-r from-yellow-500 to-green-500 h-full w-0 transition-all duration-300" id="event-progress"></div>
+                <div class="w-full bg-black/60 h-4 rounded-full border border-purple-600/60 overflow-hidden relative mb-3">
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-full w-0 transition-all duration-300" id="event-progress"></div>
                     <span class="absolute inset-0 flex items-center justify-center text-[10px] font-black text-white">0/3</span>
                 </div>
 
@@ -110,7 +105,7 @@
                 </div>
             </div>
 
-            <!-- Sağ: Sağ Kenar Butonları Sütunu -->
+            <!-- Sağ Kenar Butonları -->
             <div class="flex flex-col gap-3">
                 <button class="btn-sidebar w-14 h-14 text-white font-extrabold text-xs flex flex-col items-center justify-center interactive shadow-xl" onclick="openModal('adsModal')">
                     <span class="text-lg">🚫</span>
@@ -125,7 +120,7 @@
                     <span class="text-[9px]">STORE</span>
                 </button>
                 <button class="btn-sidebar w-14 h-14 text-white font-extrabold text-xs flex flex-col items-center justify-center interactive shadow-xl" onclick="openModal('skinsModal')">
-                    <span class="text-lg">🐍</span>
+                    <span class="text-lg">⚔️</span>
                     <span class="text-[9px]">SKINS</span>
                 </button>
             </div>
@@ -134,7 +129,6 @@
         <!-- ALT BAR -->
         <div class="flex justify-between items-end w-full">
             
-            <!-- Sol Alt: Ücretsiz Altın Kutusu -->
             <div class="panel-wood p-3 flex items-center gap-3 shadow-2xl">
                 <div class="text-3xl">🪙</div>
                 <div>
@@ -143,7 +137,6 @@
                 </div>
             </div>
 
-            <!-- Orta Alt: Görevler, Yılan Düzenleme, Mağaza Kartı -->
             <div class="flex items-center gap-4">
                 <button class="btn-blue-icon px-4 py-3 text-white font-black text-xs flex flex-col items-center gap-1 interactive shadow-xl relative" onclick="openModal('questsModal')">
                     <span class="text-xl">📋</span>
@@ -151,35 +144,23 @@
                     <span class="absolute -top-2 -right-2 bg-red-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white">2</span>
                 </button>
 
-                <!-- Edit Snake -->
-                <div class="bg-black/50 backdrop-blur-md border border-amber-500/50 px-5 py-3 rounded-2xl flex items-center gap-4 shadow-2xl interactive" onclick="openModal('skinsModal')">
-                    <div class="text-3xl animate-pulse">🐛</div>
+                <div class="bg-black/50 backdrop-blur-md border border-purple-500/50 px-5 py-3 rounded-2xl flex items-center gap-4 shadow-2xl interactive" onclick="openModal('skinsModal')">
+                    <div class="text-3xl animate-pulse">🗡️</div>
                     <div>
-                        <div class="text-white font-black text-sm">EDIT SNAKE</div>
-                        <div class="text-[10px] text-amber-300 font-bold">Customize Skin</div>
+                        <div class="text-white font-black text-sm">EDIT BLADES</div>
+                        <div class="text-[10px] text-purple-300 font-bold">Customize Weapons</div>
                     </div>
                 </div>
 
-                <!-- Featured Item Card (Chainsaw Skin) -->
-                <div class="bg-black/60 backdrop-blur-md border border-cyan-500/50 px-4 py-2 rounded-2xl flex items-center gap-3 shadow-2xl">
-                    <div class="text-2xl">⛓️</div>
-                    <div>
-                        <div class="text-cyan-300 font-black text-xs">CHAFE BLADE</div>
-                        <div class="text-amber-400 font-bold text-xs">🪙 2,750</div>
-                    </div>
-                </div>
-
-                <!-- Start Big Boost -->
                 <button class="btn-blue-icon p-3 text-white font-black text-xs flex flex-col items-center gap-1 interactive shadow-xl" onclick="toggleStartBig()">
                     <span class="text-xl">👑</span>
-                    <span id="start-big-status" class="text-[10px]">START BIG: OFF</span>
+                    <span id="start-big-status" class="text-[10px]">3 BLADES: OFF</span>
                 </button>
             </div>
 
-            <!-- Sağ Alt: Mod Seçimi ve Devasa Sarı Play Butonu -->
             <div class="flex flex-col items-end gap-2">
                 <div class="flex bg-black/50 backdrop-blur-md rounded-xl p-1 border border-white/20">
-                    <button class="px-3 py-1 rounded-lg bg-amber-500 text-white font-black text-xs shadow">UNRANKED</button>
+                    <button class="px-3 py-1 rounded-lg bg-purple-500 text-white font-black text-xs shadow">UNRANKED</button>
                     <button class="px-3 py-1 rounded-lg text-gray-400 font-black text-xs interactive" onclick="alert('Ranked modu için en az 10.000 skor gerek!')">RANKED</button>
                 </div>
                 <button class="btn-play-yellow px-12 py-5 text-amber-950 font-black text-2xl flex items-center gap-3 interactive shadow-2xl" onclick="startGame()">
@@ -192,16 +173,15 @@
 
     </div>
 
-    <!-- OYUN İÇİ HUD (Oynarken Görünür) -->
+    <!-- OYUN İÇİ HUD -->
     <div id="game-hud" class="ui-layer top-4 left-4 right-4 flex justify-between items-start" style="display:none;">
-        <div class="bg-black/70 backdrop-blur-md border border-cyan-500/50 px-5 py-3 rounded-2xl text-cyan-400 font-mono text-sm font-black shadow-2xl flex flex-col gap-1">
+        <div class="bg-black/70 backdrop-blur-md border border-purple-500/50 px-5 py-3 rounded-2xl text-purple-400 font-mono text-sm font-black shadow-2xl flex flex-col gap-1">
             <div>SKOR: <span id="score-text" class="text-white text-base">0</span></div>
-            <div>UZUNLUK: <span id="length-text" class="text-yellow-400">5</span></div>
-            <div class="text-xs text-green-400">⚡ HIZ (BOOST): AKTİF</div>
+            <div>BIÇAK SAYISI: <span id="blades-text" class="text-yellow-400">2</span></div>
         </div>
 
-        <div class="bg-black/70 backdrop-blur-md border border-amber-500/50 px-5 py-3 rounded-2xl font-mono text-xs text-white min-w-[200px] shadow-2xl">
-            <div class="text-amber-400 font-bold mb-2 border-b border-amber-500/30 pb-1">🏆 ARENA LİDERLERİ</div>
+        <div class="bg-black/70 backdrop-blur-md border border-purple-500/50 px-5 py-3 rounded-2xl font-mono text-xs text-white min-w-[200px] shadow-2xl">
+            <div class="text-purple-400 font-bold mb-2 border-b border-purple-500/30 pb-1">🏆 ARENA LİDERLERİ</div>
             <div id="leaderboard-list" class="flex flex-col gap-1 text-gray-300"></div>
         </div>
     </div>
@@ -209,93 +189,77 @@
     <!-- OYUN BİTTİ EKRANI -->
     <div id="gameover-overlay" class="ui-layer modal-bg flex flex-col items-center justify-center p-4" style="display:none;">
         <div class="panel-wood p-8 max-w-sm w-full text-center flex flex-col items-center shadow-2xl">
-            <h2 class="text-4xl font-black text-red-100 mb-2 drop-shadow-lg">ÇARPIŞMA!</h2>
+            <h2 class="text-4xl font-black text-red-100 mb-2 drop-shadow-lg">ELENDİN!</h2>
             <p id="final-score" class="text-white font-mono text-lg mb-6">Skorun: 0</p>
             <button class="btn-play-yellow w-full py-4 text-amber-950 font-black text-lg interactive shadow-2xl" onclick="returnToLobby()">LOBİYE DÖN</button>
         </div>
     </div>
 
-    <!-- 🪟 MODAL PENCERELERİ (MAĞAZA, GÖREVLER, PROFİL vb.) -->
+    <!-- MODAL PENCERELERİ -->
     <div id="modal-container" class="ui-layer modal-bg flex items-center justify-center p-4" style="display:none;">
         
-        <!-- Profil Modalı -->
         <div id="profileModal" class="panel-wood p-6 max-w-md w-full text-white shadow-2xl modal-content" style="display:none;">
-            <h3 class="text-2xl font-black mb-4 text-amber-200">OYUNCU PROFİLİ</h3>
+            <h3 class="text-2xl font-black mb-4 text-purple-200">OYUNCU PROFİLİ</h3>
             <p class="text-xs mb-2 text-gray-200">Kullanıcı Adını Değiştir:</p>
-            <input type="text" id="new-name-input" class="w-full bg-black/50 border-2 border-amber-500 rounded-xl px-4 py-2 text-white font-bold mb-4 outline-none" value="Amin" maxlength="12">
+            <input type="text" id="new-name-input" class="w-full bg-black/50 border-2 border-purple-500 rounded-xl px-4 py-2 text-white font-bold mb-4 outline-none" value="Amin" maxlength="12">
             <div class="flex gap-3">
                 <button class="btn-green-event flex-1 py-3 font-black text-sm interactive" onclick="saveProfileName()">KAYDET</button>
                 <button class="btn-sidebar flex-1 py-3 font-black text-sm interactive bg-red-600 border-red-300" onclick="closeModal()">KAPAT</button>
             </div>
         </div>
 
-        <!-- Mağaza Modalı -->
         <div id="storeModal" class="panel-wood p-6 max-w-lg w-full text-white shadow-2xl modal-content" style="display:none;">
-            <h3 class="text-2xl font-black mb-4 text-amber-200">ALTIN & ELMAS MAĞAZASI</h3>
+            <h3 class="text-2xl font-black mb-4 text-purple-200">ALTIN MAĞAZASI</h3>
             <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="bg-black/40 p-4 rounded-xl border border-amber-500/40 text-center">
+                <div class="bg-black/40 p-4 rounded-xl border border-purple-500/40 text-center">
                     <div class="text-3xl mb-2">🪙</div>
                     <div class="font-black text-lg">1,000 Altın</div>
-                    <button class="btn-green-event mt-3 px-4 py-2 text-xs font-black w-full interactive" onclick="buyItem(1000, 5)">$0.99</button>
+                    <button class="btn-green-event mt-3 px-4 py-2 text-xs font-black w-full interactive" onclick="buyItem(1000)">$0.99</button>
                 </div>
-                <div class="bg-black/40 p-4 rounded-xl border border-amber-500/40 text-center">
+                <div class="bg-black/40 p-4 rounded-xl border border-purple-500/40 text-center">
                     <div class="text-3xl mb-2">💰</div>
                     <div class="font-black text-lg">10,000 Altın</div>
-                    <button class="btn-green-event mt-3 px-4 py-2 text-xs font-black w-full interactive" onclick="buyItem(10000, 25)">$4.99</button>
+                    <button class="btn-green-event mt-3 px-4 py-2 text-xs font-black w-full interactive" onclick="buyItem(10000)">$4.99</button>
                 </div>
             </div>
             <button class="btn-sidebar w-full py-3 font-black text-sm interactive bg-red-600 border-red-300" onclick="closeModal()">GERİ DÖN</button>
         </div>
 
-        <!-- Görevler Modalı -->
         <div id="questsModal" class="panel-wood p-6 max-w-md w-full text-white shadow-2xl modal-content" style="display:none;">
-            <h3 class="text-2xl font-black mb-4 text-amber-200">GÜNLÜK GÖREVLER</h3>
+            <h3 class="text-2xl font-black mb-4 text-purple-200">GÜNLÜK GÖREVLER</h3>
             <div class="space-y-3 mb-6">
-                <div class="bg-black/40 p-3 rounded-xl border border-amber-500/30 flex justify-between items-center">
+                <div class="bg-black/40 p-3 rounded-xl border border-purple-500/30 flex justify-between items-center">
                     <div>
                         <div class="font-bold text-sm">3 Oyun Oyna</div>
-                        <div class="text-xs text-amber-300 font-mono">Ödül: 250 Altın</div>
+                        <div class="text-xs text-purple-300 font-mono">Ödül: 250 Altın</div>
                     </div>
                     <button class="btn-green-event px-4 py-2 text-xs font-black interactive" onclick="claimQuest(250, this)">AL</button>
-                </div>
-                <div class="bg-black/40 p-3 rounded-xl border border-amber-500/30 flex justify-between items-center">
-                    <div>
-                        <div class="font-bold text-sm">100 Yem Ye</div>
-                        <div class="text-xs text-amber-300 font-mono">Ödül: 500 Altın</div>
-                    </div>
-                    <button class="btn-green-event px-4 py-2 text-xs font-black interactive" onclick="claimQuest(500, this)">AL</button>
                 </div>
             </div>
             <button class="btn-sidebar w-full py-3 font-black text-sm interactive bg-red-600 border-red-300" onclick="closeModal()">KAPAT</button>
         </div>
 
-        <!-- Skins / Yılan Özelleştirme Modalı -->
         <div id="skinsModal" class="panel-wood p-6 max-w-lg w-full text-white shadow-2xl modal-content" style="display:none;">
-            <h3 class="text-2xl font-black mb-4 text-amber-200">YILAN & CANAVAR SKİNLERİ</h3>
+            <h3 class="text-2xl font-black mb-4 text-purple-200">BIÇAK & KILIÇ SKİNLERİ</h3>
             <div class="grid grid-cols-4 gap-3 mb-6">
-                <div class="bg-black/50 p-3 rounded-xl border-2 border-amber-400 text-center cursor-pointer interactive" onclick="selectSkin(0xf59e0b)">
-                    <div class="text-3xl mb-1">🐍</div>
-                    <span class="text-xs font-bold">Turuncu</span>
+                <div class="bg-black/50 p-3 rounded-xl border-2 border-purple-400 text-center cursor-pointer interactive" onclick="selectSkin(0x00f0ff)">
+                    <div class="text-3xl mb-1">🪓</div>
+                    <span class="text-xs font-bold">Siyan</span>
                 </div>
-                <div class="bg-black/50 p-3 rounded-xl border border-white/20 text-center cursor-pointer interactive" onclick="selectSkin(0x3b82f6)">
-                    <div class="text-3xl mb-1">🐉</div>
-                    <span class="text-xs font-bold">Mavi</span>
-                </div>
-                <div class="bg-black/50 p-3 rounded-xl border border-white/20 text-center cursor-pointer interactive" onclick="selectSkin(0xef4444)">
-                    <div class="text-3xl mb-1">👹</div>
+                <div class="bg-black/50 p-3 rounded-xl border border-white/20 text-center cursor-pointer interactive" onclick="selectSkin(0xff0055)">
+                    <div class="text-3xl mb-1">🗡️</div>
                     <span class="text-xs font-bold">Kırmızı</span>
                 </div>
-                <div class="bg-black/50 p-3 rounded-xl border border-white/20 text-center cursor-pointer interactive" onclick="selectSkin(0x10b981)">
-                    <div class="text-3xl mb-1">🦖</div>
+                <div class="bg-black/50 p-3 rounded-xl border border-white/20 text-center cursor-pointer interactive" onclick="selectSkin(0x00ff66)">
+                    <div class="text-3xl mb-1">⚔️</div>
                     <span class="text-xs font-bold">Yeşil</span>
                 </div>
             </div>
             <button class="btn-sidebar w-full py-3 font-black text-sm interactive bg-red-600 border-red-300" onclick="closeModal()">SEÇ VE KAPA</button>
         </div>
 
-        <!-- Diğer Genel Modallar -->
         <div id="genericModal" class="panel-wood p-6 max-w-md w-full text-white shadow-2xl modal-content text-center" style="display:none;">
-            <h3 id="generic-title" class="text-2xl font-black mb-3 text-amber-200">BİLGİ</h3>
+            <h3 id="generic-title" class="text-2xl font-black mb-3 text-purple-200">BİLGİ</h3>
             <p id="generic-desc" class="text-sm mb-6 text-gray-200">Bu özellik aktif.</p>
             <button class="btn-sidebar w-full py-3 font-black text-sm interactive bg-red-600 border-red-300" onclick="closeModal()">KAPAT</button>
         </div>
@@ -303,14 +267,10 @@
     </div>
 
     <script>
-        // --- 🌐 GLOBAL DURUM VE SES SİSTEMİ ---
-        let coins = 100, bestScore = 20572, playerName = "Amin", selectedSnakeColor = 0xf59e0b, startBigActive = false;
+        let coins = 100, bestScore = 20572, playerName = "Amin", selectedWeaponColor = 0x00f0ff, startBigActive = false;
         let audioCtx = null;
 
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-
+        function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
         function playSound(type) {
             if (!audioCtx) return;
             let osc = audioCtx.createOscillator();
@@ -319,109 +279,59 @@
             let now = audioCtx.currentTime;
 
             if (type === 'eat') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(300, now);
-                osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(900, now + 0.1);
+                gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
                 osc.start(now); osc.stop(now + 0.1);
-            } else if (type === 'click') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(400, now);
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-                osc.start(now); osc.stop(now + 0.05);
             } else if (type === 'crash') {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, now);
-                osc.frequency.linearRampToValueAtTime(40, now + 0.4);
-                gain.gain.setValueAtTime(0.4, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(40, now + 0.4);
+                gain.gain.setValueAtTime(0.4, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
                 osc.start(now); osc.stop(now + 0.4);
             }
         }
 
-        // --- 🪟 MODAL YÖNETİMİ ---
         function openModal(modalId) {
-            initAudio(); playSound('click');
+            initAudio();
             document.getElementById('modal-container').style.display = 'flex';
             document.querySelectorAll('.modal-content').forEach(el => el.style.display = 'none');
-            
-            if(document.getElementById(modalId)) {
-                document.getElementById(modalId).style.display = 'block';
-            } else {
+            if(document.getElementById(modalId)) document.getElementById(modalId).style.display = 'block';
+            else {
                 document.getElementById('genericModal').style.display = 'block';
                 document.getElementById('generic-title').innerText = modalId.toUpperCase();
-                document.getElementById('generic-desc').innerText = "Bu bölüm yakında güncellenecektir.";
             }
         }
 
-        function closeModal() {
-            playSound('click');
-            document.getElementById('modal-container').style.display = 'none';
-        }
-
-        function addCoins(amount) {
-            coins += amount;
-            document.getElementById('coin-display').innerText = coins;
-            playSound('eat');
-        }
-
-        function claimFreeCoins() {
-            addCoins(10);
-            alert("10 Ücretsiz Altın Eklendi!");
-        }
-
+        function closeModal() { document.getElementById('modal-container').style.display = 'none'; }
+        function addCoins(amount) { coins += amount; document.getElementById('coin-display').innerText = coins; playSound('eat'); }
+        function claimFreeCoins() { addCoins(10); alert("10 Ücretsiz Altın Eklendi!"); }
         function saveProfileName() {
             let name = document.getElementById('new-name-input').value.trim();
-            if(name) {
-                playerName = name;
-                document.getElementById('player-name-display').innerText = name;
-                closeModal();
-            }
+            if(name) { playerName = name; document.getElementById('player-name-display').innerText = name; closeModal(); }
         }
-
-        function selectSkin(color) {
-            selectedSnakeColor = color;
-            closeModal();
-        }
-
+        function selectSkin(color) { selectedWeaponColor = color; closeModal(); }
         function toggleStartBig() {
-            playSound('click');
             startBigActive = !startBigActive;
-            document.getElementById('start-big-status').innerText = startBigActive ? "START BIG: ON" : "START BIG: OFF";
+            document.getElementById('start-big-status').innerText = startBigActive ? "3 BLADES: ON" : "3 BLADES: OFF";
         }
+        function claimQuest(reward, btn) { addCoins(reward); btn.innerText = "ALINDI"; btn.disabled = true; }
+        function playEventGame() { document.getElementById('event-progress').style.width = "100%"; startGame(); }
 
-        function claimQuest(reward, btn) {
-            addCoins(reward);
-            btn.innerText = "ALINDI";
-            btn.disabled = true;
-            btn.classList.add('opacity-50');
-        }
-
-        function playEventGame() {
-            document.getElementById('event-progress').style.width = "100%";
-            alert("Zombie Night etkinliği başlatılıyor!");
-            startGame();
-        }
-
-        // --- 🎮 3D THREE.JS OYUN MOTORU (SNAKE EVOLUTION ARENA) ---
-        let scene, camera, renderer, playerSnake;
+        // --- 🎮 3D THREE.JS BLADE STORM ARENA MOTORU ---
+        let scene, camera, renderer, playerHero;
         let isPlaying = false;
-        let score = 0, snakeLength = 5;
-        let foods = [], bots = [];
+        let score = 0, bladeCount = 2;
+        let crystals = [], bots = [];
         let mouseX = 0, mouseY = 0;
 
-        const botNames = ["ViperX", "CobraPro", "Python99", "Anaconda", "TitanSnake", "NeonWorm"];
+        const botNames = ["BladeMaster", "Slasher", "CyberSword", "Vortex", "ShadowBlade"];
 
         function initGame3D() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x1e1208); // Çöl / Toprak Tonu (Görüntüye uygun)
-            scene.fog = new THREE.FogExp2(0x1e1208, 0.012);
+            scene.background = new THREE.Color(0x110822);
+            scene.fog = new THREE.FogExp2(0x110822, 0.012);
 
             camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 30, 25);
+            camera.position.set(0, 30, 20);
             camera.lookAt(0, 0, 0);
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -429,23 +339,15 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(renderer.domElement);
 
-            // Işıklar
-            const ambient = new THREE.AmbientLight(0xffffff, 0.7);
-            scene.add(ambient);
-            const dirLight = new THREE.DirectionalLight(0xffeedd, 1);
-            dirLight.position.set(20, 50, 20);
-            scene.add(dirLight);
+            const ambient = new THREE.AmbientLight(0xffffff, 0.8); scene.add(ambient);
+            const dirLight = new THREE.DirectionalLight(0xa855f7, 1); dirLight.position.set(20, 50, 20); scene.add(dirLight);
 
-            // Zemin (Bal Peteği / Altıgen Izgara Dokunuşu)
-            const floorGeo = new THREE.PlaneGeometry(300, 300, 30, 30);
-            const floorMat = new THREE.MeshStandardMaterial({ color: 0x3d2817, roughness: 0.9 });
-            const floor = new THREE.Mesh(floorGeo, floorMat);
-            floor.rotation.x = -Math.PI / 2;
-            scene.add(floor);
+            // Zemin
+            const floorGeo = new THREE.PlaneGeometry(300, 300);
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x180b30, roughness: 0.8 });
+            const floor = new THREE.Mesh(floorGeo, floorMat); floor.rotation.x = -Math.PI / 2; scene.add(floor);
 
-            const grid = new THREE.GridHelper(300, 60, 0xd97706, 0x4a321a);
-            grid.position.y = 0.02;
-            scene.add(grid);
+            const grid = new THREE.GridHelper(300, 60, 0xa855f7, 0x2e1065); grid.position.y = 0.02; scene.add(grid);
 
             window.addEventListener('resize', onWindowResize);
             setupGameControls();
@@ -459,74 +361,90 @@
             });
         }
 
-        function createSnake(color, isPlayer = false) {
-            let segments = [];
+        function createHero(color, isPlayer = false) {
             let group = new THREE.Group();
-            let initialLen = startBigActive && isPlayer ? 15 : snakeLength;
+            
+            // Savaşçı Gövdesi (Küre)
+            let core = new THREE.Mesh(new THREE.SphereGeometry(1, 32, 32), new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.4 }));
+            core.position.y = 1;
+            group.add(core);
 
-            for(let i = 0; i < initialLen; i++) {
-                let geo = new THREE.SphereGeometry(0.8 - (i * 0.01), 16, 16);
-                let mat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.4 });
-                let mesh = new THREE.Mesh(geo, mat);
-                mesh.position.set(0, 0.8, i * 1.2);
-                group.add(mesh);
-                segments.push(mesh);
+            // Dönen Bıçak Yuvası
+            let bladeGroup = new THREE.Group();
+            bladeGroup.position.y = 1;
+            group.add(bladeGroup);
+
+            let initialBlades = startBigActive && isPlayer ? 3 : 2;
+            let blades = [];
+
+            for(let i = 0; i < initialBlades; i++) {
+                let blade = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 2), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: color }));
+                bladeGroup.add(blade);
+                blades.push(blade);
             }
+
             scene.add(group);
-            return { group: group, segments: segments, x: 0, z: 0, angle: 0, color: color, isPlayer: isPlayer };
+            return { group: group, bladeGroup: bladeGroup, blades: blades, x: 0, z: 0, color: color, count: initialBlades, isPlayer: isPlayer };
         }
 
-        function spawnFoods() {
-            for(let i = 0; i < 120; i++) {
-                let geo = new THREE.DodecahedronGeometry(0.4);
-                let mat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff, emissive: 0x333333 });
-                let mesh = new THREE.Mesh(geo, mat);
-                mesh.position.set((Math.random() - 0.5) * 250, 0.4, (Math.random() - 0.5) * 250);
+        function updateBlades(hero) {
+            hero.blades.forEach(b => hero.bladeGroup.remove(b));
+            hero.blades = [];
+            for(let i = 0; i < hero.count; i++) {
+                let blade = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 2), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: hero.color }));
+                hero.bladeGroup.add(blade);
+                hero.blades.push(blade);
+            }
+        }
+
+        function spawnCrystals() {
+            for(let i = 0; i < 100; i++) {
+                let mesh = new THREE.Mesh(new THREE.OctahedronGeometry(0.5), new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff }));
+                mesh.position.set((Math.random() - 0.5) * 240, 0.5, (Math.random() - 0.5) * 240);
                 scene.add(mesh);
-                foods.push(mesh);
+                crystals.push(mesh);
             }
         }
 
         function spawnBots() {
             bots = [];
-            botNames.forEach((name, idx) => {
+            botNames.forEach((name) => {
                 let color = Math.random() * 0xffffff;
-                let bot = createSnake(color, false);
+                let bot = createHero(color, false);
                 bot.x = (Math.random() - 0.5) * 200;
                 bot.z = (Math.random() - 0.5) * 200;
                 bot.name = name;
-                bot.score = Math.floor(Math.random() * 5000) + 1000;
+                bot.count = Math.floor(Math.random() * 4) + 2;
+                updateBlades(bot);
                 bots.push(bot);
             });
         }
 
         function startGame() {
-            initAudio(); playSound('click');
+            initAudio();
             document.getElementById('lobby-ui').style.display = 'none';
             document.getElementById('gameover-overlay').style.display = 'none';
             document.getElementById('game-hud').style.display = 'flex';
 
-            score = 0; snakeLength = startBigActive ? 15 : 5;
+            score = 0; bladeCount = startBigActive ? 3 : 2;
 
-            // Eski objeleri temizle
-            foods.forEach(f => scene.remove(f));
+            crystals.forEach(c => scene.remove(c));
             bots.forEach(b => scene.remove(b.group));
-            if(playerSnake) scene.remove(playerSnake.group);
+            if(playerHero) scene.remove(playerHero.group);
 
-            foods = []; bots = [];
-            playerSnake = createSnake(selectedSnakeColor, true);
+            crystals = []; bots = [];
+            playerHero = createHero(selectedWeaponColor, true);
 
-            spawnFoods();
+            spawnCrystals();
             spawnBots();
             isPlaying = true;
         }
 
         function returnToLobby() {
-            playSound('click');
             document.getElementById('gameover-overlay').style.display = 'none';
             document.getElementById('game-hud').style.display = 'none';
             document.getElementById('lobby-ui').style.display = 'flex';
-            if(playerSnake) scene.remove(playerSnake.group);
+            if(playerHero) scene.remove(playerHero.group);
             isPlaying = false;
         }
 
@@ -544,13 +462,13 @@
 
         function updateLeaderboard() {
             let all = [{ name: playerName, score: score, isPlayer: true }];
-            bots.forEach(b => all.push({ name: b.name, score: b.score, isPlayer: false }));
+            bots.forEach(b => all.push({ name: b.name, score: b.count * 100, isPlayer: false }));
             all.sort((a, b) => b.score - a.score);
 
             let html = "";
             all.forEach((p, idx) => {
                 if(idx < 5) {
-                    let colorClass = p.isPlayer ? "text-amber-300 font-bold" : "text-gray-300";
+                    let colorClass = p.isPlayer ? "text-purple-300 font-bold" : "text-gray-300";
                     html += `<div class="flex justify-between ${colorClass}"><span>${idx+1}. ${p.name}</span><span>${p.score}</span></div>`;
                 }
             });
@@ -560,82 +478,89 @@
         function animate() {
             requestAnimationFrame(animate);
 
-            if(isPlaying && playerSnake) {
-                // Oyuncu Hareketi (Mouse / Joystick Yönü)
-                let targetAngle = Math.atan2(mouseX, -mouseY);
-                playerSnake.angle += (targetAngle - playerSnake.angle) * 0.1;
+            if(isPlaying && playerHero) {
+                // Oyuncu Hareketi
+                let speed = 0.3;
+                playerHero.x += mouseX * speed;
+                playerHero.z += -mouseY * speed;
 
-                let speed = 0.35;
-                playerSnake.x += Math.sin(playerSnake.angle) * speed;
-                playerSnake.z += Math.cos(playerSnake.angle) * speed;
+                playerHero.x = Math.max(-140, Math.min(140, playerHero.x));
+                playerHero.z = Math.max(-140, Math.min(140, playerHero.z));
 
-                // Sınırlar
-                playerSnake.x = Math.max(-140, Math.min(140, playerSnake.x));
-                playerSnake.z = Math.max(-140, Math.min(140, playerSnake.z));
+                playerHero.group.position.set(playerHero.x, 0, playerHero.z);
 
-                // Yılan Gövde İvmesi (Trail)
-                playerSnake.segments[0].position.set(playerSnake.x, 0.8, playerSnake.z);
-                for(let i = playerSnake.segments.length - 1; i > 0; i--) {
-                    let prev = playerSnake.segments[i-1].position;
-                    let curr = playerSnake.segments[i].position;
-                    curr.lerp(prev, 0.3);
-                }
+                // Bıçakları Döndür
+                playerHero.bladeGroup.rotation.y += 0.08;
+                playerHero.blades.forEach((b, idx) => {
+                    let angle = (idx / playerHero.count) * Math.PI * 2;
+                    let radius = 2.5;
+                    b.position.set(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
+                    b.rotation.y = -angle;
+                });
 
-                // Kamera Takibi
-                camera.position.x += (playerSnake.x - camera.position.x) * 0.1;
-                camera.position.z += (playerSnake.z + 18 - camera.position.z) * 0.1;
-                camera.lookAt(playerSnake.x, 0, playerSnake.z);
+                // Kamera
+                camera.position.x += (playerHero.x - camera.position.x) * 0.1;
+                camera.position.z += (playerHero.z + 20 - camera.position.z) * 0.1;
+                camera.lookAt(playerHero.x, 0, playerHero.z);
 
-                // Yem Yeme Kontrolü
-                for(let i = foods.length - 1; i >= 0; i--) {
-                    let f = foods[i];
-                    let dist = playerSnake.segments[0].position.distanceTo(f.position);
-                    if(dist < 1.5) {
+                // Kristal Toplama
+                for(let i = crystals.length - 1; i >= 0; i--) {
+                    let c = crystals[i];
+                    c.rotation.y += 0.05;
+                    let dist = playerHero.group.position.distanceTo(c.position);
+
+                    if(dist < 2.0) {
                         playSound('eat');
-                        scene.remove(f);
-                        foods.splice(i, 1);
-                        score += 50;
-                        snakeLength++;
+                        scene.remove(c);
+                        crystals.splice(i, 1);
+                        score += 100;
 
-                        // Yeni segment ekle
-                        let lastSeg = playerSnake.segments[playerSnake.segments.length - 1];
-                        let geo = new THREE.SphereGeometry(0.7, 16, 16);
-                        let mat = new THREE.MeshStandardMaterial({ color: selectedSnakeColor, roughness: 0.4 });
-                        let newMesh = new THREE.Mesh(geo, mat);
-                        newMesh.position.copy(lastSeg.position);
-                        playerSnake.group.add(newMesh);
-                        playerSnake.segments.push(newMesh);
+                        if(score % 300 === 0 && playerHero.count < 12) {
+                            playerHero.count++;
+                            updateBlades(playerHero);
+                        }
 
-                        // Yeni yem üret
-                        let newGeo = new THREE.DodecahedronGeometry(0.4);
-                        let newMat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
-                        let newFood = new THREE.Mesh(newGeo, newMat);
-                        newFood.position.set((Math.random() - 0.5) * 250, 0.4, (Math.random() - 0.5) * 250);
-                        scene.add(newFood);
-                        foods.push(newFood);
+                        // Yeni Kristal
+                        let newMesh = new THREE.Mesh(new THREE.OctahedronGeometry(0.5), new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff }));
+                        newMesh.position.set((Math.random() - 0.5) * 240, 0.5, (Math.random() - 0.5) * 240);
+                        scene.add(newMesh);
+                        crystals.push(newMesh);
                     }
                 }
 
-                // Bot Hareketleri
-                bots.forEach(b => {
-                    b.angle += (Math.random() - 0.5) * 0.2;
-                    b.x += Math.sin(b.angle) * 0.25;
-                    b.z += Math.cos(b.angle) * 0.25;
-                    b.segments[0].position.set(b.x, 0.8, b.z);
-                    for(let i = b.segments.length - 1; i > 0; i--) {
-                        b.segments[i].position.lerp(b.segments[i-1].position, 0.3);
-                    }
-                    b.score += 1;
+                // Botlarla Savaş
+                bots.forEach((bot, idx) => {
+                    bot.x += (Math.sin(Date.now() * 0.001 + idx) * 0.15);
+                    bot.z += (Math.cos(Date.now() * 0.001 + idx) * 0.15);
+                    bot.group.position.set(bot.x, 0, bot.z);
 
-                    // Oyuncu ile Bot Çarpışması
-                    let dist = playerSnake.segments[0].position.distanceTo(b.segments[0].position);
-                    if(dist < 1.2) {
-                        gameOver();
+                    bot.bladeGroup.rotation.y += 0.08;
+                    bot.blades.forEach((b, bIdx) => {
+                        let angle = (bIdx / bot.count) * Math.PI * 2;
+                        b.position.set(Math.cos(angle) * 2.5, 0, Math.sin(angle) * 2.5);
+                        b.rotation.y = -angle;
+                    });
+
+                    // Çarpışma Testi
+                    let dist = playerHero.group.position.distanceTo(bot.group.position);
+                    if(dist < 3.2) {
+                        if(playerHero.count >= bot.count) {
+                            // Botu yok et!
+                            playSound('eat');
+                            scene.remove(bot.group);
+                            bots.splice(idx, 1);
+                            score += 500;
+                            playerHero.count++;
+                            updateBlades(playerHero);
+                        } else {
+                            // Oyuncu elendi!
+                            gameOver();
+                        }
                     }
                 });
 
                 document.getElementById('score-text').innerText = score;
-                document.getElementById('length-text').innerText = playerSnake.segments.length;
+                document.getElementById('blades-text').innerText = playerHero.count;
                 updateLeaderboard();
             }
 
