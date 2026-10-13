@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -8,22 +9,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; overflow: hidden; background: #120924; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; touch-action: none; }
+        body { margin: 0; overflow: hidden; background: #0d0714; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; touch-action: none; }
         #canvas-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; }
         .ui-layer { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 16px; }
         .interactive { pointer-events: auto !important; cursor: pointer; }
         
         /* Arcade UI Stilleri */
-        .arcade-panel { background: linear-gradient(135deg, #7e22ce, #581c87); border: 3px solid #c084fc; box-shadow: 0 6px 0 #3b0764, inset 0 2px 6px rgba(255,255,255,0.4); border-radius: 20px; }
-        .btn-play-green { background: linear-gradient(180deg, #4ade80 0%, #22c55e 50%, #15803d 100%); border: 4px solid #86efac; box-shadow: 0 8px 0 #14532d, 0 15px 25px rgba(0,0,0,0.5); border-radius: 28px; transition: transform 0.1s, box-shadow 0.1s; }
-        .btn-play-green:active { transform: translateY(6px); box-shadow: 0 2px 0 #14532d, 0 5px 10px rgba(0,0,0,0.5); }
-        .arcade-btn { background: linear-gradient(180deg, #9333ea 0%, #6b21a8 100%); border: 3px solid #d8b4fe; box-shadow: 0 5px 0 #3b0764; border-radius: 16px; transition: transform 0.1s; }
+        .arcade-panel { background: linear-gradient(135deg, #581c87, #3b0764); border: 2px solid #a855f7; box-shadow: 0 6px 0 #1e1b4b, inset 0 2px 4px rgba(255,255,255,0.3); border-radius: 18px; }
+        .btn-play-green { background: linear-gradient(180deg, #22c55e 0%, #16a34a 50%, #15803d 100%); border: 3px solid #86efac; box-shadow: 0 8px 0 #14532d, 0 10px 20px rgba(0,0,0,0.6); border-radius: 24px; transition: transform 0.1s, box-shadow 0.1s; }
+        .btn-play-green:active { transform: translateY(4px); box-shadow: 0 4px 0 #14532d, 0 5px 10px rgba(0,0,0,0.6); }
+        .arcade-btn { background: linear-gradient(180deg, #7e22ce 0%, #6b21a8 100%); border: 2px solid #c084fc; box-shadow: 0 5px 0 #3b0764; border-radius: 16px; transition: transform 0.1s; }
         .arcade-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #3b0764; }
-        .modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; align-items: center; justify-content: center; padding: 20px; pointer-events: auto; }
+        .modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: none; items-center: center; justify-content: center; padding: 20px; pointer-events: auto; }
         
         /* Sanal Joystick */
-        #virtual-joystick { position: fixed; bottom: 40px; left: 40px; width: 130px; height: 130px; border: 3px dashed rgba(192, 132, 252, 0.5); border-radius: 50%; z-index: 90; display: none; pointer-events: auto; touch-action: none; }
-        #joystick-knob { position: absolute; top: 35px; left: 35px; width: 54px; height: 54px; background: radial-gradient(circle, #e879f9, #9333ea); border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 15px #e879f9; pointer-events: none; }
+        #virtual-joystick { position: fixed; bottom: 40px; left: 40px; width: 120px; height: 120px; border: 3px dashed rgba(168, 85, 247, 0.6); border-radius: 50%; z-index: 90; display: none; pointer-events: auto; touch-action: none; background: rgba(0,0,0,0.2); }
+        #joystick-knob { position: absolute; top: 32px; left: 32px; width: 50px; height: 50px; background: radial-gradient(circle, #f0abfc, #c084fc); border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 12px #d8b4fe; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -43,10 +44,10 @@
         <div class="flex justify-between items-start w-full">
             <!-- Profil Kutusu -->
             <div class="arcade-panel p-3 flex items-center gap-3 interactive" id="profile-btn">
-                <div id="skin-avatar-icon" class="w-12 h-12 rounded-xl bg-purple-600 border-2 border-purple-300 flex items-center justify-center text-2xl shadow-inner">⚔️</div>
+                <div id="skin-avatar-icon" class="w-12 h-12 rounded-xl bg-cyan-500 border-2 border-white flex items-center justify-center text-2xl shadow-inner">⚔️</div>
                 <div>
                     <div class="flex items-center gap-1">
-                        <span id="lobby-player-name" class="text-white font-black text-sm">Amin</span>
+                        <span id="lobby-player-name" class="text-white font-black text-sm">Shedx</span>
                         <span class="text-xs text-purple-200">✏️</span>
                     </div>
                     <span class="text-[10px] text-purple-300 font-mono">ID: #8574</span>
@@ -57,35 +58,34 @@
             <div class="flex items-center gap-3">
                 <div class="arcade-panel px-4 py-2 flex items-center gap-2">
                     <span class="text-xl">🪙</span>
-                    <span id="lobby-coins" class="text-white font-black text-base">250</span>
-                    <button class="w-6 h-6 bg-yellow-400 text-purple-950 font-black rounded-lg text-xs interactive shadow" id="add-coin-btn">+</button>
+                    <span id="lobby-coins" class="text-white font-black text-base">500</span>
                 </div>
                 <div class="arcade-panel px-4 py-2 text-center">
                     <div class="text-[9px] text-purple-300 font-bold">EN YÜKSEK SKOR</div>
-                    <div class="text-white font-black text-sm font-mono">20,572</div>
+                    <div id="high-score-val" class="text-white font-black text-sm font-mono">20,572</div>
                 </div>
             </div>
         </div>
 
         <!-- Orta Menü Butonları -->
         <div class="grid grid-cols-3 gap-4 w-full max-w-md mx-auto my-auto">
-            <!-- Market Butonu ($) -->
+            <!-- Market Butonu (Altın İle Satın Alma) -->
             <div class="arcade-btn p-4 flex flex-col items-center justify-center text-white interactive h-32" id="open-market-btn">
                 <span class="text-3xl mb-1">🛒</span>
                 <span class="font-black text-xs tracking-wider">MARKET</span>
-                <span class="text-[10px] text-purple-300 font-mono">$0.49 - $0.99</span>
+                <span class="text-[10px] text-purple-300 font-mono">Altın Harca</span>
             </div>
 
             <!-- Skinler Butonu -->
             <div class="arcade-btn p-4 flex flex-col items-center justify-center text-white interactive h-32" id="open-skins-btn">
                 <span class="text-3xl mb-1">🗡️</span>
                 <span class="font-black text-xs tracking-wider">SKİNLER</span>
-                <span id="skin-status-text" class="text-[10px] text-purple-300 font-mono">Normal</span>
+                <span id="skin-status-text" class="text-[10px] text-purple-300 font-mono">Siyan Mecha</span>
             </div>
 
             <!-- Görevler Butonu -->
             <div class="arcade-btn p-4 flex flex-col items-center justify-center text-white interactive h-32 relative" id="open-quests-btn">
-                <span class="absolute top-2 right-2 w-5 h-5 bg-red-600 rounded-full text-white text-[10px] font-bold flex items-center justify-center shadow">1</span>
+                <span id="quest-badge" class="absolute top-2 right-2 w-5 h-5 bg-red-600 rounded-full text-white text-[10px] font-bold flex items-center justify-center shadow">1</span>
                 <span class="text-3xl mb-1">📋</span>
                 <span class="font-black text-xs tracking-wider">GÖREVLER</span>
                 <span class="text-[10px] text-purple-300 font-mono">Aktif</span>
@@ -95,7 +95,7 @@
         <!-- Alt Alan: Sağ Alt Devasa Yeşil Oyna Düğmesi -->
         <div class="flex justify-between items-end w-full pb-4">
             <div class="arcade-panel px-4 py-3 text-white text-xs font-bold">
-                BladeStorm Pro v3.5<br><span class="text-[9px] text-purple-300">Online Arena</span>
+                BladeStorm Pro v4.0<br><span class="text-[9px] text-purple-300">3D Battle Arena</span>
             </div>
 
             <button class="btn-play-green px-12 py-5 text-white font-black text-2xl tracking-widest interactive shadow-2xl flex items-center gap-3" id="big-play-btn">
@@ -110,8 +110,8 @@
     <div id="game-hud" class="ui-layer" style="display: none; pointer-events: none;">
         <div class="flex justify-between items-start w-full">
             <div class="arcade-panel px-4 py-2 text-white font-mono text-xs">
-                <div>SKOR: <span id="hud-score" class="text-yellow-300 font-bold">0</span></div>
-                <div>BIÇAK SAYISI: <span id="hud-blades" class="text-green-300 font-bold">2</span></div>
+                <div>GÜÇ / SKOR: <span id="hud-score" class="text-yellow-300 font-bold">0</span></div>
+                <div>KILIÇ SAYISI: <span id="hud-blades" class="text-green-300 font-bold">2</span></div>
             </div>
             <div class="arcade-panel px-4 py-2 text-white font-mono text-xs min-w-[160px]">
                 <div class="text-purple-300 font-bold border-b border-purple-400/40 pb-1 mb-1">🏆 ARENA LİDERLERİ</div>
@@ -124,43 +124,50 @@
     <!-- OYUN BİTTİ EKRANI -->
     <div id="gameover-overlay" class="modal-overlay">
         <div class="arcade-panel p-8 max-w-sm w-full text-center text-white">
-            <h2 class="text-3xl font-black text-red-400 mb-2">PARÇALANDIN!</h2>
-            <p id="gameover-score" class="text-sm font-mono mb-6">Skorun: 0</p>
+            <h2 class="text-3xl font-black text-red-500 mb-2">ELENDİN!</h2>
+            <p id="gameover-score" class="text-sm font-mono mb-2">Toplam Güç: 0</p>
+            <p id="gameover-coins" class="text-xs text-yellow-300 font-mono mb-6">Kazanılan Altın: +0 🪙</p>
             <button class="btn-play-green w-full py-4 font-black text-base interactive" id="restart-btn">TEKRAR OYNA</button>
         </div>
     </div>
 
-    <!-- MARKET MODALI ($0.49 - $0.99 USD) -->
+    <!-- OYUN İÇİ ALTIN İLE SATIN ALMA MARKETİ -->
     <div id="market-modal" class="modal-overlay">
         <div class="arcade-panel p-6 max-w-md w-full text-white relative">
             <div class="flex justify-between items-center mb-4 border-b border-purple-400/40 pb-2">
-                <h3 class="text-xl font-black text-yellow-300">🛒 PREMİUM MARKET</h3>
+                <h3 class="text-xl font-black text-yellow-300">🛒 ALTIN MARKETİ</h3>
                 <button class="w-8 h-8 rounded-full bg-red-600 text-white font-bold interactive close-modal-btn">✕</button>
             </div>
             <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-purple-950/60 p-3 rounded-xl border border-purple-500/50 text-center interactive store-item" data-price="0.49" data-reward="500">
-                    <div class="text-2xl mb-1">🪙</div>
-                    <div class="font-black text-sm">500 Altın</div>
-                    <div class="mt-2 bg-green-600 text-white text-xs font-black py-1 px-3 rounded-lg inline-block">$0.49 USD</div>
+                <div class="bg-purple-950/60 p-3 rounded-xl border border-purple-500/50 text-center flex flex-col justify-between h-36">
+                    <div>
+                        <div class="text-2xl mb-1">🔥</div>
+                        <div class="font-black text-xs">Ateş Aurası</div>
+                        <div class="text-[10px] text-purple-300">Karakter Etrafında Işık</div>
+                    </div>
+                    <button class="buy-item-btn bg-yellow-500 hover:bg-yellow-400 text-purple-950 text-xs font-black py-1 px-3 rounded-lg interactive mt-2" data-cost="200" data-type="aura" data-val="fire">200 🪙</button>
                 </div>
-                <div class="bg-purple-950/60 p-3 rounded-xl border border-purple-500/50 text-center interactive store-item" data-price="0.99" data-reward="1500">
-                    <div class="text-2xl mb-1">💰</div>
-                    <div class="font-black text-sm">1500 Altın + Skin</div>
-                    <div class="mt-2 bg-green-600 text-white text-xs font-black py-1 px-3 rounded-lg inline-block">$0.99 USD</div>
+                <div class="bg-purple-950/60 p-3 rounded-xl border border-purple-500/50 text-center flex flex-col justify-between h-36">
+                    <div>
+                        <div class="text-2xl mb-1">⚡</div>
+                        <div class="font-black text-xs">Yıldırım Kılıçlar</div>
+                        <div class="text-[10px] text-purple-300">Extra Parlak Bıçaklar</div>
+                    </div>
+                    <button class="buy-item-btn bg-yellow-500 hover:bg-yellow-400 text-purple-950 text-xs font-black py-1 px-3 rounded-lg interactive mt-2" data-cost="400" data-type="skin" data-val="lightning">400 🪙</button>
                 </div>
             </div>
-            <p class="text-[10px] text-purple-300 text-center">Ödemeler SSL güvenli kart sistemi ile işlenir.</p>
+            <p class="text-[10px] text-purple-300 text-center">Oyun oynayarak altın kazanabilirsin!</p>
         </div>
     </div>
 
-    <!-- SKİN SEÇİM MODALI (Görsel Önizlemeli) -->
+    <!-- SKİN SEÇİM MODALI -->
     <div id="skins-modal" class="modal-overlay">
         <div class="arcade-panel p-6 max-w-md w-full text-white relative">
             <div class="flex justify-between items-center mb-4 border-b border-purple-400/40 pb-2">
                 <h3 class="text-xl font-black text-yellow-300">🗡️ KILIÇ & SKİN SEÇİMİ</h3>
                 <button class="w-8 h-8 rounded-full bg-red-600 text-white font-bold interactive close-modal-btn">✕</button>
             </div>
-            <div class="grid grid-cols-3 gap-3 mb-4">
+            <div class="grid grid-cols-3 gap-3 mb-4" id="skin-list-container">
                 <div class="bg-purple-950/60 p-3 rounded-xl border-2 border-cyan-400 text-center interactive skin-select-btn" data-color="0x00f0ff" data-name="Siyan Mecha">
                     <div class="w-10 h-10 mx-auto rounded-full bg-cyan-400 mb-2 shadow-[0_0_10px_#00f0ff]"></div>
                     <div class="font-bold text-xs">Siyan</div>
@@ -178,7 +185,7 @@
         </div>
     </div>
 
-    <!-- GÖREVLER MODALI (Çalışan Sistem) -->
+    <!-- GÖREVLER MODALI -->
     <div id="quests-modal" class="modal-overlay">
         <div class="arcade-panel p-6 max-w-md w-full text-white relative">
             <div class="flex justify-between items-center mb-4 border-b border-purple-400/40 pb-2">
@@ -198,41 +205,21 @@
         </div>
     </div>
 
-    <!-- ÖDEME SİMPLATÖRÜ MODALI -->
-    <div id="payment-modal" class="modal-overlay">
-        <div class="arcade-panel p-6 max-w-md w-full text-white relative">
-            <div class="flex justify-between items-center mb-4 border-b border-purple-400/40 pb-2">
-                <h3 class="text-xl font-black text-yellow-300">💳 GÜVENLİ ÖDEME (SSL)</h3>
-                <button class="w-8 h-8 rounded-full bg-red-600 text-white font-bold interactive" id="close-payment-btn">✕</button>
-            </div>
-            <div class="space-y-3 mb-4 text-xs font-mono">
-                <div>Ödül Paket: <span id="pay-item-name" class="text-yellow-300 font-bold">500 Altın</span></div>
-                <div>Tutar: <span id="pay-item-price" class="text-green-400 font-bold">$0.49 USD</span></div>
-                <div>Kart Numarası: <input type="text" placeholder="4111 2222 3333 4444" class="w-full mt-1 p-2 rounded bg-black/40 border border-purple-400 text-white outline-none" maxlength="19"></div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>SKT: <input type="text" placeholder="MM/YY" class="w-full mt-1 p-2 rounded bg-black/40 border border-purple-400 text-white outline-none"></div>
-                    <div>CVV: <input type="text" placeholder="123" class="w-full mt-1 p-2 rounded bg-black/40 border border-purple-400 text-white outline-none" maxlength="4"></div>
-                </div>
-            </div>
-            <button class="btn-play-green w-full py-3 font-black text-sm interactive" id="confirm-payment-btn">ÖDEMEYİ ONAYLA VE YÜKLE</button>
-        </div>
-    </div>
-
-    <!-- 1000+ SATIR KAPSAMLI JAVASCRIPT MOTORU -->
+    <!-- JAVASCRIPT OYUN MOTORU VE MANTIK -->
     <script>
         // --- 📊 OYUN VE LOBİ DURUMU ---
         const GameState = {
-            coins: 250,
-            playerName: "Amin",
+            coins: 500,
+            playerName: "Shedx",
             selectedSkinColor: 0x00f0ff,
-            skinName: "Siyan",
+            skinName: "Siyan Mecha",
             gamesPlayed: 0,
             questClaimed: false,
             score: 0,
             bladesCount: 2,
             isPlaying: false,
-            selectedStoreReward: 500,
-            selectedStorePrice: "$0.49"
+            highScore: 20572,
+            unlockedAura: false
         };
 
         // --- 🔊 SES SİSTEMİ (Web Audio API) ---
@@ -254,25 +241,23 @@
                     gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
                     osc.start(now); osc.stop(now + 0.05);
                 } else if (type === 'eat') {
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.1);
-                    gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
-                    osc.start(now); osc.stop(now + 0.1);
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(900, now + 0.08);
+                    gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now); osc.stop(now + 0.08);
                 } else if (type === 'success') {
-                    osc.type = 'square'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(600, now + 0.2);
+                    osc.type = 'square'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.2);
                     gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
                     osc.start(now); osc.stop(now + 0.2);
                 } else if (type === 'crash') {
-                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(40, now + 0.3);
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, now); osc.frequency.linearRampToValueAtTime(30, now + 0.3);
                     gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
                     osc.start(now); osc.stop(now + 0.3);
                 }
             } catch(e) {}
         }
 
-        // --- 🪟 DOM YÖNETİMİ VE ETKİLEŞİM BAĞLANTILARI ---
+        // --- 🪟 DOM VE ETKİLEŞİM BAĞLANTILARI ---
         document.addEventListener('DOMContentLoaded', () => {
-            console.log("BladeStorm Pro v3.5 Başarıyla Yüklendi.");
-
             // Modalları Açma
             document.getElementById('open-market-btn').addEventListener('click', () => { playSound('click'); document.getElementById('market-modal').style.display = 'flex'; });
             document.getElementById('open-skins-btn').addEventListener('click', () => { playSound('click'); document.getElementById('skins-modal').style.display = 'flex'; });
@@ -287,13 +272,6 @@
                 }
             });
 
-            document.getElementById('add-coin-btn').addEventListener('click', (e) => {
-                e.stopPropagation();
-                playSound('success');
-                GameState.coins += 100;
-                document.getElementById('lobby-coins').innerText = GameState.coins;
-            });
-
             // Modalları Kapatma
             document.querySelectorAll('.close-modal-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -302,30 +280,31 @@
                 });
             });
 
-            // Market USD Ürün Seçimi
-            document.querySelectorAll('.store-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    playSound('click');
-                    GameState.selectedStorePrice = "$" + item.getAttribute('data-price') + " USD";
-                    GameState.selectedStoreReward = parseInt(item.getAttribute('data-reward'));
-                    document.getElementById('pay-item-name').innerText = item.querySelector('.font-black').innerText;
-                    document.getElementById('pay-item-price').innerText = GameState.selectedStorePrice;
-                    document.getElementById('market-modal').style.display = 'none';
-                    document.getElementById('payment-modal').style.display = 'flex';
+            // Market Altın Satın Alma Mantığı
+            document.querySelectorAll('.buy-item-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    let cost = parseInt(btn.getAttribute('data-cost'));
+                    let type = btn.getAttribute('data-type');
+                    
+                    if (GameState.coins >= cost) {
+                        playSound('success');
+                        GameState.coins -= cost;
+                        document.getElementById('lobby-coins').innerText = GameState.coins;
+                        btn.innerText = "ALINDI";
+                        btn.classList.remove('bg-yellow-500', 'interactive');
+                        btn.classList.add('bg-gray-600', 'opacity-50');
+                        btn.disabled = true;
+
+                        if (type === 'aura') {
+                            GameState.unlockedAura = true;
+                            alert("Ateş Aurası Açıldı! Karakterinize özel ışık eklendi.");
+                        } else if (type === 'skin') {
+                            alert("Yıldırım Kılıçlar Başarıyla Satın Alındı!");
+                        }
+                    } else {
+                        alert("Yetersiz Altın! Oyun oynayarak altın toplayabilirsin.");
+                    }
                 });
-            });
-
-            document.getElementById('close-payment-btn').addEventListener('click', () => {
-                playSound('click');
-                document.getElementById('payment-modal').style.display = 'none';
-            });
-
-            document.getElementById('confirm-payment-btn').addEventListener('click', () => {
-                playSound('success');
-                GameState.coins += GameState.selectedStoreReward;
-                document.getElementById('lobby-coins').innerText = GameState.coins;
-                alert("Ödeme Başarılı! " + GameState.selectedStoreReward + " Altın hesabınıza yüklendi.");
-                document.getElementById('payment-modal').style.display = 'none';
             });
 
             // Skin Seçimi
@@ -337,7 +316,7 @@
                     GameState.selectedSkinColor = parseInt(btn.getAttribute('data-color'));
                     GameState.skinName = btn.getAttribute('data-name');
                     document.getElementById('skin-status-text').innerText = GameState.skinName;
-                    document.getElementById('skin-avatar-icon').style.backgroundColor = '#' + GameState.selectedSkinColor.toString(16);
+                    document.getElementById('skin-avatar-icon').style.backgroundColor = '#' + GameState.selectedSkinColor.toString(16).padStart(6, '0');
                 });
             });
 
@@ -353,6 +332,7 @@
                     claimBtn.classList.remove('bg-green-600', 'interactive');
                     claimBtn.classList.add('bg-gray-600', 'opacity-50');
                     claimBtn.disabled = true;
+                    document.getElementById('quest-badge').style.display = 'none';
                 }
             });
 
@@ -368,40 +348,44 @@
             initThreeEngine();
         });
 
-        // --- 🎮 3D THREE.JS OYUN MOTORU VE BOT AI ---
+        // --- 🎮 3D THREE.JS OYUN MOTORU VE GELİŞMİŞ BOT AI ---
         let scene, camera, renderer, playerHero;
         let crystals = [], bots = [];
         let joystickVector = { x: 0, y: 0 };
+        const BOT_NAMES = ["Vortex", "Slasher", "CyberBlade", "Shadow", "Titan", "Phantom", "Apex", "Spectre"];
 
         function initThreeEngine() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x120924);
-            scene.fog = new THREE.FogExp2(0x120924, 0.015);
+            scene.background = new THREE.Color(0x0d0714);
+            scene.fog = new THREE.FogExp2(0x0d0714, 0.012);
 
             camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 25, 18);
+            camera.position.set(0, 26, 18);
             camera.lookAt(0, 0, 0);
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
             container.appendChild(renderer.domElement);
 
-            const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+            const ambient = new THREE.AmbientLight(0xffffff, 0.7);
             scene.add(ambient);
-            const dirLight = new THREE.DirectionalLight(0xc084fc, 1);
-            dirLight.position.set(20, 50, 20);
+
+            const dirLight = new THREE.DirectionalLight(0xc084fc, 1.2);
+            dirLight.position.set(30, 60, 30);
+            dirLight.castShadow = true;
             scene.add(dirLight);
 
             // Zemin Izgarası
-            const floorGeo = new THREE.PlaneGeometry(300, 300);
-            const floorMat = new THREE.MeshStandardMaterial({ color: 0x1e1035, roughness: 0.9 });
+            const floorGeo = new THREE.PlaneGeometry(320, 320);
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x160c28, roughness: 0.8, metalness: 0.2 });
             const floor = new THREE.Mesh(floorGeo, floorMat);
             floor.rotation.x = -Math.PI / 2;
             scene.add(floor);
 
-            const grid = new THREE.GridHelper(300, 60, 0xa855f7, 0x2e1065);
+            const grid = new THREE.GridHelper(320, 64, 0x9333ea, 0x3b0764);
             grid.position.y = 0.02;
             scene.add(grid);
 
@@ -410,7 +394,7 @@
             animateGameLoop();
         }
 
-        // Joystick Kontrol Mekaniği
+        // Joystick Kontrol Mekaniği (DÜZELTİLDİ: Ters Yön Düzeltildi)
         function setupVirtualJoystick() {
             const joystick = document.getElementById('virtual-joystick');
             const knob = document.getElementById('joystick-knob');
@@ -428,7 +412,7 @@
                 let dx = e.clientX - center.x;
                 let dy = e.clientY - center.y;
                 let dist = Math.hypot(dx, dy);
-                let maxDist = 45;
+                let maxDist = 40;
 
                 if (dist > maxDist) {
                     dx = (dx / dist) * maxDist;
@@ -436,8 +420,10 @@
                 }
 
                 knob.style.transform = `translate(${dx}px, ${dy}px)`;
+                
+                // İLERİ/GERİ DÜZELTİLDİ: dy işareti ters çevrildi
                 joystickVector.x = dx / maxDist;
-                joystickVector.y = -dy / maxDist;
+                joystickVector.y = dy / maxDist; 
             });
 
             window.addEventListener('pointerup', () => {
@@ -448,12 +434,35 @@
             });
         }
 
-        function createHero(color, isPlayer = false) {
+        // GELİŞMİŞ KARAKTER VE KILIÇ MODELLEMESİ
+        function createHero(color, isPlayer = false, customName = "") {
             let group = new THREE.Group();
-            let coreMat = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.5 });
-            let core = new THREE.Mesh(new THREE.SphereGeometry(1.2, 32, 32), coreMat);
-            core.position.y = 1.2;
+
+            // Gövde (Detaylı Mecha Şekil)
+            let coreMat = new THREE.MeshStandardMaterial({ color: color, metalness: 0.8, roughness: 0.2, emissive: color, emissiveIntensity: 0.3 });
+            let core = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 0.7, 1.8, 16), coreMat);
+            core.position.y = 1.1;
             group.add(core);
+
+            // Baş / Kask
+            let head = new THREE.Mesh(new THREE.SphereGeometry(0.65, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.9, roughness: 0.1 }));
+            head.position.y = 2.2;
+            group.add(head);
+
+            // Visor (Göz Bandı)
+            let visor = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.2, 0.5), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
+            visor.position.set(0, 2.25, 0.4);
+            group.add(visor);
+
+            // Aura Efekti (Satın Alındıysa)
+            if (isPlayer && GameState.unlockedAura) {
+                let auraGeo = new THREE.RingGeometry(1.2, 1.8, 32);
+                let auraMat = new THREE.MeshBasicMaterial({ color: 0xffa500, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
+                let aura = new THREE.Mesh(auraGeo, auraMat);
+                aura.rotation.x = -Math.PI / 2;
+                aura.position.y = 0.1;
+                group.add(aura);
+            }
 
             let bladeGroup = new THREE.Group();
             bladeGroup.position.y = 1.2;
@@ -462,48 +471,93 @@
             let initialBlades = 2;
             let blades = [];
             for (let i = 0; i < initialBlades; i++) {
-                let blade = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.12, 2.4), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: color }));
+                let blade = createBladeMesh(color);
                 bladeGroup.add(blade);
                 blades.push(blade);
             }
 
             scene.add(group);
-            return { group, bladeGroup, blades, x: (Math.random() - 0.5) * 100, z: (Math.random() - 0.5) * 100, color, count: initialBlades, isPlayer };
+            return {
+                group,
+                bladeGroup,
+                blades,
+                x: (Math.random() - 0.5) * 160,
+                z: (Math.random() - 0.5) * 160,
+                color,
+                count: initialBlades,
+                isPlayer,
+                name: isPlayer ? GameState.playerName : customName
+            };
+        }
+
+        function createBladeMesh(color) {
+            let bladeContainer = new THREE.Group();
+            let swordGeo = new THREE.BoxGeometry(0.18, 0.1, 2.8);
+            let swordMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: color, emissiveIntensity: 0.6, metalness: 0.9, roughness: 0.1 });
+            let sword = new THREE.Mesh(swordGeo, swordMat);
+            sword.position.z = 1.4;
+            bladeContainer.add(sword);
+
+            let tipGeo = new THREE.ConeGeometry(0.12, 0.6, 4);
+            let tipMat = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.8 });
+            let tip = new THREE.Mesh(tipGeo, tipMat);
+            tip.rotation.x = Math.PI / 2;
+            tip.position.z = 2.9;
+            bladeContainer.add(tip);
+
+            return bladeContainer;
         }
 
         function updateHeroBlades(hero) {
             hero.blades.forEach(b => hero.bladeGroup.remove(b));
             hero.blades = [];
             for (let i = 0; i < hero.count; i++) {
-                let blade = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.12, 2.4), new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: hero.color }));
+                let blade = createBladeMesh(hero.color);
                 hero.bladeGroup.add(blade);
                 hero.blades.push(blade);
             }
         }
 
+        // GELİŞMİŞ YEM KÜPLERİ (Çift Katmanlı Işıltılı Kristaller)
         function spawnCrystals() {
-            crystals.forEach(c => scene.remove(c));
+            crystals.forEach(c => scene.remove(c.mesh));
             crystals = [];
-            for (let i = 0; i < 90; i++) {
-                let mesh = new THREE.Mesh(new THREE.OctahedronGeometry(0.6), new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff }));
-                mesh.position.set((Math.random() - 0.5) * 240, 0.6, (Math.random() - 0.5) * 240);
-                scene.add(mesh);
-                crystals.push(mesh);
+            for (let i = 0; i < 100; i++) {
+                let group = new THREE.Group();
+                let inner = new THREE.Mesh(new THREE.OctahedronGeometry(0.55), new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00f0ff, emissiveIntensity: 0.8 }));
+                let outer = new THREE.Mesh(new THREE.OctahedronGeometry(0.8), new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true, transparent: true, opacity: 0.5 }));
+                group.add(inner);
+                group.add(outer);
+
+                let x = (Math.random() - 0.5) * 260;
+                let z = (Math.random() - 0.5) * 260;
+                group.position.set(x, 0.8, z);
+
+                scene.add(group);
+                crystals.push({ mesh: group, x, z, inner, outer, rotSpeed: Math.random() * 0.04 + 0.02 });
             }
+        }
+
+        function createSingleBot() {
+            let name = BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)];
+            let color = Math.random() * 0xffffff;
+            let bot = createHero(color, false, name);
+            bot.count = Math.floor(Math.random() * 3) + 2;
+            updateHeroBlades(bot);
+            return bot;
         }
 
         function spawnBots() {
             bots.forEach(b => scene.remove(b.group));
             bots = [];
-            let names = ["Slasher", "CyberSword", "Vortex", "ShadowBlade", "BladeMaster"];
-            names.forEach((name) => {
-                let color = Math.random() * 0xffffff;
-                let bot = createHero(color, false);
-                bot.name = name;
-                bot.count = Math.floor(Math.random() * 3) + 2;
-                updateHeroBlades(bot);
-                bots.push(bot);
-            });
+            for (let i = 0; i < 6; i++) {
+                bots.push(createSingleBot());
+            }
+        }
+
+        function respawnBot(botIndex) {
+            scene.remove(bots[botIndex].group);
+            bots[botIndex] = createSingleBot();
         }
 
         function startGame() {
@@ -533,13 +587,22 @@
             document.getElementById('lobby-ui').style.display = 'flex';
             if (playerHero) scene.remove(playerHero.group);
             bots.forEach(b => scene.remove(b.group));
-            crystals.forEach(c => scene.remove(c));
+            crystals.forEach(c => scene.remove(c.mesh));
         }
 
         function gameOver() {
             GameState.isPlaying = false;
             playSound('crash');
             GameState.gamesPlayed++;
+
+            let earnedCoins = Math.floor(GameState.score / 10);
+            GameState.coins += earnedCoins;
+            document.getElementById('lobby-coins').innerText = GameState.coins;
+
+            if (GameState.score > GameState.highScore) {
+                GameState.highScore = GameState.score;
+                document.getElementById('high-score-val').innerText = GameState.highScore.toLocaleString();
+            }
             
             if (GameState.gamesPlayed >= 2 && !GameState.questClaimed) {
                 const claimBtn = document.getElementById('claim-quest-btn');
@@ -553,19 +616,20 @@
             document.getElementById('game-hud').style.display = 'none';
             document.getElementById('virtual-joystick').style.display = 'none';
             document.getElementById('canvas-container').style.pointerEvents = 'none';
-            document.getElementById('gameover-score').innerText = `Skorun: ${GameState.score}`;
+            document.getElementById('gameover-score').innerText = `Toplam Güç: ${GameState.score}`;
+            document.getElementById('gameover-coins').innerText = `Kazanılan Altın: +${earnedCoins} 🪙`;
             document.getElementById('gameover-overlay').style.display = 'flex';
         }
 
         function updateLeaderboardUI() {
             let list = [{ name: GameState.playerName, score: GameState.score }];
-            bots.forEach(b => list.push({ name: b.name, score: b.count * 150 }));
+            bots.forEach(b => list.push({ name: b.name, score: b.count * 300 }));
             list.sort((a, b) => b.score - a.score);
 
             let html = "";
             list.forEach((p, idx) => {
                 if (idx < 5) {
-                    html += `<div class="flex justify-between"><span>${idx+1}. ${p.name}</span><span>${p.score}</span></div>`;
+                    html += `<div class="flex justify-between ${p.name === GameState.playerName ? 'text-yellow-300 font-bold' : ''}"><span>${idx+1}. ${p.name}</span><span>${p.score}</span></div>`;
                 }
             });
             document.getElementById('leaderboard-container').innerHTML = html;
@@ -575,77 +639,106 @@
             requestAnimationFrame(animateGameLoop);
 
             if (GameState.isPlaying && playerHero) {
-                let speed = 0.35;
+                let speed = 0.38;
                 playerHero.x += joystickVector.x * speed;
                 playerHero.z += joystickVector.y * speed;
 
-                playerHero.x = Math.max(-140, Math.min(140, playerHero.x));
-                playerHero.z = Math.max(-140, Math.min(140, playerHero.z));
+                playerHero.x = Math.max(-150, Math.min(150, playerHero.x));
+                playerHero.z = Math.max(-150, Math.min(150, playerHero.z));
 
                 playerHero.group.position.set(playerHero.x, 0, playerHero.z);
 
-                playerHero.bladeGroup.rotation.y += 0.1;
+                // Yön Dönüşü
+                if (joystickVector.x !== 0 || joystickVector.y !== 0) {
+                    let angle = Math.atan2(joystickVector.x, joystickVector.y);
+                    playerHero.group.rotation.y = angle;
+                }
+
+                playerHero.bladeGroup.rotation.y += 0.12;
                 playerHero.blades.forEach((b, idx) => {
                     let angle = (idx / playerHero.count) * Math.PI * 2;
-                    b.position.set(Math.cos(angle) * 2.5, 0, Math.sin(angle) * 2.5);
+                    b.position.set(Math.cos(angle) * 2.6, 0, Math.sin(angle) * 2.6);
                     b.rotation.y = -angle;
                 });
 
+                // Kamera Takibi
                 camera.position.x += (playerHero.x - camera.position.x) * 0.1;
                 camera.position.z += (playerHero.z + 18 - camera.position.z) * 0.1;
                 camera.lookAt(playerHero.x, 0, playerHero.z);
 
-                // Kristal Toplama
+                // YEM KÜPLERİ TOPLAMA (+30 Güç/Skor)
                 for (let i = crystals.length - 1; i >= 0; i--) {
                     let c = crystals[i];
-                    c.rotation.y += 0.05;
-                    if (playerHero.group.position.distanceTo(c.position) < 2.2) {
-                        playSound('eat');
-                        scene.remove(c);
-                        crystals.splice(i, 1);
-                        GameState.score += 100;
+                    c.mesh.rotation.y += c.rotSpeed;
+                    c.outer.rotation.x += 0.01;
+                    c.mesh.position.y = 0.8 + Math.sin(Date.now() * 0.003 + i) * 0.2;
 
-                        if (GameState.score % 400 === 0 && playerHero.count < 10) {
+                    if (playerHero.group.position.distanceTo(c.mesh.position) < 2.4) {
+                        playSound('eat');
+                        scene.remove(c.mesh);
+                        crystals.splice(i, 1);
+                        
+                        // +30 GÜÇ VE SKOR
+                        GameState.score += 30;
+
+                        if (GameState.score % 300 === 0 && playerHero.count < 12) {
                             playerHero.count++;
                             updateHeroBlades(playerHero);
                         }
 
-                        let newMesh = new THREE.Mesh(new THREE.OctahedronGeometry(0.6), new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff }));
-                        newMesh.position.set((Math.random() - 0.5) * 240, 0.6, (Math.random() - 0.5) * 240);
-                        scene.add(newMesh);
-                        crystals.push(newMesh);
+                        // Yeni Kristal Doğur
+                        let group = new THREE.Group();
+                        let inner = new THREE.Mesh(new THREE.OctahedronGeometry(0.55), new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00f0ff, emissiveIntensity: 0.8 }));
+                        let outer = new THREE.Mesh(new THREE.OctahedronGeometry(0.8), new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true, transparent: true, opacity: 0.5 }));
+                        group.add(inner); group.add(outer);
+                        let x = (Math.random() - 0.5) * 260;
+                        let z = (Math.random() - 0.5) * 260;
+                        group.position.set(x, 0.8, z);
+                        scene.add(group);
+                        crystals.push({ mesh: group, x, z, inner, outer, rotSpeed: Math.random() * 0.04 + 0.02 });
                     }
                 }
 
-                // Gelişmiş Bot Yapay Zekası
+                // AKILLI BOTLAR VE RE-SPAWN MANTIKI
                 bots.forEach((bot, idx) => {
                     let distToPlayer = bot.group.position.distanceTo(playerHero.group.position);
-                    if (distToPlayer < 45) {
+                    
+                    // Bot AI Mantığı
+                    if (distToPlayer < 40) {
                         let angleToPlayer = Math.atan2(playerHero.x - bot.x, playerHero.z - bot.z);
-                        bot.x += Math.sin(angleToPlayer) * 0.24;
-                        bot.z += Math.cos(angleToPlayer) * 0.24;
+                        if (bot.count >= playerHero.count) {
+                            bot.x += Math.sin(angleToPlayer) * 0.25;
+                            bot.z += Math.cos(angleToPlayer) * 0.25;
+                        } else {
+                            bot.x -= Math.sin(angleToPlayer) * 0.22;
+                            bot.z -= Math.cos(angleToPlayer) * 0.22;
+                        }
                     } else {
                         bot.x += Math.sin(Date.now() * 0.001 + idx) * 0.18;
                         bot.z += Math.cos(Date.now() * 0.001 + idx) * 0.18;
                     }
 
+                    bot.x = Math.max(-150, Math.min(150, bot.x));
+                    bot.z = Math.max(-150, Math.min(150, bot.z));
+
                     bot.group.position.set(bot.x, 0, bot.z);
-                    bot.bladeGroup.rotation.y += 0.1;
+                    bot.bladeGroup.rotation.y += 0.12;
                     bot.blades.forEach((b, bIdx) => {
                         let angle = (bIdx / bot.count) * Math.PI * 2;
-                        b.position.set(Math.cos(angle) * 2.5, 0, Math.sin(angle) * 2.5);
+                        b.position.set(Math.cos(angle) * 2.6, 0, Math.sin(angle) * 2.6);
                         b.rotation.y = -angle;
                     });
 
-                    // Çarpışma Kontrolü
+                    // Çarpışma Mantığı
                     if (playerHero.group.position.distanceTo(bot.group.position) < 3.2) {
                         if (playerHero.count >= bot.count) {
                             playSound('success');
-                            scene.remove(bot.group);
-                            bots.splice(idx, 1);
                             GameState.score += 500;
                             playerHero.count++;
                             updateHeroBlades(playerHero);
+                            
+                            // BOT ÖLDÜ: Yeniden Başka Biri Olarak Doğsun (Respawn)
+                            respawnBot(idx);
                         } else {
                             gameOver();
                         }
@@ -668,3 +761,4 @@
     </script>
 </body>
 </html>
+```
