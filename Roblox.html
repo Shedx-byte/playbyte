@@ -1,1148 +1,224 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Blox Survival 3D</title>
-    <!-- Tailwind CSS for UI -->
+    <title>VoidSlide 3D - Neon Tunnel Runner</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Three.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
     <style>
-        * {
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-        }
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            font-family: 'Nunito', sans-serif;
-            background-color: #1a1a2e;
-        }
-        #game-canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-        .roblox-font {
-            font-family: 'Fredoka One', cursive;
-        }
-        .roblox-panel {
-            background: rgba(25, 27, 29, 0.85);
-            backdrop-filter: blur(8px);
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-        .roblox-btn {
-            background: linear-gradient(180deg, #00a2ff 0%, #0066cc 100%);
-            border: 2px solid #33b5ff;
-            box-shadow: 0 4px 0 #004488, inset 0 2px 0 rgba(255,255,255,0.4);
-            transition: all 0.1s ease;
-        }
-        .roblox-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 0px 0 #004488, inset 0 2px 0 rgba(255,255,255,0.4);
-        }
-        .roblox-btn-green {
-            background: linear-gradient(180deg, #02b757 0%, #00853e 100%);
-            border: 2px solid #20e079;
-            box-shadow: 0 4px 0 #005226, inset 0 2px 0 rgba(255,255,255,0.4);
-        }
-        .roblox-btn-green:active {
-            transform: translateY(4px);
-            box-shadow: 0 0px 0 #005226;
-        }
-        .roblox-btn-gold {
-            background: linear-gradient(180deg, #ffaa00 0%, #cc7700 100%);
-            border: 2px solid #ffcc00;
-            box-shadow: 0 4px 0 #885500, inset 0 2px 0 rgba(255,255,255,0.4);
-        }
-        .roblox-btn-gold:active {
-            transform: translateY(4px);
-            box-shadow: 0 0px 0 #885500;
-        }
-        /* Virtual Joystick */
-        #joystick-zone {
-            position: absolute;
-            bottom: 30px;
-            left: 30px;
-            width: 120px;
-            height: 120px;
-            background: rgba(255, 255, 255, 0.15);
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            display: none;
-            touch-action: none;
-        }
-        #joystick-knob {
-            position: absolute;
-            top: 35px;
-            left: 35px;
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
-        .damage-number {
-            position: absolute;
-            color: #ff3333;
-            font-weight: 900;
-            font-size: 20px;
-            text-shadow: 2px 2px 0px #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000;
-            pointer-events: none;
-            animation: floatUp 0.8s ease-out forwards;
-        }
-        @keyframes floatUp {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            50% { transform: translateY(-30px) scale(1.3); opacity: 1; }
-            100% { transform: translateY(-50px) scale(0.8); opacity: 0; }
-        }
+        body { margin: 0; overflow: hidden; background: #020208; font-family: 'Segoe UI', sans-serif; user-select: none; touch-action: none; }
+        #canvas-container { position: absolute; top:0; left:0; width:100%; height:100%; }
+        .hud { position: absolute; z-index: 10; color: #fff; pointer-events: none; }
+        .btn-neon { background: linear-gradient(135deg, #ff007f, #7928ca); border: 2px solid #ff007f; color: white; font-weight: bold; padding: 14px 28px; border-radius: 30px; box-shadow: 0 0 15px rgba(255,0,127,0.6); cursor: pointer; pointer-events: auto; transition: transform 0.1s; }
+        .btn-neon:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
 
-    <!-- Canvas for Three.js -->
-    <canvas id="game-canvas"></canvas>
+    <div id="canvas-container"></div>
 
-    <!-- Floating Damage Container -->
-    <div id="damage-container" class="absolute inset-0 pointer-events-none z-20"></div>
+    <!-- ANA MENÜ -->
+    <div id="menu-overlay" class="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/80 backdrop-blur-md">
+        <h1 class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-500 to-cyan-400 mb-2 tracking-widest drop-shadow-[0_0_15px_rgba(255,0,127,0.8)]">VOID SLIDE 3D</h1>
+        <p class="text-gray-400 text-sm mb-6">Sonsuz Neon Boşluğunda Hayatta Kal</p>
 
-    <!-- UI Overlay Layer -->
-    <div id="ui-layer" class="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 z-10">
-        
-        <div id="hud-top" class="flex justify-between items-center w-full max-w-4xl mx-auto hidden">
-            <!-- Player Stats Box -->
-            <div class="roblox-panel px-4 py-2 rounded-xl flex items-center space-x-4 pointer-events-auto">
-                <div id="hud-avatar" class="w-12 h-12 bg-yellow-400 rounded-lg border-2 border-white flex items-center justify-center roblox-font text-xl text-black shadow">
-                    🙂
-                </div>
-                <div class="flex flex-col w-36 sm:w-48">
-                    <div class="flex justify-between text-xs text-white font-bold mb-1">
-                        <span id="hud-username">Player</span>
-                        <span id="hud-level" class="text-yellow-400">Lv. 1</span>
-                    </div>
-                    <!-- Health Bar -->
-                    <div class="w-full bg-gray-800 h-3.5 rounded-full overflow-hidden p-0.5 border border-gray-600">
-                        <div id="hp-bar" class="bg-gradient-to-r from-red-500 to-green-500 h-full rounded-full transition-all duration-200" style="width: 100%;"></div>
-                    </div>
-                    <!-- EXP Bar -->
-                    <div class="w-full bg-gray-800 h-2 rounded-full overflow-hidden mt-1 border border-gray-700">
-                        <div id="exp-bar" class="bg-blue-400 h-full rounded-full transition-all duration-200" style="width: 0%;"></div>
-                    </div>
-                </div>
-            </div>
+        <input type="text" id="username" placeholder="Oyuncu Adı" class="bg-slate-900 border-2 border-pink-500 rounded-full px-6 py-3 text-white text-center font-bold mb-4 outline-none focus:box-shadow-[0_0_15px_#ff007f]" maxlength="12">
 
-            <!-- Wave & Gold Counter -->
-            <div class="flex space-x-3 pointer-events-auto">
-                <div class="roblox-panel px-4 py-2 rounded-xl text-center border border-yellow-500/50">
-                    <div class="text-xs text-gray-400 uppercase font-bold">Coins</div>
-                    <div id="hud-coins" class="roblox-font text-yellow-400 text-xl flex items-center justify-center space-x-1">
-                        <span>🪙</span> <span id="coin-count">0</span>
-                    </div>
-                </div>
-                <div class="roblox-panel px-4 py-2 rounded-xl text-center border border-purple-500/50">
-                    <div class="text-xs text-gray-400 uppercase font-bold">Wave</div>
-                    <div id="hud-wave" class="roblox-font text-purple-400 text-xl">1</div>
-                </div>
-            </div>
+        <div class="bg-slate-900/80 border border-purple-500/30 rounded-2xl p-4 mb-6 text-center text-sm text-cyan-300">
+            🏆 En Yüksek Skor: <span id="high-score-val" class="font-bold text-white">0</span> (<span id="high-score-user">Yok</span>)
         </div>
 
-        <!-- Touch Controls (Mobile Joystick & Buttons) -->
-        <div id="joystick-zone">
-            <div id="joystick-knob"></div>
-        </div>
+        <button class="btn-neon text-lg" onclick="startGame()">BOŞLUĞA DÜŞ 🚀</button>
+    </div>
 
-        <div id="mobile-buttons" class="absolute bottom-6 right-6 flex flex-col space-y-3 pointer-events-auto hidden">
-            <button id="btn-jump" class="roblox-btn w-16 h-16 rounded-full flex items-center justify-center text-2xl text-white font-bold active:scale-95">
-                🦘
-            </button>
-            <button id="btn-attack" class="roblox-btn-green w-20 h-20 rounded-full flex items-center justify-center text-3xl text-white font-bold active:scale-95 shadow-lg">
-                ⚔️
-            </button>
+    <!-- OYUN HUD -->
+    <div id="game-hud" class="hud top-5 left-5 right-5 flex justify-between items-center" style="display:none;">
+        <div class="bg-slate-900/80 border border-cyan-500/50 rounded-xl px-4 py-2 font-mono text-cyan-400 text-lg font-bold">
+            SKOR: <span id="score-text">0</span>
+        </div>
+        <div class="bg-slate-900/80 border border-pink-500/50 rounded-xl px-4 py-2 font-mono text-pink-500 text-lg font-bold">
+            HIZ: <span id="speed-text">100</span> km/h
         </div>
     </div>
 
-    <div id="main-menu" class="absolute inset-0 flex items-center justify-center bg-black/70 z-30 p-4">
-        <div class="roblox-panel p-6 sm:p-8 rounded-2xl max-w-md w-full text-center space-y-6 border-2 border-blue-500/40">
-            <h1 class="roblox-font text-4xl sm:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-red-500 to-purple-500 drop-shadow-md">
-                RO-SURVIVAL 3D
-            </h1>
-            <p class="text-gray-300 text-sm font-semibold">Survive endless blocky waves, upgrade weapons, and rule the arena!</p>
-            
-            <div class="space-y-3">
-                <input type="text" id="player-name-input" placeholder="Enter Roblox Name..." value="BloxHero" maxLength="12"
-                       class="w-full px-4 py-3 bg-gray-900/90 text-white font-bold rounded-xl border-2 border-gray-700 focus:border-blue-500 outline-none text-center text-lg">
-                
-                <button id="start-game-btn" class="roblox-btn-green w-full py-4 rounded-xl roblox-font text-2xl text-white tracking-wide hover:brightness-110 active:translate-y-1">
-                    PLAY NOW ▶
-                </button>
-                <button id="open-shop-btn" class="roblox-btn-gold w-full py-3 rounded-xl roblox-font text-xl text-white tracking-wide hover:brightness-110">
-                    AVATAR SHOP 🛍️
-                </button>
-            </div>
-
-            <!-- Leaderboard High Scores -->
-            <div class="bg-gray-900/60 p-3 rounded-xl border border-gray-700/50">
-                <div class="text-yellow-400 font-bold text-xs uppercase mb-1">Top Leaderboard</div>
-                <div id="leaderboard-list" class="text-xs text-gray-300 space-y-1">
-                    <!-- Populated dynamically -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="shop-modal" class="absolute inset-0 flex items-center justify-center bg-black/80 z-40 hidden p-4">
-        <div class="roblox-panel p-6 rounded-2xl max-w-md w-full text-center space-y-4">
-            <h2 class="roblox-font text-3xl text-yellow-400">AVATAR SHOP</h2>
-            <div class="grid grid-cols-3 gap-3" id="shop-grid">
-                <!-- Skins will be rendered dynamically -->
-            </div>
-            <button id="close-shop-btn" class="roblox-btn w-full py-3 rounded-xl roblox-font text-xl text-white">
-                BACK TO MENU
-            </button>
-        </div>
-    </div>
-
-    <div id="levelup-modal" class="absolute inset-0 flex items-center justify-center bg-black/80 z-40 hidden p-4">
-        <div class="roblox-panel p-6 rounded-2xl max-w-lg w-full text-center space-y-6 border-2 border-yellow-400">
-            <h2 class="roblox-font text-3xl sm:text-4xl text-yellow-400 animate-bounce">LEVEL UP!</h2>
-            <p class="text-gray-200 text-sm">Select an upgrade to enhance your Robloxian:</p>
-            
-            <div id="cards-container" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <!-- Upgrade Cards dynamic insertion -->
-            </div>
-        </div>
-    </div>
-
-    <div id="gameover-modal" class="absolute inset-0 flex items-center justify-center bg-black/85 z-40 hidden p-4">
-        <div class="roblox-panel p-8 rounded-2xl max-w-md w-full text-center space-y-6 border-2 border-red-500">
-            <h2 class="roblox-font text-5xl text-red-500">OOF!</h2>
-            <p class="text-gray-300 font-bold text-lg">YOU WERE DEFEATED</p>
-
-            <div class="bg-gray-900/80 p-4 rounded-xl border border-gray-700 space-y-2 text-left">
-                <div class="flex justify-between text-gray-300"><span>Waves Survived:</span> <span id="final-wave" class="text-yellow-400 font-bold">0</span></div>
-                <div class="flex justify-between text-gray-300"><span>Enemies Eliminated:</span> <span id="final-kills" class="text-yellow-400 font-bold">0</span></div>
-                <div class="flex justify-between text-gray-300"><span>Coins Collected:</span> <span id="final-coins" class="text-yellow-400 font-bold">0</span></div>
-            </div>
-
-            <button id="restart-btn" class="roblox-btn-green w-full py-4 rounded-xl roblox-font text-2xl text-white hover:brightness-110">
-                PLAY AGAIN 🔄
-            </button>
-        </div>
+    <!-- OYUN BİTTİ -->
+    <div id="gameover-overlay" class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/90" style="display:none;">
+        <h2 class="text-4xl font-black text-red-500 mb-2 tracking-wider">ÇARPIŞMA!</h2>
+        <p id="final-score" class="text-white text-lg mb-6">Skorun: 0</p>
+        <button class="btn-neon" onclick="resetToMenu()">MENÜYE DÖN</button>
     </div>
 
     <script>
-        class SoundFX {
-            constructor() {
-                this.ctx = null;
-            }
-            init() {
-                if (!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-            }
-            playHit() {
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(40, this.ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.1);
-            }
-            playSwing() {
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.15);
-                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.15);
-            }
-            playCoin() {
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(987.77, this.ctx.currentTime); // B5
-                osc.frequency.setValueAtTime(1318.51, this.ctx.currentTime + 0.08); // E6
-                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.25);
-            }
-            playLevelUp() {
-                if (!this.ctx) return;
-                const notes = [261.63, 329.63, 392.00, 523.25];
-                notes.forEach((freq, idx) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.value = freq;
-                    gain.gain.setValueAtTime(0.2, this.ctx.currentTime + idx * 0.08);
-                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + idx * 0.08 + 0.2);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(this.ctx.currentTime + idx * 0.08);
-                    osc.stop(this.ctx.currentTime + idx * 0.08 + 0.2);
-                });
-            }
-            playOof() {
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(300, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(120, this.ctx.currentTime + 0.25);
-                gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.25);
-            }
-        }
+        let scene, camera, renderer, tunnel, playerMesh;
+        let angle = 0, speed = 0.8, score = 0, isPlaying = false;
+        let obstacles = [], crystals = [];
+        let playerUser = "Racer", highScore = parseInt(localStorage.getItem("vs_score")||"0"), highScoreUser = localStorage.getItem("vs_user")||"Yok";
 
-        const sfx = new SoundFX();
+        document.getElementById("high-score-val").innerText = highScore;
+        document.getElementById("high-score-user").innerText = highScoreUser;
 
-        const SKINS = [
-            { id: 'classic', name: 'Classic Noob', headColor: 0xffe033, torsoColor: 0x00a2ff, limbColor: 0x00ff44, price: 0, unlocked: true },
-            { id: 'guest', name: 'Guest 666', headColor: 0xdddddd, torsoColor: 0x222222, limbColor: 0x111111, price: 50, unlocked: false },
-            { id: 'red_ninja', name: 'Crimson Ninja', headColor: 0x990000, torsoColor: 0xcc0000, limbColor: 0x330000, price: 120, unlocked: false },
-            { id: 'gold_king', name: 'Golden King', headColor: 0xffd700, torsoColor: 0xffaa00, limbColor: 0xb8860b, price: 250, unlocked: false }
-        ];
-
-        let selectedSkin = SKINS[0];
-        let totalCoins = parseInt(localStorage.getItem('blox_coins') || '0');
-
-        let scene, camera, renderer;
-        let player, playerBody, headMesh, torsoMesh, leftArm, rightArm, leftLeg, rightLeg;
-        let weaponMesh;
-        let clock = new THREE.Clock();
-        let enemies = [];
-        let particles = [];
-        let coinsList = [];
-        
-        let gameState = 'MENU'; // 'MENU', 'PLAYING', 'LEVELUP', 'GAMEOVER'
-        let playerName = 'BloxHero';
-        let playerHp = 100, playerMaxHp = 100;
-        let playerLevel = 1, playerExp = 0, expToNextLevel = 100;
-        let playerCoins = 0, sessionKills = 0, currentWave = 1;
-        let moveSpeed = 12, attackPower = 25, attackRange = 4.5, attackSpeed = 1.0;
-        let lastAttackTime = 0;
-        
-        // Controls state
-        const keys = { w: false, a: false, s: false, d: false, space: false };
-        let joystickVector = { x: 0, y: 0 };
-        let mouseLook = { x: 0, y: 0 };
-        let isMouseDown = false;
-        let cameraAngleX = 0, cameraAngleY = 0.3;
-        let cameraDistance = 14;
-
-        function createRobloxCharacter(headCol, torsoCol, limbCol) {
-            const group = new THREE.Group();
-
-            // Materials
-            const headMat = new THREE.MeshToonMaterial({ color: headCol });
-            const torsoMat = new THREE.MeshToonMaterial({ color: torsoCol });
-            const limbMat = new THREE.MeshToonMaterial({ color: limbCol });
-
-            // Torso (R6 Roblox proportional box)
-            const torsoGeo = new THREE.BoxGeometry(1.6, 2.0, 1.0);
-            torsoMesh = new THREE.Mesh(torsoGeo, torsoMat);
-            torsoMesh.position.y = 2.0;
-            torsoMesh.castShadow = true;
-            group.add(torsoMesh);
-
-            // Head (Blocky with Face texture fallback graphic)
-            const headGeo = new THREE.BoxGeometry(1.2, 1.2, 1.2);
-            headMesh = new THREE.Mesh(headGeo, headMat);
-            headMesh.position.y = 1.6;
-            headMesh.castShadow = true;
-            torsoMesh.add(headMesh);
-
-            // Face (Classic Roblox Smile Eyes Canvas Texture)
-            const canvas = document.createElement('canvas');
-            canvas.width = 128; canvas.height = 128;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#FFE033'; ctx.fillRect(0,0,128,128);
-            // Eyes
-            ctx.fillStyle = '#000000';
-            ctx.fillRect(30, 35, 18, 28);
-            ctx.fillRect(80, 35, 18, 28);
-            // Smile
-            ctx.beginPath();
-            ctx.arc(64, 75, 30, 0.1 * Math.PI, 0.9 * Math.PI, false);
-            ctx.lineWidth = 8;
-            ctx.stroke();
-            const faceTex = new THREE.CanvasTexture(canvas);
-            const faceMat = new THREE.MeshBasicMaterial({ map: faceTex });
-            const facePlane = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.9), faceMat);
-            facePlane.position.set(0, 0, 0.61);
-            headMesh.add(facePlane);
-
-            // Left Arm
-            const armGeo = new THREE.BoxGeometry(0.75, 2.0, 0.75);
-            armGeo.translate(0, -0.8, 0); // pivot at top
-            leftArm = new THREE.Mesh(armGeo, limbMat);
-            leftArm.position.set(-1.25, 0.9, 0);
-            leftArm.castShadow = true;
-            torsoMesh.add(leftArm);
-
-            // Right Arm
-            rightArm = new THREE.Mesh(armGeo, limbMat);
-            rightArm.position.set(1.25, 0.9, 0);
-            rightArm.castShadow = true;
-            torsoMesh.add(rightArm);
-
-            // Left Leg
-            const legGeo = new THREE.BoxGeometry(0.75, 2.0, 0.75);
-            legGeo.translate(0, -0.9, 0); // pivot at top
-            leftLeg = new THREE.Mesh(legGeo, limbMat);
-            leftLeg.position.set(-0.42, -1.0, 0);
-            leftLeg.castShadow = true;
-            torsoMesh.add(leftLeg);
-
-            // Right Leg
-            rightLeg = new THREE.Mesh(legGeo, limbMat);
-            rightLeg.position.set(0.42, -1.0, 0);
-            rightLeg.castShadow = true;
-            torsoMesh.add(rightLeg);
-
-            // Default Sword Weapon held in Right Arm
-            weaponMesh = createSwordMesh();
-            weaponMesh.position.set(0, -1.5, 0.6);
-            weaponMesh.rotation.x = Math.PI / 2;
-            rightArm.add(weaponMesh);
-
-            return group;
-        }
-
-        function createSwordMesh() {
-            const swordGroup = new THREE.Group();
-            // Blade
-            const bladeGeo = new THREE.BoxGeometry(0.2, 2.8, 0.1);
-            const bladeMat = new THREE.MeshToonMaterial({ color: 0x00e5ff, emissive: 0x005577 });
-            const blade = new THREE.Mesh(bladeGeo, bladeMat);
-            blade.position.y = 1.4;
-            swordGroup.add(blade);
-            // Hilt
-            const hiltGeo = new THREE.BoxGeometry(0.8, 0.15, 0.2);
-            const hiltMat = new THREE.MeshToonMaterial({ color: 0xffcc00 });
-            const hilt = new THREE.Mesh(hiltGeo, hiltMat);
-            swordGroup.add(hilt);
-            // Handle
-            const handleGeo = new THREE.BoxGeometry(0.2, 0.6, 0.2);
-            const handleMat = new THREE.MeshToonMaterial({ color: 0x553311 });
-            const handle = new THREE.Mesh(handleGeo, handleMat);
-            handle.position.y = -0.3;
-            swordGroup.add(handle);
-
-            return swordGroup;
-        }
-
-        function initScene() {
-            const canvas = document.getElementById('game-canvas');
+        function init() {
+            const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x7ec0ee); // Classic Roblox sky blue
-            scene.fog = new THREE.FogExp2(0x7ec0ee, 0.012);
+            scene.fog = new THREE.FogExp2(0x020208, 0.015);
 
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            
-            renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            container.appendChild(renderer.domElement);
 
-            // Lighting
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-            scene.add(ambientLight);
+            // Tünel Oluşturma (Cylinder Inside Out)
+            const tunnelGeo = new THREE.CylinderGeometry(8, 8, 300, 32, 1, true);
+            const tunnelMat = new THREE.MeshBasicMaterial({
+                color: 0x110022,
+                wireframe: true,
+                side: THREE.BackSide
+            });
+            tunnel = new THREE.Mesh(tunnelGeo, tunnelMat);
+            tunnel.rotation.x = Math.PI / 2;
+            scene.add(tunnel);
 
-            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-            dirLight.position.set(40, 80, 40);
-            dirLight.castShadow = true;
-            dirLight.shadow.mapSize.width = 2048;
-            dirLight.shadow.mapSize.height = 2048;
-            dirLight.shadow.camera.near = 0.5;
-            dirLight.shadow.camera.far = 200;
-            const d = 60;
-            dirLight.shadow.camera.left = -d;
-            dirLight.shadow.camera.right = d;
-            dirLight.shadow.camera.top = d;
-            dirLight.shadow.camera.bottom = -d;
-            scene.add(dirLight);
+            // Oyuncu Küpü
+            const pGeo = new THREE.BoxGeometry(0.8, 0.8, 0.8);
+            const pMat = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+            playerMesh = new THREE.Mesh(pGeo, pMat);
+            scene.add(playerMesh);
 
-            // Construct Roblox World Map
-            buildRobloxMap();
+            // Işıklandırma
+            const light = new THREE.PointLight(0xff00ff, 2, 50);
+            scene.add(light);
 
-            // Player Setup
-            player = createRobloxCharacter(selectedSkin.headColor, selectedSkin.torsoColor, selectedSkin.limbColor);
-            scene.add(player);
-
-            // Input Event Listeners
-            setupInputs();
             window.addEventListener('resize', onWindowResize);
+            setupControls();
         }
 
-        function buildRobloxMap() {
-            // Bright green grass base stud floor
-            const mapSize = 120;
-            const floorGeo = new THREE.BoxGeometry(mapSize, 4, mapSize);
-            const floorMat = new THREE.MeshToonMaterial({ color: 0x2e8b57 });
-            const floor = new THREE.Mesh(floorGeo, floorMat);
-            floor.position.y = -2;
-            floor.receiveShadow = true;
-            scene.add(floor);
-
-            // Add Roblox stud-like details/blocks around map
-            const blockColors = [0xff3333, 0x3388ff, 0xffaa00, 0xaa33ff, 0x00e5ff];
-            for (let i = 0; i < 45; i++) {
-                const w = 2 + Math.random() * 4;
-                const h = 2 + Math.random() * 8;
-                const d = 2 + Math.random() * 4;
-                const geo = new THREE.BoxGeometry(w, h, d);
-                const mat = new THREE.MeshToonMaterial({ color: blockColors[Math.floor(Math.random() * blockColors.length)] });
-                const block = new THREE.Mesh(geo, mat);
-                
-                const x = (Math.random() - 0.5) * (mapSize - 15);
-                const z = (Math.random() - 0.5) * (mapSize - 15);
-                if (Math.abs(x) < 10 && Math.abs(z) < 10) continue; // Keep center clear
-                
-                block.position.set(x, h / 2, z);
-                block.castShadow = true;
-                block.receiveShadow = true;
-                scene.add(block);
-            }
-
-            // Blocky Trees
-            for (let i = 0; i < 20; i++) {
-                const treeGroup = new THREE.Group();
-                // Trunk
-                const trunk = new THREE.Mesh(
-                    new THREE.BoxGeometry(1.2, 6, 1.2),
-                    new THREE.MeshToonMaterial({ color: 0x8b4513 })
-                );
-                trunk.position.y = 3;
-                trunk.castShadow = true;
-                treeGroup.add(trunk);
-                // Leaves (Cubical Roblox Style)
-                const leaves = new THREE.Mesh(
-                    new THREE.BoxGeometry(4.5, 4.5, 4.5),
-                    new THREE.MeshToonMaterial({ color: 0x00ff66 })
-                );
-                leaves.position.y = 6.5;
-                leaves.castShadow = true;
-                treeGroup.add(leaves);
-
-                const x = (Math.random() - 0.5) * (mapSize - 10);
-                const z = (Math.random() - 0.5) * (mapSize - 10);
-                if (Math.abs(x) < 12 && Math.abs(z) < 12) continue;
-                treeGroup.position.set(x, 0, z);
-                scene.add(treeGroup);
-            }
-        }
-
-        function spawnEnemy() {
-            const types = [
-                { type: 'Zombie', color: 0x33aa33, head: 0x008800, hp: 40, speed: 5.5, size: 1.0, damage: 10, exp: 25 },
-                { type: 'Noob', color: 0x00a2ff, head: 0xffe033, hp: 25, speed: 8.0, size: 0.9, damage: 6, exp: 15 },
-                { type: 'Guest', color: 0x222222, head: 0xcccccc, hp: 90, speed: 4.5, size: 1.3, damage: 20, exp: 50 }
-            ];
-
-            const cfg = types[Math.floor(Math.random() * types.length)];
-            const angle = Math.random() * Math.PI * 2;
-            const dist = 30 + Math.random() * 15;
-            const spawnX = player.position.x + Math.cos(angle) * dist;
-            const spawnZ = player.position.z + Math.sin(angle) * dist;
-
-            const enemyGroup = createRobloxCharacter(cfg.head, cfg.color, 0x111111);
-            enemyGroup.scale.set(cfg.size, cfg.size, cfg.size);
-            enemyGroup.position.set(spawnX, 0, spawnZ);
-
-            scene.add(enemyGroup);
-
-            enemies.push({
-                mesh: enemyGroup,
-                hp: cfg.hp * (1 + currentWave * 0.2),
-                maxHp: cfg.hp * (1 + currentWave * 0.2),
-                speed: cfg.speed,
-                damage: cfg.damage,
-                exp: cfg.exp,
-                type: cfg.type,
-                lastAttack: 0
-            });
-        }
-
-        function spawnHitParticles(pos, color = 0xff3333) {
-            for (let i = 0; i < 8; i++) {
-                const geo = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-                const mat = new THREE.MeshBasicMaterial({ color });
-                const p = new THREE.Mesh(geo, mat);
-                p.position.copy(pos);
-                p.position.x += (Math.random() - 0.5) * 0.5;
-                p.position.y += Math.random() * 1.5;
-                p.position.z += (Math.random() - 0.5) * 0.5;
-                
-                const vel = new THREE.Vector3(
-                    (Math.random() - 0.5) * 8,
-                    Math.random() * 6 + 2,
-                    (Math.random() - 0.5) * 8
-                );
-                
-                scene.add(p);
-                particles.push({ mesh: p, vel, life: 0.4 });
-            }
-        }
-
-        function spawnCoin(pos) {
-            const geo = new THREE.CylinderGeometry(0.4, 0.4, 0.15, 8);
-            const mat = new THREE.MeshToonMaterial({ color: 0xffcc00, emissive: 0x443300 });
-            const coin = new THREE.Mesh(geo, mat);
-            coin.position.copy(pos);
-            coin.position.y = 0.5;
-            coin.rotation.x = Math.PI / 2;
-            coin.castShadow = true;
-            scene.add(coin);
-            coinsList.push(coin);
-        }
-
-        function showDamageNumber(pos, amount) {
-            const vec = pos.clone();
-            vec.y += 2.5;
-            vec.project(camera);
-
-            const x = (vec.x * 0.5 + 0.5) * window.innerWidth;
-            const y = (-(vec.y * 0.5) + 0.5) * window.innerHeight;
-
-            const el = document.createElement('div');
-            el.className = 'damage-number';
-            el.innerText = `-${Math.round(amount)}`;
-            el.style.left = `${x}px`;
-            el.style.top = `${y}px`;
-
-            document.getElementById('damage-container').appendChild(el);
-            setTimeout(() => el.remove(), 800);
-        }
-
-        function setupInputs() {
+        let touchStartX = 0;
+        function setupControls() {
             window.addEventListener('keydown', (e) => {
-                const k = e.key.toLowerCase();
-                if (k === 'w' || k === 'arrowup') keys.w = true;
-                if (k === 'a' || k === 'arrowleft') keys.a = true;
-                if (k === 's' || k === 'arrowdown') keys.s = true;
-                if (k === 'd' || k === 'arrowright') keys.d = true;
-                if (e.code === 'Space') performAttack();
+                if(!isPlaying) return;
+                if(e.key === 'ArrowLeft' || e.key === 'a') angle -= 0.12;
+                if(e.key === 'ArrowRight' || e.key === 'd') angle += 0.12;
             });
 
-            window.addEventListener('keyup', (e) => {
-                const k = e.key.toLowerCase();
-                if (k === 'w' || k === 'arrowup') keys.w = false;
-                if (k === 'a' || k === 'arrowleft') keys.a = false;
-                if (k === 's' || k === 'arrowdown') keys.s = false;
-                if (k === 'd' || k === 'arrowright') keys.d = false;
+            window.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+            window.addEventListener('touchmove', (e) => {
+                if(!isPlaying) return;
+                let diff = e.touches[0].clientX - touchStartX;
+                angle += diff * 0.003;
+                touchStartX = e.touches[0].clientX;
             });
-
-            // Camera Mouse Drag Controls
-            window.addEventListener('mousedown', (e) => {
-                if (e.target.tagName === 'CANVAS') {
-                    isMouseDown = true;
-                    mouseLook.x = e.clientX;
-                    mouseLook.y = e.clientY;
-                }
-            });
-
-            window.addEventListener('mousemove', (e) => {
-                if (isMouseDown) {
-                    const dx = e.clientX - mouseLook.x;
-                    const dy = e.clientY - mouseLook.y;
-                    cameraAngleX -= dx * 0.005;
-                    cameraAngleY = Math.max(0.1, Math.min(Math.PI / 2.2, cameraAngleY + dy * 0.005));
-                    mouseLook.x = e.clientX;
-                    mouseLook.y = e.clientY;
-                }
-            });
-
-            window.addEventListener('mouseup', () => isMouseDown = false);
-
-            // Mobile Virtual Joystick Setup
-            const joyZone = document.getElementById('joystick-zone');
-            const joyKnob = document.getElementById('joystick-knob');
-            let joyTouchId = null;
-
-            if ('ontouchstart' in window) {
-                joyZone.style.display = 'block';
-                document.getElementById('mobile-buttons').classList.remove('hidden');
-            }
-
-            joyZone.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                const touch = e.changedTouches[0];
-                joyTouchId = touch.identifier;
-            });
-
-            joyZone.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                for (let touch of e.changedTouches) {
-                    if (touch.identifier === joyTouchId) {
-                        const rect = joyZone.getBoundingClientRect();
-                        const centerX = rect.left + rect.width / 2;
-                        const centerY = rect.top + rect.height / 2;
-                        let dx = touch.clientX - centerX;
-                        let dy = touch.clientY - centerY;
-                        const dist = Math.sqrt(dx * dx + dy * dy);
-                        const maxR = 40;
-
-                        if (dist > maxR) {
-                            dx = (dx / dist) * maxR;
-                            dy = (dy / dist) * maxR;
-                        }
-
-                        joyKnob.style.transform = `translate(${dx}px, ${dy}px)`;
-                        joystickVector.x = dx / maxR;
-                        joystickVector.y = dy / maxR;
-                    }
-                }
-            });
-
-            const resetJoystick = (e) => {
-                for (let touch of e.changedTouches) {
-                    if (touch.identifier === joyTouchId) {
-                        joyTouchId = null;
-                        joyKnob.style.transform = 'translate(0px, 0px)';
-                        joystickVector = { x: 0, y: 0 };
-                    }
-                }
-            };
-
-            joyZone.addEventListener('touchend', resetJoystick);
-            joyZone.addEventListener('touchcancel', resetJoystick);
-
-            document.getElementById('btn-attack').addEventListener('click', () => performAttack());
-            document.getElementById('btn-jump').addEventListener('click', () => performAttack());
         }
 
-        function performAttack() {
-            if (gameState !== 'PLAYING') return;
-            const now = clock.getElapsedTime();
-            if (now - lastAttackTime < 1.0 / attackSpeed) return;
+        function spawnObstacle() {
+            const obsGeo = new THREE.BoxGeometry(2, 2, 2);
+            const obsMat = new THREE.MeshBasicMaterial({ color: 0xff0055 });
+            const obs = new THREE.Mesh(obsGeo, obsMat);
             
-            lastAttackTime = now;
-            sfx.playSwing();
-
-            // Swing Right Arm Animation
-            rightArm.rotation.x = -Math.PI / 1.5;
-
-            // Damage nearby enemies in front
-            const playerDir = new THREE.Vector3(0, 0, -1).applyQuaternion(player.quaternion);
-
-            enemies.forEach(enemy => {
-                const toEnemy = new THREE.Vector3().subVectors(enemy.mesh.position, player.position);
-                const dist = toEnemy.length();
-
-                if (dist <= attackRange) {
-                    const angle = playerDir.angleTo(toEnemy.normalize());
-                    if (angle < Math.PI / 2) { // 180 degree cone
-                        enemy.hp -= attackPower;
-                        sfx.playHit();
-                        spawnHitParticles(enemy.mesh.position);
-                        showDamageNumber(enemy.mesh.position, attackPower);
-
-                        if (enemy.hp <= 0) {
-                            // Defeated
-                            spawnCoin(enemy.mesh.position);
-                            addExp(enemy.exp);
-                            sessionKills++;
-                        }
-                    }
-                }
-            });
+            let obsAngle = Math.random() * Math.PI * 2;
+            let radius = 7.2;
+            obs.position.x = Math.cos(obsAngle) * radius;
+            obs.position.y = Math.sin(obsAngle) * radius;
+            obs.position.z = camera.position.z - 200;
+            scene.add(obs);
+            obstacles.push(obs);
         }
 
-        function addExp(amount) {
-            playerExp += amount;
-            if (playerExp >= expToNextLevel) {
-                playerExp -= expToNextLevel;
-                playerLevel++;
-                expToNextLevel = Math.floor(expToNextLevel * 1.4);
-                sfx.playLevelUp();
-                triggerLevelUpModal();
+        function startGame() {
+            const nameInput = document.getElementById("username").value.trim();
+            if(!nameInput) return alert("Lütfen adını gir!");
+
+            playerUser = nameInput;
+            document.getElementById("menu-overlay").style.display = "none";
+            document.getElementById("gameover-overlay").style.display = "none";
+            document.getElementById("game-hud").style.display = "flex";
+
+            score = 0; speed = 0.8; angle = 0;
+            obstacles.forEach(o => scene.remove(o));
+            obstacles = [];
+            isPlaying = true;
+        }
+
+        function gameOver() {
+            isPlaying = false;
+            document.getElementById("game-hud").style.display = "none";
+            document.getElementById("gameover-overlay").style.display = "flex";
+            document.getElementById("final-score").innerText = `${playerUser}, Skorun: ${Math.floor(score)}`;
+
+            if(score > highScore) {
+                highScore = Math.floor(score);
+                highScoreUser = playerUser;
+                localStorage.setItem("vs_score", highScore);
+                localStorage.setItem("vs_user", highScoreUser);
             }
-            updateHUD();
         }
 
-        function triggerLevelUpModal() {
-            gameState = 'LEVELUP';
-            const container = document.getElementById('cards-container');
-            container.innerHTML = '';
-
-            const upgrades = [
-                { title: '⚔️ Sharp Edge', desc: '+25% Damage', apply: () => attackPower *= 1.25 },
-                { title: '⚡ Fast Swing', desc: '+30% Attack Speed', apply: () => attackSpeed *= 1.3 },
-                { title: '👟 Speed Boost', desc: '+20% Move Speed', apply: () => moveSpeed *= 1.2 },
-                { title: '❤️ Big Heart', desc: '+50 Max HP & Full Heal', apply: () => { playerMaxHp += 50; playerHp = playerMaxHp; } },
-                { title: '🗡️ Reach Upgrade', desc: '+25% Attack Range', apply: () => attackRange *= 1.25 }
-            ];
-
-            // Pick 3 random cards
-            const shuffled = upgrades.sort(() => 0.5 - Math.random()).slice(0, 3);
-
-            shuffled.forEach(card => {
-                const cardEl = document.createElement('div');
-                cardEl.className = 'roblox-panel p-4 rounded-xl border border-yellow-500/50 hover:border-yellow-400 cursor-pointer transition transform hover:-translate-y-1 flex flex-col justify-between items-center text-center';
-                cardEl.innerHTML = `
-                    <div class="text-2xl mb-2">${card.title}</div>
-                    <div class="text-sm font-bold text-yellow-300 mb-4">${card.desc}</div>
-                    <button class="roblox-btn-green py-2 px-4 rounded-lg roblox-font text-sm text-white w-full">SELECT</button>
-                `;
-                cardEl.onclick = () => {
-                    card.apply();
-                    document.getElementById('levelup-modal').classList.add('hidden');
-                    gameState = 'PLAYING';
-                    updateHUD();
-                };
-                container.appendChild(cardEl);
-            });
-
-            document.getElementById('levelup-modal').classList.remove('hidden');
+        function resetToMenu() {
+            document.getElementById("gameover-overlay").style.display = "none";
+            document.getElementById("menu-overlay").style.display = "flex";
+            document.getElementById("high-score-val").innerText = highScore;
+            document.getElementById("high-score-user").innerText = highScoreUser;
         }
 
-        function updateHUD() {
-            document.getElementById('hud-username').innerText = playerName;
-            document.getElementById('hud-level').innerText = `Lv. ${playerLevel}`;
-            document.getElementById('coin-count').innerText = playerCoins;
-            document.getElementById('hud-wave').innerText = currentWave;
-
-            const hpPct = Math.max(0, (playerHp / playerMaxHp) * 100);
-            document.getElementById('hp-bar').style.width = `${hpPct}%`;
-
-            const expPct = Math.min(100, (playerExp / expToNextLevel) * 100);
-            document.getElementById('exp-bar').style.width = `${expPct}%`;
-        }
-
+        let frameCount = 0;
         function animate() {
             requestAnimationFrame(animate);
-            const delta = clock.getDelta();
-            const time = clock.getElapsedTime();
 
-            if (gameState === 'PLAYING') {
-                // Player Movement Physics
-                let moveX = 0, moveZ = 0;
+            if(isPlaying) {
+                frameCount++;
+                score += speed;
+                speed += 0.0003; // Gittikçe hızlanır!
 
-                if (keys.w) moveZ -= 1;
-                if (keys.s) moveZ += 1;
-                if (keys.a) moveX -= 1;
-                if (keys.d) moveX += 1;
+                document.getElementById("score-text").innerText = Math.floor(score);
+                document.getElementById("speed-text").innerText = Math.floor(speed * 120);
 
-                // Touch Joystick overrides keyboard
-                if (Math.abs(joystickVector.x) > 0.1 || Math.abs(joystickVector.y) > 0.1) {
-                    moveX = joystickVector.x;
-                    moveZ = joystickVector.y;
+                // Oyuncu Tünel Yüzeyinde Dönüşü
+                let radius = 7.2;
+                playerMesh.position.x = Math.cos(angle) * radius;
+                playerMesh.position.y = Math.sin(angle) * radius;
+                playerMesh.position.z = camera.position.z - 10;
+                playerMesh.rotation.z = angle;
+
+                // Tüneli İlerletme Hissi
+                tunnel.position.z += speed;
+                if(tunnel.position.z > 50) tunnel.position.z = 0;
+
+                // Engel Üretimi
+                if(frameCount % Math.max(15, Math.floor(40 - speed * 10)) === 0) {
+                    spawnObstacle();
                 }
 
-                const moveDir = new THREE.Vector3(moveX, 0, moveZ);
-                if (moveDir.length() > 0.1) {
-                    moveDir.normalize();
+                // Engelleri Hareket Ettirme ve Çarpışma
+                for(let i = obstacles.length - 1; i >= 0; i--) {
+                    let obs = obstacles[i];
+                    obs.position.z += speed * 2;
 
-                    // Relative to camera Y rotation
-                    const camYRot = cameraAngleX;
-                    const rotatedX = moveDir.x * Math.cos(camYRot) + moveDir.z * Math.sin(camYRot);
-                    const rotatedZ = -moveDir.x * Math.sin(camYRot) + moveDir.z * Math.cos(camYRot);
-
-                    player.position.x += rotatedX * moveSpeed * delta;
-                    player.position.z += rotatedZ * moveSpeed * delta;
-
-                    // Bound player within map
-                    const limit = 55;
-                    player.position.x = Math.max(-limit, Math.min(limit, player.position.x));
-                    player.position.z = Math.max(-limit, Math.min(limit, player.position.z));
-
-                    // Rotate Player towards movement
-                    const targetAngle = Math.atan2(rotatedX, rotatedZ);
-                    player.rotation.y = targetAngle;
-
-                    // Walking Limb Swing Animation
-                    const walkSpeed = 12;
-                    leftArm.rotation.x = Math.sin(time * walkSpeed) * 0.7;
-                    if (time - lastAttackTime > 0.4) {
-                        rightArm.rotation.x = -Math.sin(time * walkSpeed) * 0.7;
-                    }
-                    leftLeg.rotation.x = -Math.sin(time * walkSpeed) * 0.7;
-                    rightLeg.rotation.x = Math.sin(time * walkSpeed) * 0.7;
-                } else {
-                    // Idle Pose
-                    leftArm.rotation.x = THREE.MathUtils.lerp(leftArm.rotation.x, 0, 0.1);
-                    if (time - lastAttackTime > 0.4) {
-                        rightArm.rotation.x = THREE.MathUtils.lerp(rightArm.rotation.x, 0, 0.1);
-                    }
-                    leftLeg.rotation.x = THREE.MathUtils.lerp(leftLeg.rotation.x, 0, 0.1);
-                    rightLeg.rotation.x = THREE.MathUtils.lerp(rightLeg.rotation.x, 0, 0.1);
-                }
-
-                // Wave Spawning Controller
-                if (enemies.length < 5 + currentWave * 3) {
-                    spawnEnemy();
-                }
-
-                // Enemy AI Behavior
-                for (let i = enemies.length - 1; i >= 0; i--) {
-                    const enemy = enemies[i];
-                    if (enemy.hp <= 0) {
-                        scene.remove(enemy.mesh);
-                        enemies.splice(i, 1);
-                        continue;
+                    // Çarpışma Testi
+                    let dist = playerMesh.position.distanceTo(obs.position);
+                    if(dist < 1.8) {
+                        gameOver();
+                        break;
                     }
 
-                    // Look & Chase Player
-                    enemy.mesh.lookAt(player.position.x, enemy.mesh.position.y, player.position.z);
-                    const dir = new THREE.Vector3().subVectors(player.position, enemy.mesh.position);
-                    dir.y = 0;
-                    const dist = dir.length();
-
-                    if (dist > 1.8) {
-                        dir.normalize();
-                        enemy.mesh.position.addScaledVector(dir, enemy.speed * delta);
-                        // Enemy walk animation
-                        const legs = enemy.mesh.children[0].children; // Legs/arms
-                    } else {
-                        // Attack Player
-                        if (time - enemy.lastAttack > 1.2) {
-                            enemy.lastAttack = time;
-                            playerHp -= enemy.damage;
-                            sfx.playHit();
-                            updateHUD();
-
-                            if (playerHp <= 0) {
-                                gameOver();
-                            }
-                        }
+                    if(obs.position.z > camera.position.z + 10) {
+                        scene.remove(obs);
+                        obstacles.splice(i, 1);
                     }
                 }
-
-                // Coins Collection Pickup
-                for (let i = coinsList.length - 1; i >= 0; i--) {
-                    const c = coinsList[i];
-                    c.rotation.z += delta * 4;
-                    const dist = player.position.distanceTo(c.position);
-                    if (dist < 2.5) {
-                        playerCoins += 5;
-                        totalCoins += 5;
-                        localStorage.setItem('blox_coins', totalCoins);
-                        sfx.playCoin();
-                        scene.remove(c);
-                        coinsList.splice(i, 1);
-                        updateHUD();
-                    }
-                }
-
-                // Particles Physics Updates
-                for (let i = particles.length - 1; i >= 0; i--) {
-                    const p = particles[i];
-                    p.life -= delta;
-                    p.mesh.position.addScaledVector(p.vel, delta);
-                    p.vel.y -= 15 * delta; // Gravity
-                    if (p.life <= 0) {
-                        scene.remove(p.mesh);
-                        particles.splice(i, 1);
-                    }
-                }
-
-                // Increase Wave Level gradually
-                if (sessionKills > currentWave * 10) {
-                    currentWave++;
-                    updateHUD();
-                }
-            }
-
-            // Smooth Camera Follow Logic
-            if (player) {
-                const targetCamX = player.position.x + cameraDistance * Math.sin(cameraAngleX) * Math.cos(cameraAngleY);
-                const targetCamY = player.position.y + cameraDistance * Math.sin(cameraAngleY) + 2;
-                const targetCamZ = player.position.z + cameraDistance * Math.cos(cameraAngleX) * Math.cos(cameraAngleY);
-
-                camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetCamX, 0.1);
-                camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetCamY, 0.1);
-                camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetCamZ, 0.1);
-
-                camera.lookAt(player.position.x, player.position.y + 2, player.position.z);
             }
 
             renderer.render(scene, camera);
         }
 
-        function gameOver() {
-            gameState = 'GAMEOVER';
-            sfx.playOof();
-
-            document.getElementById('final-wave').innerText = currentWave;
-            document.getElementById('final-kills').innerText = sessionKills;
-            document.getElementById('final-coins').innerText = playerCoins;
-
-            // Save High Score Leaderboard
-            saveScore(playerName, sessionKills, currentWave);
-
-            document.getElementById('gameover-modal').classList.remove('hidden');
-        }
-
-        function saveScore(name, kills, wave) {
-            const scores = JSON.parse(localStorage.getItem('blox_leaderboard') || '[]');
-            scores.push({ name, kills, wave, date: new Date().toLocaleDateString() });
-            scores.sort((a, b) => b.kills - a.kills);
-            localStorage.setItem('blox_leaderboard', JSON.stringify(scores.slice(0, 5)));
-        }
-
-        function renderLeaderboard() {
-            const scores = JSON.parse(localStorage.getItem('blox_leaderboard') || '[]');
-            const list = document.getElementById('leaderboard-list');
-            if (scores.length === 0) {
-                list.innerHTML = '<div>No records yet! Be the first!</div>';
-                return;
-            }
-            list.innerHTML = scores.map((s, i) => `
-                <div class="flex justify-between">
-                    <span>#${i+1} <b>${s.name}</b></span>
-                    <span class="text-yellow-400">${s.kills} Kills (Wave ${s.wave})</span>
-                </div>
-            `).join('');
-        }
-
-        function renderShop() {
-            const grid = document.getElementById('shop-grid');
-            grid.innerHTML = '';
-
-            SKINS.forEach(skin => {
-                const isSelected = selectedSkin.id === skin.id;
-                const card = document.createElement('div');
-                card.className = `p-3 rounded-xl border flex flex-col items-center justify-between text-xs font-bold ${
-                    isSelected ? 'border-green-400 bg-green-900/30' : 'border-gray-700 bg-gray-800/80'
-                }`;
-
-                card.innerHTML = `
-                    <div class="w-10 h-10 rounded-lg mb-2 flex items-center justify-center border text-lg" style="background-color: #${skin.torsoColor.toString(16).padStart(6,'0')}">
-                        🙂
-                    </div>
-                    <div class="text-white mb-1">${skin.name}</div>
-                    ${skin.unlocked ? 
-                        `<button class="w-full py-1 rounded roblox-btn ${isSelected ? 'opacity-50' : ''}">${isSelected ? 'EQUIPPED' : 'EQUIP'}</button>` : 
-                        `<button class="w-full py-1 rounded roblox-btn-gold">🪙 ${skin.price}</button>`
-                    }
-                `;
-
-                card.onclick = () => {
-                    if (skin.unlocked) {
-                        selectedSkin = skin;
-                        rebuildPlayerSkin();
-                        renderShop();
-                    } else if (totalCoins >= skin.price) {
-                        totalCoins -= skin.price;
-                        skin.unlocked = true;
-                        selectedSkin = skin;
-                        localStorage.setItem('blox_coins', totalCoins);
-                        rebuildPlayerSkin();
-                        renderShop();
-                    } else {
-                        alert('Not enough coins!');
-                    }
-                };
-
-                grid.appendChild(card);
-            });
-        }
-
-        function rebuildPlayerSkin() {
-            if (!player) return;
-            scene.remove(player);
-            player = createRobloxCharacter(selectedSkin.headColor, selectedSkin.torsoColor, selectedSkin.limbColor);
-            scene.add(player);
-        }
-
-        function resetGame() {
-            // Clear enemies & objects
-            enemies.forEach(e => scene.remove(e.mesh));
-            enemies = [];
-            coinsList.forEach(c => scene.remove(c));
-            coinsList = [];
-
-            // Reset stats
-            playerHp = 100;
-            playerMaxHp = 100;
-            playerLevel = 1;
-            playerExp = 0;
-            expToNextLevel = 100;
-            playerCoins = 0;
-            sessionKills = 0;
-            currentWave = 1;
-            attackPower = 25;
-            attackSpeed = 1.0;
-            moveSpeed = 12;
-
-            if (player) player.position.set(0, 0, 0);
-
-            updateHUD();
-        }
+        init();
+        animate();
 
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         }
-
-        window.onload = () => {
-            initScene();
-            renderLeaderboard();
-            renderShop();
-
-            // Menu Button Handlers
-            document.getElementById('start-game-btn').addEventListener('click', () => {
-                sfx.init();
-                const nameInput = document.getElementById('player-name-input').value.trim();
-                if (nameInput) playerName = nameInput;
-
-                document.getElementById('main-menu').classList.add('hidden');
-                document.getElementById('hud-top').classList.remove('hidden');
-
-                resetGame();
-                gameState = 'PLAYING';
-            });
-
-            document.getElementById('open-shop-btn').addEventListener('click', () => {
-                renderShop();
-                document.getElementById('shop-modal').classList.remove('hidden');
-            });
-
-            document.getElementById('close-shop-btn').addEventListener('click', () => {
-                document.getElementById('shop-modal').classList.add('hidden');
-            });
-
-            document.getElementById('restart-btn').addEventListener('click', () => {
-                document.getElementById('gameover-modal').classList.add('hidden');
-                resetGame();
-                gameState = 'PLAYING';
-            });
-
-            // Start Animation Frame Loop
-            animate();
-        };
     </script>
 </body>
 </html>
-```
