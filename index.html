@@ -3,19 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VoidSlide.io - World Neon Arena</title>
+    <title>VoidSlide.io - Neon Arena</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #010108; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; touch-action: none; }
+        body { margin: 0; overflow: hidden; background: #02020a; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; touch-action: none; }
         #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         .hud { position: absolute; z-index: 10; color: #fff; pointer-events: none; }
-        .btn-io { background: linear-gradient(135deg, #00ffcc, #0077ff); border: 2px solid #00ffcc; color: #000; font-weight: 900; padding: 16px 32px; border-radius: 40px; box-shadow: 0 0 25px rgba(0,255,204,0.6); cursor: pointer; pointer-events: auto; transition: transform 0.1s, box-shadow 0.1s; text-transform: uppercase; letter-spacing: 2px; }
-        .btn-io:active { transform: scale(0.95); box-shadow: 0 0 10px rgba(0,255,204,0.8); }
+        .btn-io { background: linear-gradient(135deg, #00ffcc, #0077ff); border: 2px solid #00ffcc; color: #000; font-weight: 900; padding: 16px 32px; border-radius: 40px; box-shadow: 0 0 25px rgba(0,255,204,0.6); cursor: pointer; pointer-events: auto; transition: transform 0.1s; text-transform: uppercase; letter-spacing: 2px; }
+        .btn-io:active { transform: scale(0.95); }
         .io-input { background: rgba(5, 5, 20, 0.9); border: 2px solid #00ffcc; border-radius: 30px; padding: 14px 24px; color: #fff; text-align: center; font-weight: bold; outline: none; box-shadow: 0 0 15px rgba(0,255,204,0.3); }
-        .io-panel { background: rgba(5, 5, 20, 0.88); border: 2px solid rgba(0,255,204,0.4); backdrop-filter: blur(12px); border-radius: 20px; box-shadow: 0 0 30px rgba(0,255,204,0.2); }
+        .io-panel { background: rgba(5, 5, 20, 0.9); border: 2px solid rgba(0,255,204,0.4); backdrop-filter: blur(12px); border-radius: 20px; box-shadow: 0 0 30px rgba(0,255,204,0.2); }
         .skin-btn { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; pointer-events: auto; transition: transform 0.2s; }
         .skin-btn.selected { transform: scale(1.25); border-color: #00ffcc; box-shadow: 0 0 15px #00ffcc; }
+        .control-btn { background: rgba(0, 255, 204, 0.2); border: 2px solid #00ffcc; color: #00ffcc; font-size: 24px; font-weight: bold; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: auto; cursor: pointer; user-select: none; box-shadow: 0 0 15px rgba(0,255,204,0.3); }
+        .control-btn:active { background: rgba(0, 255, 204, 0.5); transform: scale(0.9); }
     </style>
 </head>
 <body>
@@ -26,13 +28,13 @@
     <div id="menu-overlay" class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/90 px-4">
         <div class="io-panel p-8 max-w-sm w-full text-center flex flex-col items-center">
             <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 mb-1 tracking-widest drop-shadow-[0_0_20px_rgba(0,255,204,0.8)]">VOIDSLIDE<span class="text-cyan-400">.IO</span></h1>
-            <p class="text-xs text-cyan-300 font-mono mb-6 uppercase tracking-widest">Multiplayer Arena Edition</p>
+            <p class="text-xs text-cyan-300 font-mono mb-6 uppercase tracking-widest">Neon Obby Arena</p>
 
             <input type="text" id="username" placeholder="OYUNCU ADI" class="io-input w-full mb-4 text-sm" maxlength="12">
 
             <!-- Renk / Skin Seçimi -->
             <div class="mb-6 w-full">
-                <p class="text-xs text-gray-400 mb-2 font-mono">NEON RENGİNİ SEÇ</p>
+                <p class="text-xs text-gray-400 mb-2 font-mono">KARAKTER RENGİ</p>
                 <div class="flex justify-center gap-4">
                     <div class="skin-btn selected" style="background:#00ffff;" onclick="setSkin(0x00ffff, this)"></div>
                     <div class="skin-btn" style="background:#ff0055;" onclick="setSkin(0xff0055, this)"></div>
@@ -50,30 +52,36 @@
         <div class="io-panel px-4 py-2 font-mono text-cyan-400 text-sm font-black flex flex-col gap-1">
             <div>SKOR: <span id="score-text" class="text-white text-base">0</span></div>
             <div>KRİSTAL: <span id="crystal-text" class="text-yellow-400">0</span></div>
-            <div id="shield-status" class="text-blue-400 text-xs" style="display:none;">🛡️ KALKAN AKTİF</div>
         </div>
 
-        <!-- Canlı Liderlik Tablosu (.IO Tarzı) -->
+        <!-- Canlı Liderlik Tablosu -->
         <div class="io-panel px-4 py-3 font-mono text-xs text-white min-w-[160px]">
             <div class="text-cyan-400 font-bold mb-2 border-b border-cyan-500/30 pb-1">🏆 ARENA LİDERLERİ</div>
-            <div id="leaderboard-list" class="flex flex-col gap-1 text-gray-300">
-                <!-- Dinamik dolar -->
-            </div>
+            <div id="leaderboard-list" class="flex flex-col gap-1 text-gray-300"></div>
         </div>
+    </div>
+
+    <!-- MOBİL KONTROL BUTONLARI -->
+    <div id="game-controls" class="hud bottom-6 left-6 right-6 flex justify-between items-end" style="display:none;">
+        <div class="flex gap-3">
+            <div class="control-btn" ontouchstart="movePlayer(-1)" onmousedown="movePlayer(-1)">◀</div>
+            <div class="control-btn" ontouchstart="movePlayer(1)" onmousedown="movePlayer(1)">▶</div>
+        </div>
+        <div class="control-btn" style="width:90px; height:90px; background:rgba(255,0,127,0.3); border-color:#ff007f; color:#ff007f;" ontouchstart="jumpPlayer()" onmousedown="jumpPlayer()">🦘</div>
     </div>
 
     <!-- OYUN BİTTİ EKRANI -->
     <div id="gameover-overlay" class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/95 px-4" style="display:none;">
         <div class="io-panel p-8 max-w-sm w-full text-center flex flex-col items-center border-red-500/60 shadow-[0_0_40px_rgba(255,0,85,0.3)]">
-            <h2 class="text-3xl font-black text-red-500 mb-1 tracking-wider drop-shadow-[0_0_10px_#ff0055]">ELENDİN</h2>
-            <p id="final-rank" class="text-cyan-400 font-bold text-sm mb-2 font-mono">Sıralama: #5</p>
+            <h2 class="text-3xl font-black text-red-500 mb-1 tracking-wider drop-shadow-[0_0_10px_#ff0055]">YANDIN</h2>
+            <p id="final-rank" class="text-cyan-400 font-bold text-sm mb-2 font-mono">Sıralama: #1</p>
             <p id="final-score" class="text-gray-300 text-sm mb-6 font-mono">Skor: 0</p>
-            <button class="btn-io w-full text-base bg-gradient-to-r from-red-500 to-pink-600 border-red-400 shadow-[0_0_20px_rgba(255,0,85,0.6)]" onclick="returnToMenu()">TEKRAR BAŞLA</button>
+            <button class="btn-io w-full text-base bg-gradient-to-r from-red-500 to-pink-600 border-red-400 shadow-[0_0_20px_rgba(255,0,85,0.6)]" onclick="returnToMenu()">TEKRAR DENE</button>
         </div>
     </div>
 
     <script>
-        // Ses Motoru (Web Audio API)
+        // Ses Motoru
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -93,13 +101,13 @@
                 gain.gain.setValueAtTime(0.2, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
                 osc.start(now); osc.stop(now + 0.15);
-            } else if (type === 'powerup') {
+            } else if (type === 'jump') {
                 osc.type = 'triangle';
-                osc.frequency.setValueAtTime(400, now);
-                osc.frequency.linearRampToValueAtTime(800, now + 0.3);
-                gain.gain.setValueAtTime(0.3, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                osc.start(now); osc.stop(now + 0.3);
+                osc.frequency.setValueAtTime(250, now);
+                osc.frequency.linearRampToValueAtTime(500, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                osc.start(now); osc.stop(now + 0.2);
             } else if (type === 'crash') {
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(150, now);
@@ -110,15 +118,17 @@
             }
         }
 
-        let scene, camera, renderer, tunnel, playerMesh;
-        let angle = 0, speed = 0.9, score = 0, crystalsCount = 0, isPlaying = false;
-        let obstacles = [], crystals = [], powerups = [], bots = [], particles = [];
+        let scene, camera, renderer, playerGroup;
+        let score = 0, crystalsCount = 0, isPlaying = false;
+        let obstacles = [], crystals = [], bots = [], particles = [];
         let playerColor = 0x00ffff;
         let playerUser = "Racer";
-        let hasShield = false;
-        let shakeDuration = 0, shakeIntensity = 0;
+        let playerLane = 0; // -1: Sol, 0: Orta, 1: Sağ
+        let targetX = 0;
+        let playerYVelocity = 0, isJumping = false;
+        let gameSpeed = 0.5;
 
-        const botNames = ["ShadowX", "CyberNinja", "NeonKing", "Vortex99", "GlitchPro", "AlphaRacer"];
+        const botNames = ["ShadowX", "CyberNinja", "NeonKing", "Vortex99", "GlitchPro"];
 
         function setSkin(color, el) {
             playerColor = color;
@@ -129,108 +139,122 @@
         function init() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
-            scene.fog = new THREE.FogExp2(0x010108, 0.012);
+            scene.background = new THREE.Color(0x02020a);
+            scene.fog = new THREE.FogExp2(0x02020a, 0.015);
 
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 5, 10);
+            camera.lookAt(0, 1, 0);
+
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(renderer.domElement);
 
-            // Neon Tünel
-            const tunnelGeo = new THREE.CylinderGeometry(9, 9, 400, 32, 1, true);
-            const tunnelMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc, wireframe: true, transparent: true, opacity: 0.2 });
-            tunnel = new THREE.Mesh(tunnelGeo, tunnelMat);
-            tunnel.rotation.x = Math.PI / 2;
-            scene.add(tunnel);
-
-            // Oyuncu Gemisi
-            const pGeo = new THREE.BoxGeometry(0.9, 0.9, 1.2);
-            const pMat = new THREE.MeshBasicMaterial({ color: playerColor });
-            playerMesh = new THREE.Mesh(pGeo, pMat);
-            scene.add(playerMesh);
-
-            const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+            // Işıklar
+            const ambient = new THREE.AmbientLight(0xffffff, 0.7);
             scene.add(ambient);
+            const dirLight = new THREE.DirectionalLight(0x00ffcc, 1);
+            dirLight.position.set(10, 20, 10);
+            scene.add(dirLight);
 
+            // Zemin (3 Şeritli Yol)
+            const floorGeo = new THREE.PlaneGeometry(12, 600);
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x0a0a23, roughness: 0.8 });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.position.z = -250;
+            scene.add(floor);
+
+            // Yol Çizgileri
+            for(let i = -200; i < 100; i += 10) {
+                const lineGeo = new THREE.BoxGeometry(0.1, 0.05, 4);
+                const lineMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
+                const lineL = new THREE.Mesh(lineGeo, lineMat);
+                lineL.position.set(-2, 0.02, i);
+                scene.add(lineL);
+                const lineR = lineL.clone();
+                lineR.position.x = 2;
+                scene.add(lineR);
+            }
+
+            createPlayer();
             window.addEventListener('resize', onWindowResize);
-            setupControls();
+            setupKeyboard();
         }
 
-        // Kontroller
-        let touchStartX = 0;
-        function setupControls() {
+        function createPlayer() {
+            playerGroup = new THREE.Group();
+            const mat = new THREE.MeshStandardMaterial({ color: playerColor });
+            
+            // Gövde
+            const body = new THREE.Mesh(new THREE.BoxGeometry(1, 1.2, 0.6), mat);
+            body.position.y = 0.6;
+            playerGroup.add(body);
+
+            // Kafa
+            const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), new THREE.MeshStandardMaterial({ color: 0xffdbac }));
+            head.position.y = 1.5;
+            playerGroup.add(head);
+
+            playerGroup.position.set(0, 0, 0);
+            scene.add(playerGroup);
+        }
+
+        function setupKeyboard() {
             window.addEventListener('keydown', (e) => {
                 if(!isPlaying) return;
-                if(e.key === 'ArrowLeft' || e.key === 'a') angle -= 0.15;
-                if(e.key === 'ArrowRight' || e.key === 'd') angle += 0.15;
-            });
-
-            window.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
-            window.addEventListener('touchmove', (e) => {
-                if(!isPlaying) return;
-                let diff = e.touches[0].clientX - touchStartX;
-                angle += diff * 0.0035;
-                touchStartX = e.touches[0].clientX;
+                if(e.key === 'ArrowLeft' || e.key === 'a') movePlayer(-1);
+                if(e.key === 'ArrowRight' || e.key === 'd') movePlayer(1);
+                if(e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w') jumpPlayer();
             });
         }
 
-        function spawnBot() {
-            if(bots.length < 3) {
-                let name = botNames[Math.floor(Math.random() * botNames.length)];
-                if(!bots.some(b => b.name === name)) {
-                    let bGeo = new THREE.BoxGeometry(0.8, 0.8, 1);
-                    let bMat = new THREE.MeshBasicMaterial({ color: Math.random() * 0xffffff });
-                    let mesh = new THREE.Mesh(bGeo, bMat);
-                    scene.add(mesh);
-                    bots.push({
-                        name: name,
-                        mesh: mesh,
-                        angle: Math.random() * Math.PI * 2,
-                        score: Math.floor(Math.random() * 500)
-                    });
-                }
+        function movePlayer(dir) {
+            playerLane += dir;
+            if(playerLane < -1) playerLane = -1;
+            if(playerLane > 1) playerLane = 1;
+            targetX = playerLane * 3.5;
+            playSound('jump');
+        }
+
+        function jumpPlayer() {
+            if(!isJumping) {
+                isJumping = true;
+                playerYVelocity = 0.35;
+                playSound('jump');
             }
         }
 
         function spawnObstacle() {
-            const obsGeo = new THREE.BoxGeometry(2.2, 2.2, 2.2);
-            const obsMat = new THREE.MeshBasicMaterial({ color: 0xff0055 });
+            const obsGeo = new THREE.BoxGeometry(2.5, 1, 1);
+            const obsMat = new THREE.MeshStandardMaterial({ color: 0xff0055, emissive: 0xff0055 });
             const obs = new THREE.Mesh(obsGeo, obsMat);
-            let obsAngle = Math.random() * Math.PI * 2;
-            obs.position.set(Math.cos(obsAngle) * 8.1, Math.sin(obsAngle) * 8.1, camera.position.z - 250);
+            let lane = Math.floor(Math.random() * 3) - 1;
+            obs.position.set(lane * 3.5, 0.5, -150);
             scene.add(obs);
             obstacles.push(obs);
         }
 
         function spawnCrystal() {
-            const cryGeo = new THREE.OctahedronGeometry(0.6);
-            const cryMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
+            const cryGeo = new THREE.OctahedronGeometry(0.5);
+            const cryMat = new THREE.MeshStandardMaterial({ color: 0xffaa00, emissive: 0xffaa00 });
             const cry = new THREE.Mesh(cryGeo, cryMat);
-            let cryAngle = Math.random() * Math.PI * 2;
-            cry.position.set(Math.cos(cryAngle) * 8.1, Math.sin(cryAngle) * 8.1, camera.position.z - 250);
+            let lane = Math.floor(Math.random() * 3) - 1;
+            cry.position.set(lane * 3.5, 0.8, -150);
             scene.add(cry);
             crystals.push(cry);
         }
 
-        function spawnPowerup() {
-            const pwGeo = new THREE.SphereGeometry(0.7, 16, 16);
-            const pwMat = new THREE.MeshBasicMaterial({ color: 0x0088ff });
-            const pw = new THREE.Mesh(pwGeo, pwMat);
-            let pwAngle = Math.random() * Math.PI * 2;
-            pw.position.set(Math.cos(pwAngle) * 8.1, Math.sin(pwAngle) * 8.1, camera.position.z - 250);
-            scene.add(pw);
-            powerups.push(pw);
-        }
-
-        function createExplosion(x, y, z, colorHex) {
-            for(let i = 0; i < 20; i++) {
-                let p = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), new THREE.MeshBasicMaterial({ color: colorHex }));
-                p.position.set(x, y, z);
-                let vel = new THREE.Vector3((Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 0.5, (Math.random() - 0.5) * 0.5 - 0.2);
-                scene.add(p);
-                particles.push({ mesh: p, velocity: vel, life: 30 });
-            }
+        function spawnBots() {
+            botNames.forEach((name, idx) => {
+                let bMat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
+                let mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1.5, 0.6), bMat);
+                let lane = (idx % 3) - 1;
+                mesh.position.set(lane * 3.5, 0.75, -50 - (idx * 20));
+                scene.add(mesh);
+                bots.push({ name: name, mesh: mesh, lane: lane, score: Math.floor(Math.random() * 300) });
+            });
         }
 
         function updateLeaderboard() {
@@ -257,41 +281,30 @@
             if(!nameInput) { alert("Lütfen oyuncu adını gir!"); return; }
 
             playerUser = nameInput;
-            playerMesh.material.color.setHex(playerColor);
+            playerGroup.children[0].material.color.setHex(playerColor);
 
             document.getElementById("menu-overlay").style.display = "none";
             document.getElementById("gameover-overlay").style.display = "none";
             document.getElementById("game-hud").style.display = "flex";
+            document.getElementById("game-controls").style.display = "flex";
 
-            score = 0; crystalsCount = 0; speed = 0.9; angle = 0; hasShield = false;
-            document.getElementById("shield-status").style.display = "none";
-
+            score = 0; crystalsCount = 0; gameSpeed = 0.6; playerLane = 0; targetX = 0;
             obstacles.forEach(o => scene.remove(o));
             crystals.forEach(c => scene.remove(c));
-            powerups.forEach(p => scene.remove(p));
             bots.forEach(b => scene.remove(b.mesh));
-            obstacles = []; crystals = []; powerups = []; bots = [];
+            obstacles = []; crystals = []; bots = [];
 
-            for(let i=0; i<3; i++) spawnBot();
+            spawnBots();
             isPlaying = true;
         }
 
         function gameOver() {
-            if(hasShield) {
-                hasShield = false;
-                document.getElementById("shield-status").style.display = "none";
-                playSound('powerup');
-                shakeDuration = 15; shakeIntensity = 0.3;
-                return; // Kalkan hayat kurtardı!
-            }
-
             isPlaying = false;
             playSound('crash');
-            shakeDuration = 25; shakeIntensity = 0.5;
-            createExplosion(playerMesh.position.x, playerMesh.position.y, playerMesh.position.z, playerColor);
-
             let rank = updateLeaderboard();
+
             document.getElementById("game-hud").style.display = "none";
+            document.getElementById("game-controls").style.display = "none";
             document.getElementById("gameover-overlay").style.display = "flex";
             document.getElementById("final-rank").innerText = `Arena Sıralaman: #${rank}`;
             document.getElementById("final-score").innerText = `Toplam Skor: ${Math.floor(score)}`;
@@ -308,129 +321,82 @@
 
             if(isPlaying) {
                 frameCount++;
-                score += speed * 1.5;
-                speed += 0.0004;
+                score += Math.floor(gameSpeed * 10);
+                gameSpeed += 0.0003;
 
-                document.getElementById("score-text").innerText = Math.floor(score);
+                document.getElementById("score-text").innerText = score;
                 document.getElementById("crystal-text").innerText = crystalsCount;
 
-                // Botların skorlarını güncelle
+                // Oyuncu Yumuşak Sağa/Sola Geçiş
+                playerGroup.position.x += (targetX - playerGroup.position.x) * 0.2;
+
+                // Zıplama Fizik
+                if(isJumping) {
+                    playerGroup.position.y += playerYVelocity;
+                    playerYVelocity -= 0.025;
+                    if(playerGroup.position.y <= 0) {
+                        playerGroup.position.y = 0;
+                        isJumping = false;
+                    }
+                }
+
+                // Bot Hareketleri
                 bots.forEach(b => {
-                    b.score += Math.floor(speed * 1.2);
-                    b.angle += 0.02;
-                    let radius = 8.1;
-                    b.mesh.position.set(Math.cos(b.angle)*radius, Math.sin(b.angle)*radius, camera.position.z - 40 - Math.random()*100);
-                    b.mesh.rotation.z = b.angle;
+                    b.score += Math.floor(gameSpeed * 8);
+                    b.mesh.position.z += gameSpeed * 1.2;
+                    if(b.mesh.position.z > 5) {
+                        b.mesh.position.z = -150;
+                        b.lane = Math.floor(Math.random() * 3) - 1;
+                        b.mesh.position.x = b.lane * 3.5;
+                    }
                 });
 
                 updateLeaderboard();
 
-                // Oyuncu Hareketi
-                let radius = 8.1;
-                playerMesh.position.x = Math.cos(angle) * radius;
-                playerMesh.position.y = Math.sin(angle) * radius;
-                playerMesh.position.z = camera.position.z - 12;
-                playerMesh.rotation.z = angle;
-                playerMesh.rotation.x += 0.05;
-
-                // Kamera & Sarsıntı
-                let camX = playerMesh.position.x * 0.3;
-                let camY = playerMesh.position.y * 0.3;
-                let camZ = playerMesh.position.z + 14;
-                if(shakeDuration > 0) {
-                    camX += (Math.random() - 0.5) * shakeIntensity;
-                    camY += (Math.random() - 0.5) * shakeIntensity;
-                    shakeDuration--;
-                }
-                camera.position.set(camX, camY, camZ);
-                camera.lookAt(playerMesh.position.x, playerMesh.position.y, playerMesh.position.z - 10);
-
-                // Tünel İlerlemesi
-                tunnel.position.z += speed;
-                if(tunnel.position.z > 60) tunnel.position.z = 0;
-
-                // Nesne Üretimi
-                if(frameCount % Math.max(12, Math.floor(35 - speed * 8)) === 0) {
+                // Engel ve Kristal Üretimi
+                if(frameCount % 60 === 0) {
                     spawnObstacle();
-                    if(Math.random() > 0.4) spawnCrystal();
-                    if(Math.random() > 0.85) spawnPowerup();
-                    if(Math.random() > 0.92) spawnBot();
+                    if(Math.random() > 0.3) spawnCrystal();
                 }
 
-                // Çarpışma: Engeller
+                // Engelleri İlerlet ve Çarpışma Kontrolü
                 for(let i = obstacles.length - 1; i >= 0; i--) {
                     let obs = obstacles[i];
-                    obs.position.z += speed * 2;
-                    obs.rotation.x += 0.02;
+                    obs.position.z += gameSpeed * 1.5;
 
-                    if(playerMesh.position.distanceTo(obs.position) < 1.7) {
-                        scene.remove(obs);
-                        obstacles.splice(i, 1);
+                    // Çarpışma Testi (Pozisyonlar)
+                    let dist = playerGroup.position.distanceTo(obs.position);
+                    if(dist < 1.3 && playerGroup.position.y < 0.8) {
                         gameOver();
                         break;
                     }
 
-                    if(obs.position.z > camera.position.z + 10) {
+                    if(obs.position.z > 10) {
                         scene.remove(obs);
                         obstacles.splice(i, 1);
                     }
                 }
 
-                // Çarpışma: Kristaller
+                // Kristalleri İlerlet ve Toplama
                 for(let i = crystals.length - 1; i >= 0; i--) {
                     let cry = crystals[i];
-                    cry.position.z += speed * 2;
-                    cry.rotation.y += 0.08;
+                    cry.position.z += gameSpeed * 1.5;
+                    cry.rotation.y += 0.05;
 
-                    if(playerMesh.position.distanceTo(cry.position) < 1.6) {
+                    let dist = playerGroup.position.distanceTo(cry.position);
+                    if(dist < 1.4) {
                         playSound('collect');
                         crystalsCount++;
-                        score += 150;
-                        createExplosion(cry.position.x, cry.position.y, cry.position.z, 0xffaa00);
+                        score += 200;
                         scene.remove(cry);
                         crystals.splice(i, 1);
                         continue;
                     }
 
-                    if(cry.position.z > camera.position.z + 10) {
+                    if(cry.position.z > 10) {
                         scene.remove(cry);
                         crystals.splice(i, 1);
                     }
-                }
-
-                // Çarpışma: Power-up (Kalkan)
-                for(let i = powerups.length - 1; i >= 0; i--) {
-                    let pw = powerups[i];
-                    pw.position.z += speed * 2;
-                    pw.rotation.y += 0.1;
-
-                    if(playerMesh.position.distanceTo(pw.position) < 1.6) {
-                        playSound('powerup');
-                        hasShield = true;
-                        score += 300;
-                        document.getElementById("shield-status").style.display = "block";
-                        createExplosion(pw.position.x, pw.position.y, pw.position.z, 0x0088ff);
-                        scene.remove(pw);
-                        powerups.splice(i, 1);
-                        continue;
-                    }
-
-                    if(pw.position.z > camera.position.z + 10) {
-                        scene.remove(pw);
-                        powerups.splice(i, 1);
-                    }
-                }
-            }
-
-            // Parçacıklar
-            for(let i = particles.length - 1; i >= 0; i--) {
-                let p = particles[i];
-                p.mesh.position.add(p.velocity);
-                p.life--;
-                p.mesh.scale.multiplyScalar(0.95);
-                if(p.life <= 0) {
-                    scene.remove(p.mesh);
-                    particles.splice(i, 1);
                 }
             }
 
