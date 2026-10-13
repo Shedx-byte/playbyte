@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VoidSlide.io - Neon Arena</title>
+    <title>TimeShatter.io - Temporal Arena</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; background: #02020a; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; touch-action: none; }
+        body { margin: 0; overflow: hidden; background: #020208; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; touch-action: none; }
         #canvas-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
         .hud { position: absolute; z-index: 10; color: #fff; pointer-events: none; }
-        .btn-io { background: linear-gradient(135deg, #00ffcc, #0077ff); border: 2px solid #00ffcc; color: #000; font-weight: 900; padding: 16px 32px; border-radius: 40px; box-shadow: 0 0 25px rgba(0,255,204,0.6); cursor: pointer; pointer-events: auto; transition: transform 0.1s; text-transform: uppercase; letter-spacing: 2px; }
+        .btn-io { background: linear-gradient(135deg, #a855f7, #ec4899); border: 2px solid #d946ef; color: #fff; font-weight: 900; padding: 16px 32px; border-radius: 40px; box-shadow: 0 0 25px rgba(217,70,239,0.6); cursor: pointer; pointer-events: auto; transition: transform 0.1s; text-transform: uppercase; letter-spacing: 2px; }
         .btn-io:active { transform: scale(0.95); }
-        .io-input { background: rgba(5, 5, 20, 0.9); border: 2px solid #00ffcc; border-radius: 30px; padding: 14px 24px; color: #fff; text-align: center; font-weight: bold; outline: none; box-shadow: 0 0 15px rgba(0,255,204,0.3); }
-        .io-panel { background: rgba(5, 5, 20, 0.9); border: 2px solid rgba(0,255,204,0.4); backdrop-filter: blur(12px); border-radius: 20px; box-shadow: 0 0 30px rgba(0,255,204,0.2); }
+        .io-input { background: rgba(10, 5, 20, 0.9); border: 2px solid #d946ef; border-radius: 30px; padding: 14px 24px; color: #fff; text-align: center; font-weight: bold; outline: none; box-shadow: 0 0 15px rgba(217,70,239,0.3); }
+        .io-panel { background: rgba(10, 5, 20, 0.9); border: 2px solid rgba(217,70,239,0.4); backdrop-filter: blur(12px); border-radius: 20px; box-shadow: 0 0 30px rgba(217,70,239,0.2); }
         .skin-btn { width: 35px; height: 35px; border-radius: 50%; border: 2px solid #fff; cursor: pointer; pointer-events: auto; transition: transform 0.2s; }
-        .skin-btn.selected { transform: scale(1.25); border-color: #00ffcc; box-shadow: 0 0 15px #00ffcc; }
-        .control-btn { background: rgba(0, 255, 204, 0.2); border: 2px solid #00ffcc; color: #00ffcc; font-size: 24px; font-weight: bold; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: auto; cursor: pointer; user-select: none; box-shadow: 0 0 15px rgba(0,255,204,0.3); }
-        .control-btn:active { background: rgba(0, 255, 204, 0.5); transform: scale(0.9); }
+        .skin-btn.selected { transform: scale(1.25); border-color: #d946ef; box-shadow: 0 0 15px #d946ef; }
+        .control-btn { background: rgba(217, 70, 239, 0.2); border: 2px solid #d946ef; color: #d946ef; font-size: 24px; font-weight: bold; width: 70px; height: 70px; border-radius: 50%; display: flex; align-items: center; justify-content: center; pointer-events: auto; cursor: pointer; user-select: none; box-shadow: 0 0 15px rgba(217,70,239,0.3); }
+        .control-btn:active { background: rgba(217, 70, 239, 0.5); transform: scale(0.9); }
     </style>
 </head>
 <body>
@@ -27,36 +27,36 @@
     <!-- ANA MENÜ -->
     <div id="menu-overlay" class="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/90 px-4">
         <div class="io-panel p-8 max-w-sm w-full text-center flex flex-col items-center">
-            <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 mb-1 tracking-widest drop-shadow-[0_0_20px_rgba(0,255,204,0.8)]">VOIDSLIDE<span class="text-cyan-400">.IO</span></h1>
-            <p class="text-xs text-cyan-300 font-mono mb-6 uppercase tracking-widest">Neon Obby Arena</p>
+            <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 mb-1 tracking-widest drop-shadow-[0_0_20px_rgba(217,70,239,0.8)]">TIMESHATTER<span class="text-purple-400">.IO</span></h1>
+            <p class="text-xs text-purple-300 font-mono mb-6 uppercase tracking-widest">Geçmişinle Yüzleş</p>
 
             <input type="text" id="username" placeholder="OYUNCU ADI" class="io-input w-full mb-4 text-sm" maxlength="12">
 
             <!-- Renk / Skin Seçimi -->
             <div class="mb-6 w-full">
-                <p class="text-xs text-gray-400 mb-2 font-mono">KARAKTER RENGİ</p>
+                <p class="text-xs text-gray-400 mb-2 font-mono">ZAMAN ENERJİSİ</p>
                 <div class="flex justify-center gap-4">
-                    <div class="skin-btn selected" style="background:#00ffff;" onclick="setSkin(0x00ffff, this)"></div>
-                    <div class="skin-btn" style="background:#ff0055;" onclick="setSkin(0xff0055, this)"></div>
-                    <div class="skin-btn" style="background:#00ff66;" onclick="setSkin(0x00ff66, this)"></div>
-                    <div class="skin-btn" style="background:#cc00ff;" onclick="setSkin(0xcc00ff, this)"></div>
+                    <div class="skin-btn selected" style="background:#a855f7;" onclick="setSkin(0xa855f7, this)"></div>
+                    <div class="skin-btn" style="background:#06b6d4;" onclick="setSkin(0x06b6d4, this)"></div>
+                    <div class="skin-btn" style="background:#10b981;" onclick="setSkin(0x10b981, this)"></div>
+                    <div class="skin-btn" style="background:#f59e0b;" onclick="setSkin(0xf59e0b, this)"></div>
                 </div>
             </div>
 
-            <button class="btn-io w-full text-base" onclick="startGame()">ARENAYA GİR 🚀</button>
+            <button class="btn-io w-full text-base" onclick="startGame()">ZAMANI BAŞLAT ⏳</button>
         </div>
     </div>
 
     <!-- OYUN HUD & LİDERLİK TABLOSU -->
     <div id="game-hud" class="hud top-4 left-4 right-4 flex justify-between items-start" style="display:none;">
-        <div class="io-panel px-4 py-2 font-mono text-cyan-400 text-sm font-black flex flex-col gap-1">
+        <div class="io-panel px-4 py-2 font-mono text-purple-400 text-sm font-black flex flex-col gap-1">
             <div>SKOR: <span id="score-text" class="text-white text-base">0</span></div>
-            <div>KRİSTAL: <span id="crystal-text" class="text-yellow-400">0</span></div>
+            <div>DÖNGÜ: <span id="loop-text" class="text-pink-400">1</span></div>
         </div>
 
         <!-- Canlı Liderlik Tablosu -->
         <div class="io-panel px-4 py-3 font-mono text-xs text-white min-w-[160px]">
-            <div class="text-cyan-400 font-bold mb-2 border-b border-cyan-500/30 pb-1">🏆 ARENA LİDERLERİ</div>
+            <div class="text-purple-400 font-bold mb-2 border-b border-purple-500/30 pb-1">🏆 ZAMAN LİDERLERİ</div>
             <div id="leaderboard-list" class="flex flex-col gap-1 text-gray-300"></div>
         </div>
     </div>
@@ -67,21 +67,20 @@
             <div class="control-btn" ontouchstart="movePlayer(-1)" onmousedown="movePlayer(-1)">◀</div>
             <div class="control-btn" ontouchstart="movePlayer(1)" onmousedown="movePlayer(1)">▶</div>
         </div>
-        <div class="control-btn" style="width:90px; height:90px; background:rgba(255,0,127,0.3); border-color:#ff007f; color:#ff007f;" ontouchstart="jumpPlayer()" onmousedown="jumpPlayer()">🦘</div>
+        <div class="control-btn" style="width:90px; height:90px; background:rgba(236,72,153,0.3); border-color:#ec4899; color:#ec4899;" ontouchstart="jumpPlayer()" onmousedown="jumpPlayer()">🌀</div>
     </div>
 
     <!-- OYUN BİTTİ EKRANI -->
     <div id="gameover-overlay" class="absolute inset-0 z-40 flex flex-col items-center justify-center bg-black/95 px-4" style="display:none;">
-        <div class="io-panel p-8 max-w-sm w-full text-center flex flex-col items-center border-red-500/60 shadow-[0_0_40px_rgba(255,0,85,0.3)]">
-            <h2 class="text-3xl font-black text-red-500 mb-1 tracking-wider drop-shadow-[0_0_10px_#ff0055]">YANDIN</h2>
-            <p id="final-rank" class="text-cyan-400 font-bold text-sm mb-2 font-mono">Sıralama: #1</p>
+        <div class="io-panel p-8 max-w-sm w-full text-center flex flex-col items-center border-purple-500/60 shadow-[0_0_40px_rgba(217,70,239,0.3)]">
+            <h2 class="text-3xl font-black text-purple-400 mb-1 tracking-wider drop-shadow-[0_0_10px_#d946ef]">PARÇALANDIN</h2>
+            <p id="final-rank" class="text-pink-400 font-bold text-sm mb-2 font-mono">Sıralama: #1</p>
             <p id="final-score" class="text-gray-300 text-sm mb-6 font-mono">Skor: 0</p>
-            <button class="btn-io w-full text-base bg-gradient-to-r from-red-500 to-pink-600 border-red-400 shadow-[0_0_20px_rgba(255,0,85,0.6)]" onclick="returnToMenu()">TEKRAR DENE</button>
+            <button class="btn-io w-full text-base" onclick="returnToMenu()">TEKRAR DENE</button>
         </div>
     </div>
 
     <script>
-        // Ses Motoru
         let audioCtx = null;
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -94,24 +93,24 @@
             gain.connect(audioCtx.destination);
             let now = audioCtx.currentTime;
 
-            if (type === 'collect') {
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, now);
-                osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+            if (type === 'jump') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.linearRampToValueAtTime(600, now + 0.15);
                 gain.gain.setValueAtTime(0.2, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
                 osc.start(now); osc.stop(now + 0.15);
-            } else if (type === 'jump') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(250, now);
-                osc.frequency.linearRampToValueAtTime(500, now + 0.2);
-                gain.gain.setValueAtTime(0.2, now);
-                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-                osc.start(now); osc.stop(now + 0.2);
+            } else if (type === 'clone') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.3);
+                gain.gain.setValueAtTime(0.3, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
             } else if (type === 'crash') {
                 osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(150, now);
-                osc.frequency.linearRampToValueAtTime(40, now + 0.4);
+                osc.frequency.setValueAtTime(120, now);
+                osc.frequency.linearRampToValueAtTime(30, now + 0.4);
                 gain.gain.setValueAtTime(0.4, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
                 osc.start(now); osc.stop(now + 0.4);
@@ -119,16 +118,16 @@
         }
 
         let scene, camera, renderer, playerGroup;
-        let score = 0, crystalsCount = 0, isPlaying = false;
-        let obstacles = [], crystals = [], bots = [], particles = [];
-        let playerColor = 0x00ffff;
+        let score = 0, loopCount = 1, isPlaying = false;
+        let obstacles = [], clones = [], bots = [], pathHistory = [];
+        let playerColor = 0xa855f7;
         let playerUser = "Racer";
-        let playerLane = 0; // -1: Sol, 0: Orta, 1: Sağ
-        let targetX = 0;
+        let playerLane = 0, targetX = 0;
         let playerYVelocity = 0, isJumping = false;
         let gameSpeed = 0.5;
+        let cloneTimer = 0;
 
-        const botNames = ["ShadowX", "CyberNinja", "NeonKing", "Vortex99", "GlitchPro"];
+        const botNames = ["Chronos", "Paradox", "Vector", "Eon", "Nexus"];
 
         function setSkin(color, el) {
             playerColor = color;
@@ -139,8 +138,8 @@
         function init() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x02020a);
-            scene.fog = new THREE.FogExp2(0x02020a, 0.015);
+            scene.background = new THREE.Color(0x020208);
+            scene.fog = new THREE.FogExp2(0x020208, 0.015);
 
             camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.set(0, 5, 10);
@@ -151,32 +150,19 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(renderer.domElement);
 
-            // Işıklar
             const ambient = new THREE.AmbientLight(0xffffff, 0.7);
             scene.add(ambient);
-            const dirLight = new THREE.DirectionalLight(0x00ffcc, 1);
+            const dirLight = new THREE.DirectionalLight(0xd946ef, 1);
             dirLight.position.set(10, 20, 10);
             scene.add(dirLight);
 
-            // Zemin (3 Şeritli Yol)
+            // Zemin
             const floorGeo = new THREE.PlaneGeometry(12, 600);
-            const floorMat = new THREE.MeshStandardMaterial({ color: 0x0a0a23, roughness: 0.8 });
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x0f051d, roughness: 0.8 });
             const floor = new THREE.Mesh(floorGeo, floorMat);
             floor.rotation.x = -Math.PI / 2;
             floor.position.z = -250;
             scene.add(floor);
-
-            // Yol Çizgileri
-            for(let i = -200; i < 100; i += 10) {
-                const lineGeo = new THREE.BoxGeometry(0.1, 0.05, 4);
-                const lineMat = new THREE.MeshBasicMaterial({ color: 0x00ffcc });
-                const lineL = new THREE.Mesh(lineGeo, lineMat);
-                lineL.position.set(-2, 0.02, i);
-                scene.add(lineL);
-                const lineR = lineL.clone();
-                lineR.position.x = 2;
-                scene.add(lineR);
-            }
 
             createPlayer();
             window.addEventListener('resize', onWindowResize);
@@ -185,19 +171,10 @@
 
         function createPlayer() {
             playerGroup = new THREE.Group();
-            const mat = new THREE.MeshStandardMaterial({ color: playerColor });
-            
-            // Gövde
+            const mat = new THREE.MeshStandardMaterial({ color: playerColor, emissive: playerColor, emissiveIntensity: 0.3 });
             const body = new THREE.Mesh(new THREE.BoxGeometry(1, 1.2, 0.6), mat);
             body.position.y = 0.6;
             playerGroup.add(body);
-
-            // Kafa
-            const head = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), new THREE.MeshStandardMaterial({ color: 0xffdbac }));
-            head.position.y = 1.5;
-            playerGroup.add(head);
-
-            playerGroup.position.set(0, 0, 0);
             scene.add(playerGroup);
         }
 
@@ -227,34 +204,33 @@
         }
 
         function spawnObstacle() {
-            const obsGeo = new THREE.BoxGeometry(2.5, 1, 1);
-            const obsMat = new THREE.MeshStandardMaterial({ color: 0xff0055, emissive: 0xff0055 });
+            const obsGeo = new THREE.BoxGeometry(2.5, 1.2, 1.2);
+            const obsMat = new THREE.MeshStandardMaterial({ color: 0xec4899, emissive: 0xec4899, emissiveIntensity: 0.5 });
             const obs = new THREE.Mesh(obsGeo, obsMat);
             let lane = Math.floor(Math.random() * 3) - 1;
-            obs.position.set(lane * 3.5, 0.5, -150);
+            obs.position.set(lane * 3.5, 0.6, -150);
             scene.add(obs);
             obstacles.push(obs);
-        }
-
-        function spawnCrystal() {
-            const cryGeo = new THREE.OctahedronGeometry(0.5);
-            const cryMat = new THREE.MeshStandardMaterial({ color: 0xffaa00, emissive: 0xffaa00 });
-            const cry = new THREE.Mesh(cryGeo, cryMat);
-            let lane = Math.floor(Math.random() * 3) - 1;
-            cry.position.set(lane * 3.5, 0.8, -150);
-            scene.add(cry);
-            crystals.push(cry);
         }
 
         function spawnBots() {
             botNames.forEach((name, idx) => {
                 let bMat = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
-                let mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1.5, 0.6), bMat);
+                let mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1.2, 0.6), bMat);
                 let lane = (idx % 3) - 1;
-                mesh.position.set(lane * 3.5, 0.75, -50 - (idx * 20));
+                mesh.position.set(lane * 3.5, 0.6, -50 - (idx * 25));
                 scene.add(mesh);
-                bots.push({ name: name, mesh: mesh, lane: lane, score: Math.floor(Math.random() * 300) });
+                bots.push({ name: name, mesh: mesh, score: Math.floor(Math.random() * 200) });
             });
+        }
+
+        function spawnClone(recordedPath) {
+            playSound('clone');
+            let cloneMat = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: 0.5, emissive: 0xd946ef });
+            let cloneMesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1.2, 0.6), cloneMat);
+            scene.add(cloneMesh);
+            clones.push({ mesh: cloneMesh, path: [...recordedPath], index: 0 });
+            loopCount++;
         }
 
         function updateLeaderboard() {
@@ -267,7 +243,7 @@
             allPlayers.forEach((p, idx) => {
                 if(p.isPlayer) playerRank = idx + 1;
                 if(idx < 4) {
-                    let colorClass = p.isPlayer ? "text-cyan-400 font-bold" : "text-gray-300";
+                    let colorClass = p.isPlayer ? "text-purple-400 font-bold" : "text-gray-300";
                     listHtml += `<div class="flex justify-between ${colorClass}"><span>${idx+1}. ${p.name}</span><span>${p.score}</span></div>`;
                 }
             });
@@ -288,11 +264,13 @@
             document.getElementById("game-hud").style.display = "flex";
             document.getElementById("game-controls").style.display = "flex";
 
-            score = 0; crystalsCount = 0; gameSpeed = 0.6; playerLane = 0; targetX = 0;
+            score = 0; loopCount = 1; gameSpeed = 0.6; playerLane = 0; targetX = 0; cloneTimer = 0;
+            pathHistory = [];
+
             obstacles.forEach(o => scene.remove(o));
-            crystals.forEach(c => scene.remove(c));
-            bots.forEach(b => scene.remove(b.mesh));
-            obstacles = []; crystals = []; bots = [];
+            clones.forEach(c => scene.remove(c.mesh));
+            bots.export = bots.forEach(b => scene.remove(b.mesh));
+            obstacles = []; clones = []; bots = [];
 
             spawnBots();
             isPlaying = true;
@@ -306,7 +284,7 @@
             document.getElementById("game-hud").style.display = "none";
             document.getElementById("game-controls").style.display = "none";
             document.getElementById("gameover-overlay").style.display = "flex";
-            document.getElementById("final-rank").innerText = `Arena Sıralaman: #${rank}`;
+            document.getElementById("final-rank").innerText = `Zaman Sıralaman: #${rank}`;
             document.getElementById("final-score").innerText = `Toplam Skor: ${Math.floor(score)}`;
         }
 
@@ -325,12 +303,10 @@
                 gameSpeed += 0.0003;
 
                 document.getElementById("score-text").innerText = score;
-                document.getElementById("crystal-text").innerText = crystalsCount;
+                document.getElementById("loop-text").innerText = loopCount;
 
-                // Oyuncu Yumuşak Sağa/Sola Geçiş
+                // Oyuncu Hareketi
                 playerGroup.position.x += (targetX - playerGroup.position.x) * 0.2;
-
-                // Zıplama Fizik
                 if(isJumping) {
                     playerGroup.position.y += playerYVelocity;
                     playerYVelocity -= 0.025;
@@ -340,33 +316,50 @@
                     }
                 }
 
-                // Bot Hareketleri
+                // Konumu Kaydet (Zaman Klonu İçin)
+                pathHistory.push({ x: playerGroup.position.x, y: playerGroup.position.y });
+                cloneTimer++;
+                if(cloneTimer > 350) { // Her 350 karede bir yeni bir geçmiş kotonu doğar!
+                    cloneTimer = 0;
+                    spawnClone(pathHistory);
+                    pathHistory = [];
+                }
+
+                // Klonları Hareket Ettir
+                clones.forEach(c => {
+                    if(c.index < c.path.length) {
+                        let pos = c.path[c.index];
+                        c.mesh.position.set(pos.x, pos.y, playerGroup.position.z - 15);
+                        c.index++;
+
+                        // Klonla Çarpışma!
+                        if(playerGroup.position.distanceTo(c.mesh.position) < 1.2) {
+                            gameOver();
+                        }
+                    }
+                });
+
+                // Botlar
                 bots.forEach(b => {
                     b.score += Math.floor(gameSpeed * 8);
                     b.mesh.position.z += gameSpeed * 1.2;
                     if(b.mesh.position.z > 5) {
                         b.mesh.position.z = -150;
-                        b.lane = Math.floor(Math.random() * 3) - 1;
-                        b.mesh.position.x = b.lane * 3.5;
+                        b.mesh.position.x = (Math.floor(Math.random() * 3) - 1) * 3.5;
                     }
                 });
 
                 updateLeaderboard();
 
-                // Engel ve Kristal Üretimi
-                if(frameCount % 60 === 0) {
-                    spawnObstacle();
-                    if(Math.random() > 0.3) spawnCrystal();
-                }
+                // Engel Üretimi
+                if(frameCount % 55 === 0) spawnObstacle();
 
-                // Engelleri İlerlet ve Çarpışma Kontrolü
+                // Engeller
                 for(let i = obstacles.length - 1; i >= 0; i--) {
                     let obs = obstacles[i];
                     obs.position.z += gameSpeed * 1.5;
 
-                    // Çarpışma Testi (Pozisyonlar)
-                    let dist = playerGroup.position.distanceTo(obs.position);
-                    if(dist < 1.3 && playerGroup.position.y < 0.8) {
+                    if(playerGroup.position.distanceTo(obs.position) < 1.3 && playerGroup.position.y < 0.8) {
                         gameOver();
                         break;
                     }
@@ -374,28 +367,6 @@
                     if(obs.position.z > 10) {
                         scene.remove(obs);
                         obstacles.splice(i, 1);
-                    }
-                }
-
-                // Kristalleri İlerlet ve Toplama
-                for(let i = crystals.length - 1; i >= 0; i--) {
-                    let cry = crystals[i];
-                    cry.position.z += gameSpeed * 1.5;
-                    cry.rotation.y += 0.05;
-
-                    let dist = playerGroup.position.distanceTo(cry.position);
-                    if(dist < 1.4) {
-                        playSound('collect');
-                        crystalsCount++;
-                        score += 200;
-                        scene.remove(cry);
-                        crystals.splice(i, 1);
-                        continue;
-                    }
-
-                    if(cry.position.z > 10) {
-                        scene.remove(cry);
-                        crystals.splice(i, 1);
                     }
                 }
             }
