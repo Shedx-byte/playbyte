@@ -3,9 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BladeStorm.io - Enhanced Engine & Arena Edition</title>
+    <title>BladeStorm.io - Real Adsterra Monetization Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- ======================================================== -->
+    <!-- ADSTERRA POPUNDER / BANNER SCRIPT'INI BURAYA YAPIŞTIR   -->
+    <!-- ÖRNEK: <script type="text/javascript" src="//..."></script> -->
+    <!-- ======================================================== -->
+
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; margin: 0; padding: 0; }
         body { 
@@ -55,12 +61,11 @@
         }
         .btn-action:active { transform: scale(0.95); }
 
-        .btn-ok {
-            background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
-            border: 2.5px solid #93c5fd;
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
-            border-radius: 14px; color: #fff; font-weight: 900; font-size: 18px;
-            cursor: pointer;
+        .btn-ad {
+            background: linear-gradient(180deg, #eab308 0%, #ca8a04 100%);
+            border: 2.5px solid #fde047;
+            box-shadow: 0 8px 25px rgba(234, 179, 8, 0.6);
+            border-radius: 18px; cursor: pointer; color: #000; font-weight: 900;
         }
 
         .modal-overlay { 
@@ -86,13 +91,9 @@
         
         .skin-canvas-box { width: 95px; height: 95px; pointer-events: none; }
 
-        /* OYUN İÇİ HUD / ARAYÜZ */
-        #game-hud {
-            position: fixed; inset: 0; pointer-events: none; z-index: 10; display: none;
-        }
+        #game-hud { position: fixed; inset: 0; pointer-events: none; z-index: 10; display: none; }
         .hud-element { pointer-events: auto; }
 
-        /* VIRTUAL JOYSTICK STYLES */
         #joystick-zone {
             position: fixed; bottom: 40px; left: 40px; width: 130px; height: 130px;
             background: rgba(168, 85, 247, 0.15); border: 2px solid rgba(168, 85, 247, 0.5);
@@ -114,7 +115,6 @@
 
     <div class="hexagon-bg" id="main-bg"></div>
 
-    <!-- ÜST KISIM ALTIN GÖSTERGESİ (LOBİ) -->
     <header class="absolute top-5 right-5 z-20" id="lobby-header">
         <div class="glass-panel px-5 py-2.5 flex items-center gap-2 shadow-xl">
             <span class="text-xl">🪙</span>
@@ -122,10 +122,9 @@
         </div>
     </header>
 
-    <!-- ANA LOBİ EKRANI -->
     <main class="w-full px-5 flex flex-col items-center justify-center z-10 max-w-sm mx-auto h-screen relative" id="lobby-container">
         <h1 class="text-5xl font-black mb-6 tracking-tighter text-center">
-            <span class="text-cyan-400">B</span><span class="text-rose-400">l</span><span class="text-emerald-400">a</span><span class="text-yellow-400">d</span><span class="text-cyan-400">e</span><span class="text-rose-400">S</span><span class="text-emerald-400">t</span><span class="text-yellow-400">o</span><span class="text-cyan-400">r</span><span class="text-rose-400">m</span><span class="text-emerald-400">.</span><span class="text-yellow-400">i</span><span class="text-cyan-400">o</span>
+            <span class="text-cyan-400">B</span><span class="text-rose-400">l</span><span class="text-emerald-400">a</span><span class="text-yellow-400">d</span><span class="text-cyan-400">e</span><span class="text-rose-400">S</span><span class="text-emerald-400">t</span><span class="text-yellow-400">o</span><span class="text-cyan-400">r</span><span class="text-rose-400">m</span><span class="text-emerald-400 font-black">.</span><span class="text-yellow-400">i</span><span class="text-cyan-400">o</span>
         </h1>
 
         <div class="glass-panel p-6 w-full flex flex-col gap-3.5 shadow-2xl">
@@ -147,16 +146,14 @@
         </div>
     </main>
 
-    <!-- OYUN İÇİ HUD (SKOR, LEADERBOARD & JOYSTICK) -->
+    <!-- OYUN İÇİ HUD -->
     <div id="game-hud">
         <div class="absolute top-5 left-5 glass-panel p-4 w-56 text-xs">
             <div class="font-black text-yellow-400 mb-2 border-b border-white/10 pb-1 flex justify-between">
                 <span>🏆 SKOR TABLOSU</span>
-                <span id="player-score" class="text-cyan-300 font-mono">Skor: 0</span>
+                <span id="player-score" class="text-cyan-300 font-mono">Skor: 100</span>
             </div>
-            <div id="leaderboard-list" class="space-y-1 font-mono text-gray-300">
-                <!-- Canlı Dinamik Skorlar -->
-            </div>
+            <div id="leaderboard-list" class="space-y-1 font-mono text-gray-300"></div>
         </div>
 
         <div class="absolute top-5 right-5 flex gap-3">
@@ -172,187 +169,90 @@
         </div>
     </div>
 
-    <!-- SKİN SEÇİMİ EKRANI (ARENA SEÇİMİ ENTEGRELİ) -->
+    <!-- GERÇEK ADSTERRA REKLAM İLE DİRİLME POPUP'I -->
+    <div id="death-modal" class="modal-overlay flex-col">
+        <div class="glass-panel p-6 max-w-sm w-full text-center space-y-4 shadow-2xl border-rose-500/50">
+            <div class="text-5xl">💀</div>
+            <h2 class="text-2xl font-black text-rose-400">ELENDİN!</h2>
+            <p class="text-xs text-gray-300">Seni güçlü bir rakip avladı.</p>
+            
+            <div class="bg-black/40 p-3 rounded-xl border border-yellow-400/30 text-xs text-yellow-300 font-bold">
+                ⭐ Yeniden canlanmak istiyor musun? Reklamı izle, skorunun ve bıçaklarının **2 KAT GÜCÜYLE** hemen diril!
+            </div>
+
+            <button class="btn-ad w-full py-3.5 text-sm flex items-center justify-center gap-2 shadow-xl" onclick="triggerAdsterraAndRevive()">
+                <span>📺 REKLAM İZLE VE 2X GÜÇLE DİRİL</span>
+            </button>
+            <button class="btn-action w-full py-2.5 text-xs font-bold" onclick="returnToLobby()">LOBİYE DÖN</button>
+        </div>
+    </div>
+
+    <!-- SKİN, MAĞAZA VE MODALLAR -->
     <div id="skins-modal" class="modal-overlay flex-col">
         <div class="hexagon-bg"></div>
-
         <div class="fixed top-6 left-6 z-20 flex flex-col items-center gap-1 cursor-pointer" id="switch-arena-btn">
             <div class="w-12 h-12 glass-panel flex items-center justify-center text-xl border border-cyan-400/60 shadow-lg shadow-cyan-500/20">🧊</div>
             <span class="text-[10px] font-bold text-cyan-300" id="arena-name-tag">Arena: Neon</span>
         </div>
-
         <div class="fixed top-6 right-6 z-20 flex flex-col items-center gap-1 cursor-pointer" id="open-cosmetics">
             <div class="w-12 h-12 glass-panel flex items-center justify-center text-xl border border-purple-400/50" id="cosmetic-icon">👑</div>
             <span class="text-[10px] font-bold text-gray-300">Cosmetic</span>
         </div>
-
         <div class="z-10 w-full max-w-sm px-4 flex flex-col gap-3.5 max-h-[72vh] overflow-y-auto pt-16 pb-20">
             <div class="skin-card-container active skin-option" data-id="0" data-price="0">
-                <div class="flex flex-col text-left">
-                    <span class="font-black text-sm text-cyan-400">Siyan Mecha</span>
-                    <span class="text-[10px] text-gray-400">Pürüzsüz Metalik Kaplama</span>
-                    <span class="text-[10px] text-emerald-400 font-bold mt-1">✓ KULLANIMDA</span>
-                </div>
+                <div class="flex flex-col text-left"><span class="font-black text-sm text-cyan-400">Siyan Mecha</span><span class="text-[10px] text-emerald-400 font-bold mt-1">✓ KULLANIMDA</span></div>
                 <div class="skin-canvas-box" id="cs-0"></div>
             </div>
             <div class="skin-card-container skin-option" data-id="1" data-price="500">
-                <div class="flex flex-col text-left">
-                    <span class="font-black text-sm text-rose-500">Kırmızı Öfke</span>
-                    <span class="text-[10px] text-gray-400">Zebra / Çizgili Desen</span>
-                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 500 Altın</span>
-                </div>
+                <div class="flex flex-col text-left"><span class="font-black text-sm text-rose-500">Kırmızı Öfke</span><span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 500 Altın</span></div>
                 <div class="skin-canvas-box" id="cs-1"></div>
             </div>
             <div class="skin-card-container skin-option" data-id="2" data-price="800">
-                <div class="flex flex-col text-left">
-                    <span class="font-black text-sm text-emerald-400">Zümrüt Savaşçı</span>
-                    <span class="text-[10px] text-gray-400">Damalı / Kareli Desen</span>
-                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 800 Altın</span>
-                </div>
+                <div class="flex flex-col text-left"><span class="font-black text-sm text-emerald-400">Zümrüt Savaşçı</span><span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 800 Altın</span></div>
                 <div class="skin-canvas-box" id="cs-2"></div>
             </div>
             <div class="skin-card-container skin-option" data-id="3" data-price="1200">
-                <div class="flex flex-col text-left">
-                    <span class="font-black text-sm text-yellow-400">Altın Kral (VIP)</span>
-                    <span class="text-[10px] text-gray-400">Benekli / Puantiye Desen</span>
-                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 1200 Altın</span>
-                </div>
+                <div class="flex flex-col text-left"><span class="font-black text-sm text-yellow-400">Altın Kral (VIP)</span><span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 1200 Altın</span></div>
                 <div class="skin-canvas-box" id="cs-3"></div>
             </div>
             <div class="skin-card-container skin-option" data-id="4" data-price="1500">
-                <div class="flex flex-col text-left">
-                    <span class="font-black text-sm text-purple-400">Karanlık Hayalet</span>
-                    <span class="text-[10px] text-gray-400">Spiral / Halka Desen</span>
-                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 1500 Altın</span>
-                </div>
+                <div class="flex flex-col text-left"><span class="font-black text-sm text-purple-400">Karanlık Hayalet</span><span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 1500 Altın</span></div>
                 <div class="skin-canvas-box" id="cs-4"></div>
             </div>
             <div class="skin-card-container skin-option" data-id="5" data-price="2000">
-                <div class="flex flex-col text-left">
-                    <span class="font-black text-sm text-orange-400">Magma Fırtınası</span>
-                    <span class="text-[10px] text-gray-400">Yıldız / Lav Dokulu</span>
-                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 2000 Altın</span>
-                </div>
+                <div class="flex flex-col text-left"><span class="font-black text-sm text-orange-400">Magma Fırtınası</span><span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 2000 Altın</span></div>
                 <div class="skin-canvas-box" id="cs-5"></div>
             </div>
         </div>
-
-        <div class="fixed bottom-6 left-6 z-20">
-            <button class="btn-ok px-8 py-3 close-skins-btn">OK</button>
-        </div>
+        <div class="fixed bottom-6 left-6 z-20"><button class="btn-ok px-8 py-3 close-skins-btn">OK</button></div>
     </div>
 
-    <!-- KOZMETİK, MAĞAZA, KREDİ KARTI VE GÖREV MODALLARI -->
+    <!-- DİĞER MODALLAR -->
     <div id="cosmetics-modal" class="modal-overlay flex-col">
         <div class="hexagon-bg"></div>
         <div class="z-10 w-full max-w-sm px-4 flex flex-col gap-3.5 max-h-[75vh] overflow-y-auto pt-8 pb-20">
             <h2 class="text-2xl font-black text-center text-cyan-400 mb-2">👑 KOZMETİK MAĞAZASI</h2>
-            <div class="cosmetic-card-container active cosmetic-option" data-type="crown" data-price="0">
-                <div class="text-3xl">👑</div>
-                <div class="flex flex-col text-left flex-1 ml-3">
-                    <span class="font-black text-sm text-yellow-300">Altın Taç</span>
-                    <span class="text-[10px] text-emerald-400 font-bold mt-1">✓ KULLANIMDA</span>
-                </div>
-            </div>
-            <div class="cosmetic-card-container cosmetic-option" data-type="halo" data-price="300">
-                <div class="text-3xl">🌟</div>
-                <div class="flex flex-col text-left flex-1 ml-3">
-                    <span class="font-black text-sm text-yellow-400">Melek Aurası</span>
-                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 300 Altın</span>
-                </div>
-            </div>
-            <div class="cosmetic-card-container cosmetic-option" data-type="visor" data-price="500">
-                <div class="text-3xl">🕶️</div>
-                <div class="flex flex-col text-left flex-1 ml-3">
-                    <span class="font-black text-sm text-cyan-300">Siber Gözlük</span>
-                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 500 Altın</span>
-                </div>
-            </div>
+            <div class="cosmetic-card-container active cosmetic-option" data-type="crown" data-price="0"><div class="text-3xl">👑</div><div class="flex flex-col text-left flex-1 ml-3"><span class="font-black text-sm text-yellow-300">Altın Taç</span><span class="text-[10px] text-emerald-400 font-bold mt-1">✓ KULLANIMDA</span></div></div>
+            <div class="cosmetic-card-container cosmetic-option" data-type="halo" data-price="300"><div class="text-3xl">🌟</div><div class="flex flex-col text-left flex-1 ml-3"><span class="font-black text-sm text-yellow-400">Melek Aurası</span><span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 300 Altın</span></div></div>
+            <div class="cosmetic-card-container cosmetic-option" data-type="visor" data-price="500"><div class="text-3xl">🕶️</div><div class="flex flex-col text-left flex-1 ml-3"><span class="font-black text-sm text-cyan-300">Siber Gözlük</span><span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 500 Altın</span></div></div>
         </div>
         <div class="fixed bottom-6 left-6 z-20"><button class="btn-ok px-8 py-3" id="close-cosmetics">OK</button></div>
     </div>
 
-    <div id="market-modal" class="modal-overlay">
-        <div class="glass-panel p-6 max-w-sm w-full text-white">
-            <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-                <h3 class="font-black text-lg text-yellow-400">🛒 ALTIN MAĞAZASI</h3>
-                <button class="close-modal text-purple-300 font-bold text-lg">✕</button>
-            </div>
-            <div class="space-y-3 mb-4">
-                <div class="glass-card p-3 flex justify-between items-center">
-                    <div><div class="font-bold text-sm">1,000 Altın</div><div class="text-xs text-green-400">$0.49 USD</div></div>
-                    <button class="btn-play px-4 py-1.5 text-xs font-black" onclick="openPaymentModal(1000, '$0.49')">SATIN AL</button>
-                </div>
-                <div class="glass-card p-3 flex justify-between items-center">
-                    <div><div class="font-bold text-sm">5,000 Altın + VIP</div><div class="text-xs text-green-400">$1.99 USD</div></div>
-                    <button class="btn-play px-4 py-1.5 text-xs font-black" onclick="openPaymentModal(5000, '$1.99')">SATIN AL</button>
-                </div>
-            </div>
-            <button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button>
-        </div>
-    </div>
-
-    <div id="payment-modal" class="modal-overlay">
-        <div class="glass-panel p-6 max-w-sm w-full text-white">
-            <div class="flex justify-between items-center mb-3 border-b border-white/10 pb-2">
-                <h3 class="font-black text-base text-cyan-400">💳 KREDİ KARTI ÖDEMESİ</h3>
-                <button onclick="document.getElementById('payment-modal').style.display='none'" class="text-gray-400 font-bold">✕</button>
-            </div>
-            <p class="text-xs text-gray-300 mb-3" id="payment-pack-desc">Tutar: $0.49 USD</p>
-            <form onsubmit="processCardPayment(event)" class="space-y-2.5">
-                <div>
-                    <label class="text-[10px] text-purple-200 block font-bold mb-1">Kart Sahibi Ad Soyad</label>
-                    <input type="text" id="card-name" placeholder="AHMET YILMAZ" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-bold text-white outline-none">
-                </div>
-                <div>
-                    <label class="text-[10px] text-purple-200 block font-bold mb-1">Kart Numarası</label>
-                    <input type="text" id="card-number" placeholder="4543 0000 0000 0000" maxlength="19" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none">
-                </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-[10px] text-purple-200 block font-bold mb-1">SKT (AA/YY)</label>
-                        <input type="text" id="card-exp" placeholder="12/28" maxlength="5" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none">
-                    </div>
-                    <div>
-                        <label class="text-[10px] text-purple-200 block font-bold mb-1">CVV</label>
-                        <input type="password" id="card-cvv" placeholder="123" maxlength="3" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none">
-                    </div>
-                </div>
-                <button type="submit" class="btn-play w-full py-3 font-black text-xs mt-2">ÖDEMEYİ ONAYLA VE ALTINI AL</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="quests-modal" class="modal-overlay">
-        <div class="glass-panel p-6 max-w-sm w-full text-white">
-            <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-                <h3 class="font-black text-lg text-yellow-400">📜 GÜNLÜK GÖREVLER</h3>
-                <button class="close-modal text-purple-300 font-bold text-lg">✕</button>
-            </div>
-            <div class="space-y-3 mb-4 text-xs">
-                <div class="glass-card p-3 flex justify-between items-center">
-                    <div><div class="font-bold">2 Maç Tamamla</div><div class="text-[10px] text-purple-300">Durum: 0/2 Maç</div></div>
-                    <button class="btn-play px-3 py-1 text-xs font-black opacity-50 cursor-not-allowed" disabled>ÖDÜLÜ AL</button>
-                </div>
-                <div class="glass-card p-3 flex justify-between items-center">
-                    <div><div class="font-bold">5 Rakip Yok Et</div><div class="text-[10px] text-purple-300">Durum: 0/5 Rakip</div></div>
-                    <button class="btn-play px-3 py-1 text-xs font-black opacity-50 cursor-not-allowed" disabled>ÖDÜLÜ AL</button>
-                </div>
-            </div>
-            <button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button>
-        </div>
-    </div>
-
-    <div id="daily-modal" class="modal-overlay">
-        <div class="glass-panel p-6 max-w-sm w-full text-white text-center">
-            <div class="text-5xl mb-2">🎁</div>
-            <h3 class="font-black text-xl text-yellow-400 mb-2">GÜNLÜK ÖDÜL</h3>
-            <p class="text-xs text-purple-200 mb-4">Bugünkü ücretsiz 300 altınını al!</p>
-            <button class="btn-play w-full py-3 font-black text-sm mb-2" id="claim-daily-btn" onclick="claimDaily()">300 ALTINI AL</button>
-            <button class="btn-action w-full py-2 font-bold text-xs close-modal">KAPAT</button>
-        </div>
-    </div>
+    <div id="market-modal" class="modal-overlay"><div class="glass-panel p-6 max-w-sm w-full text-white"><div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3"><h3 class="font-black text-lg text-yellow-400">🛒 ALTIN MAĞAZASI</h3><button class="close-modal text-purple-300 font-bold text-lg">✕</button></div><div class="space-y-3 mb-4"><div class="glass-card p-3 flex justify-between items-center"><div><div class="font-bold text-sm">1,000 Altın</div><div class="text-xs text-green-400">$0.49 USD</div></div><button class="btn-play px-4 py-1.5 text-xs font-black" onclick="openPaymentModal(1000, '$0.49')">SATIN AL</button></div><div class="glass-card p-3 flex justify-between items-center"><div><div class="font-bold text-sm">5,000 Altın + VIP</div><div class="text-xs text-green-400">$1.99 USD</div></div><button class="btn-play px-4 py-1.5 text-xs font-black" onclick="openPaymentModal(5000, '$1.99')">SATIN AL</button></div></div><button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button></div></div>
+    
+    <div id="payment-modal" class="modal-overlay"><div class="glass-panel p-6 max-w-sm w-full text-white"><div class="flex justify-between items-center mb-3 border-b border-white/10 pb-2"><h3 class="font-black text-base text-cyan-400">💳 KREDİ KARTI ÖDEMESİ</h3><button onclick="document.getElementById('payment-modal').style.display='none'" class="text-gray-400 font-bold">✕</button></div><p class="text-xs text-gray-300 mb-3" id="payment-pack-desc">Tutar: $0.49 USD</p><form onsubmit="processCardPayment(event)" class="space-y-2.5"><div><label class="text-[10px] text-purple-200 block font-bold mb-1">Kart Sahibi Ad Soyad</label><input type="text" id="card-name" placeholder="AHMET YILMAZ" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-bold text-white outline-none"></div><div><label class="text-[10px] text-purple-200 block font-bold mb-1">Kart Numarası</label><input type="text" id="card-number" placeholder="4543 0000 0000 0000" maxlength="19" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none"></div><div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] text-purple-200 block font-bold mb-1">SKT (AA/YY)</label><input type="text" id="card-exp" placeholder="12/28" maxlength="5" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none"></div><div><label class="text-[10px] text-purple-200 block font-bold mb-1">CVV</label><input type="password" id="card-cvv" placeholder="123" maxlength="3" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none"></div></div><button type="submit" class="btn-play w-full py-3 font-black text-xs mt-2">ÖDEMEYİ ONAYLA VE ALTINI AL</button></form></div></div>
+    
+    <div id="quests-modal" class="modal-overlay"><div class="glass-panel p-6 max-w-sm w-full text-white"><div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3"><h3 class="font-black text-lg text-yellow-400">📜 GÜNLÜK GÖREVLER</h3><button class="close-modal text-purple-300 font-bold text-lg">✕</button></div><div class="space-y-3 mb-4 text-xs"><div class="glass-card p-3 flex justify-between items-center"><div><div class="font-bold">2 Maç Tamamla</div><div class="text-[10px] text-purple-300">Durum: 0/2 Maç</div></div><button class="btn-play px-3 py-1 text-xs font-black opacity-50 cursor-not-allowed" disabled>ÖDÜLÜ AL</button></div><div class="glass-card p-3 flex justify-between items-center"><div><div class="font-bold">5 Rakip Yok Et</div><div class="text-[10px] text-purple-300">Durum: 0/5 Rakip</div></div><button class="btn-play px-3 py-1 text-xs font-black opacity-50 cursor-not-allowed" disabled>ÖDÜLÜ AL</button></div></div><button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button></div></div>
+    
+    <div id="daily-modal" class="modal-overlay"><div class="glass-panel p-6 max-w-sm w-full text-white text-center"><div class="text-5xl mb-2">🎁</div><h3 class="font-black text-xl text-yellow-400 mb-2">GÜNLÜK ÖDÜL</h3><p class="text-xs text-purple-200 mb-4">Bugünkü ücretsiz 300 altınını al!</p><button class="btn-play w-full py-3 font-black text-sm mb-2" id="claim-daily-btn" onclick="claimDaily()">300 ALTINI AL</button><button class="btn-action w-full py-2 font-bold text-xs close-modal">KAPAT</button></div></div>
     <script>
+        // ========================================================
+        // ADSTERRA DIRECT LINK URL'İNİ BURAYA YAPIŞTIR!
+        // Örnek: "https://www.highrevenuegate.com/xxxxxx"
+        // ========================================================
+        const adsterraDirectLink = "https://www.google.com"; // Buraya kendi Adsterra Direct Link adresini koy
+
         let playerCoins = 350;
         let activeSkinIndex = 0;
         let activeCosmeticType = 'crown';
@@ -360,7 +260,6 @@
         let dailyClaimed = false;
         let pendingPayAmount = 0;
 
-        // ARENA SEÇENEKLERİ (Neon, Cyber, Magma)
         const arenaThemes = [
             { name: "Neon", bgColor: 0x060212, floorColor: 0x0c0620, gridColor: 0x9333ea, wallColor: 0x00f0ff },
             { name: "Cyber City", bgColor: 0x020f12, floorColor: 0x051a1e, gridColor: 0x00f0ff, wallColor: 0x10b981 },
@@ -373,36 +272,19 @@
             document.getElementById('arena-name-tag').innerText = "Arena: " + arenaThemes[activeArenaIndex].name;
         });
 
-        function updateCoins(amount) {
-            playerCoins += amount;
-            document.getElementById('coin-amount').innerText = playerCoins;
-        }
-
-        function openPaymentModal(amt, priceStr) {
-            pendingPayAmount = amt;
-            document.getElementById('payment-pack-desc').innerText = "Paket: " + amt + " Altın | Tutar: " + priceStr;
-            document.getElementById('payment-modal').style.display = 'flex';
-        }
-
+        function updateCoins(amount) { playerCoins += amount; document.getElementById('coin-amount').innerText = playerCoins; }
+        function openPaymentModal(amt, priceStr) { pendingPayAmount = amt; document.getElementById('payment-pack-desc').innerText = "Paket: " + amt + " Altın | Tutar: " + priceStr; document.getElementById('payment-modal').style.display = 'flex'; }
         function processCardPayment(e) {
             e.preventDefault();
-            let cardNum = document.getElementById('card-number').value.trim();
-            if(cardNum.length < 12) { alert("Lütfen geçerli bir kredi kartı numarası giriniz!"); return; }
-            updateCoins(pendingPayAmount);
-            alert("✅ Ödeme Başarılı! " + pendingPayAmount + " Altın hesabınıza eklendi.");
-            document.getElementById('payment-modal').style.display = 'none';
-            document.getElementById('market-modal').style.display = 'none';
+            if(document.getElementById('card-number').value.trim().length < 12) { alert("Geçersiz kart numarası!"); return; }
+            updateCoins(pendingPayAmount); alert("✅ Ödeme Başarılı! " + pendingPayAmount + " Altın eklendi.");
+            document.getElementById('payment-modal').style.display = 'none'; document.getElementById('market-modal').style.display = 'none';
         }
-
         function claimDaily() {
             if(dailyClaimed) { alert("Bugünkü ödülü zaten aldın!"); return; }
-            dailyClaimed = true;
-            updateCoins(300);
-            let btn = document.getElementById('claim-daily-btn');
-            btn.innerText = "BUGÜN ALINDI";
-            btn.disabled = true; btn.style.opacity = "0.5";
-            alert("300 Günlük Altın Alındı!");
-            document.getElementById('daily-modal').style.display = 'none';
+            dailyClaimed = true; updateCoins(300);
+            let btn = document.getElementById('claim-daily-btn'); btn.innerText = "BUGÜN ALINDI"; btn.disabled = true; btn.style.opacity = "0.5";
+            alert("300 Günlük Altın Alındı!"); document.getElementById('daily-modal').style.display = 'none';
         }
 
         document.getElementById('open-skins').addEventListener('click', () => document.getElementById('skins-modal').style.display = 'flex');
@@ -416,7 +298,7 @@
         document.querySelectorAll('.close-modal').forEach(b => {
             b.addEventListener('click', () => {
                 document.querySelectorAll('.modal-overlay').forEach(m => {
-                    if(m.id !== 'skins-modal' && m.id !== 'cosmetics-modal' && m.id !== 'payment-modal') m.style.display = 'none';
+                    if(m.id !== 'skins-modal' && m.id !== 'cosmetics-modal' && m.id !== 'payment-modal' && m.id !== 'death-modal') m.style.display = 'none';
                 });
             });
         });
@@ -425,17 +307,10 @@
             opt.addEventListener('click', () => {
                 let price = parseInt(opt.getAttribute('data-price'));
                 if(price > 0 && playerCoins < price) { alert("Yeterli altının yok!"); return; }
-                if(price > 0) {
-                    updateCoins(-price); opt.setAttribute('data-price', '0');
-                    let tag = opt.querySelector('.font-bold.mt-1');
-                    if(tag) { tag.innerText = "✓ KULLANIMDA"; tag.className = "text-[10px] text-emerald-400 font-bold mt-1"; }
-                }
+                if(price > 0) { updateCoins(-price); opt.setAttribute('data-price', '0'); opt.querySelector('.font-bold.mt-1').innerText = "✓ KULLANIMDA"; }
                 document.querySelectorAll('.cosmetic-option').forEach(o => o.classList.remove('active'));
-                opt.classList.add('active');
-                activeCosmeticType = opt.getAttribute('data-type');
-                if(activeCosmeticType === 'crown') activeCosmeticIcon = '👑';
-                else if(activeCosmeticType === 'halo') activeCosmeticIcon = '🌟';
-                else if(activeCosmeticType === 'visor') activeCosmeticIcon = '🕶️';
+                opt.classList.add('active'); activeCosmeticType = opt.getAttribute('data-type');
+                activeCosmeticIcon = activeCosmeticType === 'crown' ? '👑' : (activeCosmeticType === 'halo' ? '🌟' : '🕶️');
                 document.getElementById('cosmetic-icon').innerText = activeCosmeticIcon;
                 updateAllCharacterCosmetics();
             });
@@ -445,198 +320,103 @@
             opt.addEventListener('click', () => {
                 let price = parseInt(opt.getAttribute('data-price'));
                 if(price > 0 && playerCoins < price) { alert("Yeterli altının yok!"); return; }
-                if(price > 0) {
-                    updateCoins(-price); opt.setAttribute('data-price', '0');
-                    let tag = opt.querySelector('.font-bold.mt-1');
-                    if(tag) { tag.innerText = "✓ KULLANIMDA"; tag.className = "text-[10px] text-emerald-400 font-bold mt-1"; }
-                }
+                if(price > 0) { updateCoins(-price); opt.setAttribute('data-price', '0'); opt.querySelector('.font-bold.mt-1').innerText = "✓ KULLANIMDA"; }
                 document.querySelectorAll('.skin-option').forEach(o => o.classList.remove('active'));
-                opt.classList.add('active');
-                activeSkinIndex = parseInt(opt.getAttribute('data-id'));
+                opt.classList.add('active'); activeSkinIndex = parseInt(opt.getAttribute('data-id'));
             });
         });
 
         function createSkinTexture(index) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 256; canvas.height = 128;
+            const canvas = document.createElement('canvas'); canvas.width = 256; canvas.height = 128;
             const ctx = canvas.getContext('2d');
-            
             if (index === 0) { ctx.fillStyle = '#00f0ff'; ctx.fillRect(0, 0, 256, 128); }
-            else if (index === 1) { 
-                ctx.fillStyle = '#ff0055'; ctx.fillRect(0, 0, 256, 128); ctx.fillStyle = '#111111';
-                for(let i=0; i<256; i+=28) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i+14, 128); ctx.lineTo(i+28, 128); ctx.lineTo(i+14, 0); ctx.fill(); }
-            } else if (index === 2) { 
-                ctx.fillStyle = '#10b981'; ctx.fillRect(0, 0, 256, 128); ctx.fillStyle = '#042f2e';
-                for(let x=0; x<256; x+=32) { for(let y=0; y<128; y+=32) { if((x/32 + y/32) % 2 === 0) ctx.fillRect(x, y, 32, 32); } }
-            } else if (index === 3) { 
-                ctx.fillStyle = '#eab308'; ctx.fillRect(0, 0, 256, 128); ctx.fillStyle = '#78350f';
-                for(let x=16; x<256; x+=32) { for(let y=16; y<128; y+=32) { ctx.beginPath(); ctx.arc(x, y, 8, 0, Math.PI*2); ctx.fill(); } }
-            } else if (index === 4) { 
-                ctx.fillStyle = '#9333ea'; ctx.fillRect(0, 0, 256, 128); ctx.fillStyle = '#2e1065';
-                for(let i=10; i<128; i+=20) { ctx.beginPath(); ctx.arc(128, 64, i, 0, Math.PI*2); ctx.lineWidth = 6; ctx.stroke(); }
-            } else if (index === 5) { 
-                ctx.fillStyle = '#f97316'; ctx.fillRect(0, 0, 256, 128); ctx.fillStyle = '#7c2d12';
-                for(let x=20; x<256; x+=40) { for(let y=20; y<128; y+=40) { ctx.fillRect(x, y, 12, 12); } }
-            }
-            const texture = new THREE.CanvasTexture(canvas);
-            texture.wrapS = THREE.RepeatWrapping; texture.wrapT = THREE.RepeatWrapping;
-            return texture;
+            else if (index === 1) { ctx.fillStyle = '#ff0055'; ctx.fillRect(0, 0, 256, 128); ctx.fillStyle = '#111'; for(let i=0; i<256; i+=28) { ctx.fillRect(i,0,14,128); } }
+            else if (index === 2) { ctx.fillStyle = '#10b981'; ctx.fillRect(0, 0, 256, 128); ctx.fillStyle = '#042f2e'; for(let x=0; x<256; x+=32) for(let y=0; y<128; y+=32) if((x/32+y/32)%2===0) ctx.fillRect(x,y,32,32); }
+            else if (index === 3) { ctx.fillStyle = '#eab308'; ctx.fillRect(0, 0, 256, 128); ctx.fillStyle = '#78350f'; for(let x=16; x<256; x+=32) for(let y=16; y<128; y+=32) { ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2); ctx.fill(); } }
+            else if (index === 4) { ctx.fillStyle = '#9333ea'; ctx.fillRect(0, 0, 256, 128); ctx.fillStyle = '#2e1065'; for(let i=10; i<128; i+=20) { ctx.beginPath(); ctx.arc(128,64,i,0,Math.PI*2); ctx.lineWidth=6; ctx.stroke(); } }
+            else if (index === 5) { ctx.fillStyle = '#f97316'; ctx.fillRect(0, 0, 256, 128); ctx.fillStyle = '#7c2d12'; for(let x=20; x<256; x+=40) for(let y=20; y<128; y+=40) ctx.fillRect(x,y,12,12); }
+            const tex = new THREE.CanvasTexture(canvas); tex.wrapS = THREE.RepeatWrapping; tex.wrapT = THREE.RepeatWrapping; return tex;
         }
 
         const skinConfigs = [
-            { id: 'cs-0', index: 0, color: 0x00f0ff },
-            { id: 'cs-1', index: 1, color: 0xff0055 },
-            { id: 'cs-2', index: 2, color: 0x10b981 },
-            { id: 'cs-3', index: 3, color: 0xeab308 },
-            { id: 'cs-4', index: 4, color: 0x9333ea },
-            { id: 'cs-5', index: 5, color: 0xf97316 }
+            { id: 'cs-0', index: 0, color: 0x00f0ff }, { id: 'cs-1', index: 1, color: 0xff0055 },
+            { id: 'cs-2', index: 2, color: 0x10b981 }, { id: 'cs-3', index: 3, color: 0xeab308 },
+            { id: 'cs-4', index: 4, color: 0x9333ea }, { id: 'cs-5', index: 5, color: 0xf97316 }
         ];
 
         const renderersList = [];
-
         function createCosmeticMesh(type) {
             const group = new THREE.Group();
             if(type === 'crown') {
-                const baseGeo = new THREE.CylinderGeometry(0.35, 0.4, 0.2, 16);
-                const mat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.1 });
-                const base = new THREE.Mesh(baseGeo, mat); base.position.y = 0.75; group.add(base);
-                for(let i = 0; i < 4; i++) {
-                    let angle = (i / 4) * Math.PI * 2;
-                    let spike = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.25, 4), mat);
-                    spike.position.set(Math.cos(angle) * 0.28, 0.9, Math.sin(angle) * 0.28); group.add(spike);
-                }
+                let mat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.1 });
+                let base = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.4, 0.2, 16), mat); base.position.y = 0.75; group.add(base);
+                for(let i=0; i<4; i++) { let a=(i/4)*Math.PI*2; let s=new THREE.Mesh(new THREE.ConeGeometry(0.08,0.25,4),mat); s.position.set(Math.cos(a)*0.28,0.9,Math.sin(a)*0.28); group.add(s); }
             } else if(type === 'halo') {
-                const haloGeo = new THREE.TorusGeometry(0.35, 0.05, 16, 32);
-                const haloMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
-                const halo = new THREE.Mesh(haloGeo, haloMat);
+                let halo = new THREE.Mesh(new THREE.TorusGeometry(0.35, 0.05, 16, 32), new THREE.MeshBasicMaterial({ color: 0xffff00 }));
                 halo.rotation.x = Math.PI / 2; halo.position.y = 1.05; group.add(halo);
             } else if(type === 'visor') {
-                const visorGeo = new THREE.BoxGeometry(0.65, 0.18, 0.3);
-                const visorMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.6, metalness: 0.8 });
-                const visor = new THREE.Mesh(visorGeo, visorMat); visor.position.set(0, 0.15, 0.62); group.add(visor);
+                let visor = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.18, 0.3), new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.6 }));
+                visor.position.set(0, 0.15, 0.62); group.add(visor);
             }
             return group;
         }
 
         skinConfigs.forEach(cfg => {
-            const box = document.getElementById(cfg.id);
-            if(!box) return;
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 50);
-            camera.position.set(0, 3.2, 3.8); camera.lookAt(0, 0, 0);
-
-            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-            renderer.setSize(95, 95); renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            box.appendChild(renderer.domElement);
-
+            const box = document.getElementById(cfg.id); if(!box) return;
+            const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 50); camera.position.set(0, 3.2, 3.8); camera.lookAt(0,0,0);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true }); renderer.setSize(95, 95); box.appendChild(renderer.domElement);
             scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-            const mainLight = new THREE.DirectionalLight(0xffffff, 2.0); mainLight.position.set(3, 8, 5); scene.add(mainLight);
-
-            const auraRing = new THREE.Mesh(new THREE.RingGeometry(1.0, 1.18, 32), new THREE.MeshBasicMaterial({ color: cfg.color, side: THREE.DoubleSide, transparent: true, opacity: 0.85 }));
-            auraRing.rotation.x = Math.PI / 2; auraRing.position.y = -0.7; scene.add(auraRing);
-
-            const characterGroup = new THREE.Group(); scene.add(characterGroup);
-            const skinTexture = createSkinTexture(cfg.index);
-            const body = new THREE.Mesh(new THREE.SphereGeometry(0.7, 32, 32), new THREE.MeshStandardMaterial({ map: skinTexture, roughness: 0.2, metalness: 0.5, emissive: cfg.color, emissiveIntensity: 0.2 }));
-            characterGroup.add(body);
-
-            const eyeGeo = new THREE.SphereGeometry(0.12, 12, 12); const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const leftEye = new THREE.Mesh(eyeGeo, eyeMat); leftEye.position.set(-0.22, 0.15, 0.62);
-            const rightEye = new THREE.Mesh(eyeGeo, eyeMat); rightEye.position.set(0.22, 0.15, 0.62);
-            characterGroup.add(leftEye); characterGroup.add(rightEye);
-
-            let cosmeticContainer = new THREE.Group(); characterGroup.add(cosmeticContainer);
-            cosmeticContainer.add(createCosmeticMesh(activeCosmeticType));
-
-            const bladesGroup = new THREE.Group(); scene.add(bladesGroup);
-            for(let i = 0; i < 4; i++) {
-                let angle = (i / 4) * Math.PI * 2;
-                let bladeMesh = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.9, 12), new THREE.MeshStandardMaterial({ color: 0xf3f4f6, metalness: 0.95, roughness: 0.05 }));
-                bladeMesh.rotation.z = -Math.PI / 2; bladeMesh.position.set(Math.cos(angle) * 1.35, 0, Math.sin(angle) * 1.35); bladeMesh.rotation.y = -angle;
-                bladesGroup.add(bladeMesh);
-            }
-            renderersList.push({ renderer, scene, camera, bladesGroup, auraRing, cosmeticContainer });
+            let cg = new THREE.Group(); scene.add(cg);
+            cg.add(new THREE.Mesh(new THREE.SphereGeometry(0.7, 32, 32), new THREE.MeshStandardMaterial({ map: createSkinTexture(cfg.index), roughness: 0.2, emissive: cfg.color, emissiveIntensity: 0.2 })));
+            let cc = new THREE.Group(); cg.add(cc); cc.add(createCosmeticMesh(activeCosmeticType));
+            let bg = new THREE.Group(); scene.add(bg);
+            for(let i=0; i<4; i++) { let a=(i/4)*Math.PI*2; let bm=new THREE.Mesh(new THREE.ConeGeometry(0.14,0.9,12),new THREE.MeshStandardMaterial({color:0xffffff})); bm.rotation.z=-Math.PI/2; bm.position.set(Math.cos(a)*1.35,0,Math.sin(a)*1.35); bm.rotation.y=-a; bg.add(bm); }
+            renderersList.push({ renderer, scene, camera, bladesGroup: bg, cosmeticContainer: cc });
         });
 
         function updateAllCharacterCosmetics() {
-            renderersList.forEach(r => {
-                while(r.cosmeticContainer.children.length > 0) r.cosmeticContainer.remove(r.cosmeticContainer.children[0]);
-                r.cosmeticContainer.add(createCosmeticMesh(activeCosmeticType));
-            });
+            renderersList.forEach(r => { while(r.cosmeticContainer.children.length > 0) r.cosmeticContainer.remove(r.cosmeticContainer.children[0]); r.cosmeticContainer.add(createCosmeticMesh(activeCosmeticType)); });
         }
-
-        function renderShowcases() {
-            requestAnimationFrame(renderShowcases);
-            renderersList.forEach(r => {
-                r.bladesGroup.rotation.y += 0.04; r.auraRing.rotation.z += 0.02;
-                r.renderer.render(r.scene, r.camera);
-            });
-        }
+        function renderShowcases() { requestAnimationFrame(renderShowcases); renderersList.forEach(r => { r.bladesGroup.rotation.y += 0.04; r.renderer.render(r.scene, r.camera); }); }
         renderShowcases();
 
-        // JOYSTICK SİSTEMİ
-        let joystickInput = { x: 0, z: 0 };
-        let isJoystickActive = false;
-        const joystickZone = document.getElementById('joystick-zone');
-        const joystickKnob = document.getElementById('joystick-knob');
-
-        function handleJoystickMove(clientX, clientY) {
-            const rect = joystickZone.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
-            let deltaX = clientX - centerX;
-            let deltaY = clientY - centerY;
-            let distance = Math.hypot(deltaX, deltaY);
-            let maxRadius = rect.width / 2;
-
-            if (distance > maxRadius) {
-                deltaX = (deltaX / distance) * maxRadius;
-                deltaY = (deltaY / distance) * maxRadius;
-            }
-            joystickKnob.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-            joystickInput.x = deltaX / maxRadius;
-            joystickInput.z = deltaY / maxRadius;
+        // JOYSTICK
+        let joystickInput = { x: 0, z: 0 }; let isJoystickActive = false;
+        const joystickZone = document.getElementById('joystick-zone'); const joystickKnob = document.getElementById('joystick-knob');
+        function handleJoystickMove(cx, cy) {
+            let rect = joystickZone.getBoundingClientRect(); let dx = cx - (rect.left + rect.width/2); let dy = cy - (rect.top + rect.height/2);
+            let dist = Math.hypot(dx, dy); let maxR = rect.width / 2;
+            if (dist > maxR) { dx = (dx/dist)*maxR; dy = (dy/dist)*maxR; }
+            joystickKnob.style.transform = `translate(${dx}px, ${dy}px)`; joystickInput.x = dx/maxR; joystickInput.z = dy/maxR;
         }
-
-        function resetJoystick() {
-            isJoystickActive = false;
-            joystickKnob.style.transform = `translate(0px, 0px)`;
-            joystickInput.x = 0; joystickInput.z = 0;
-        }
-
+        function resetJoystick() { isJoystickActive = false; joystickKnob.style.transform = `translate(0px, 0px)`; joystickInput.x = 0; joystickInput.z = 0; }
         joystickZone.addEventListener('touchstart', (e) => { isJoystickActive = true; handleJoystickMove(e.touches[0].clientX, e.touches[0].clientY); });
-        window.addEventListener('touchmove', (e) => { if (isJoystickActive && e.touches[0]) handleJoystickMove(e.touches[0].clientX, e.touches[0].clientY); });
+        window.addEventListener('touchmove', (e) => { if(isJoystickActive && e.touches[0]) handleJoystickMove(e.touches[0].clientX, e.touches[0].clientY); });
         window.addEventListener('touchend', resetJoystick);
         joystickZone.addEventListener('mousedown', (e) => { isJoystickActive = true; handleJoystickMove(e.clientX, e.clientY); });
-        window.addEventListener('mousemove', (e) => { if (isJoystickActive) handleJoystickMove(e.clientX, e.clientY); });
+        window.addEventListener('mousemove', (e) => { if(isJoystickActive) handleJoystickMove(e.clientX, e.clientY); });
         window.addEventListener('mouseup', resetJoystick);
 
-
-        // OYUN MOTORU & GELİŞMİŞ SAVAŞAN BOT SİSTEMİ
+        // OYUN MOTORU & GERÇEK ADSTERRA REKLAM MANTIĞI
         let gameScene, gameCamera, gameRenderer;
         let isGameRunning = false;
         let playerGroup, playerBladesGroup;
         let playerPos = { x: 0, z: 0 };
-        let crystals = [];
-        let bots = [];
-        let playerScore = 0;
-        let crystalCollectedCount = 0;
-
-        const botNames = ["CyberNinja", "BladeMaster", "ShadowX", "Vortex", "Slayer99"];
+        let crystals = []; let bots = [];
+        let playerScore = 100; let crystalCollectedCount = 0;
+        const botNames = ["CyberNinja", "BladeMaster", "ShadowX", "Vortex", "Slayer99", "NeonGhost", "Apex"];
 
         function startGame() {
             document.getElementById('lobby-container').style.display = 'none';
             document.getElementById('lobby-header').style.display = 'none';
             document.getElementById('main-bg').style.display = 'none';
             document.getElementById('game-hud').style.display = 'block';
-
-            initGameEngine();
-            isGameRunning = true;
-            gameLoop();
+            initGameEngine(); isGameRunning = true; gameLoop();
         }
 
         function returnToLobby() {
             isGameRunning = false;
+            document.getElementById('death-modal').style.display = 'none';
             if(gameRenderer && gameRenderer.domElement) gameRenderer.domElement.remove();
             document.getElementById('lobby-container').style.display = 'flex';
             document.getElementById('lobby-header').style.display = 'block';
@@ -644,21 +424,40 @@
             document.getElementById('game-hud').style.display = 'none';
         }
 
-        function initGameEngine() {
-            playerPos = { x: 0, z: 0 };
-            playerScore = 0;
-            crystalCollectedCount = 0;
+        function triggerDeathScreen() {
+            isGameRunning = false;
+            document.getElementById('death-modal').style.display = 'flex';
+        }
 
+        // GERÇEK ADSTERRA REKLAMINI TETİKLEME VE OYUNCUYU CANLANDIRMA
+        function triggerAdsterraAndRevive() {
+            // 1. Adsterra Reklam Linkini Yeni Sekmede Aç (Para Kazandırır)
+            if(adsterraDirectLink && adsterraDirectLink !== "") {
+                window.open(adsterraDirectLink, '_blank');
+            }
+
+            // 2. Oyuncuyu 2 Kat Güçle Oyuna Geri Döndür
+            document.getElementById('death-modal').style.display = 'none';
+            playerScore *= 2;
+            playerPos.x = (Math.random() - 0.5) * 60;
+            playerPos.z = (Math.random() - 0.5) * 60;
+
+            // Bıçak Yarıçapını Büyüt (2 Kat Güç Hissettirsin)
+            playerBladesGroup.children.forEach(b => {
+                b.scale.set(1.4, 1.4, 1.4);
+            });
+
+            isGameRunning = true;
+            gameLoop();
+        }
+
+        function initGameEngine() {
+            playerPos = { x: 0, z: 0 }; playerScore = 100; crystalCollectedCount = 0;
             const theme = arenaThemes[activeArenaIndex];
 
-            gameScene = new THREE.Scene();
-            gameScene.background = new THREE.Color(theme.bgColor);
-            gameScene.fog = new THREE.FogExp2(theme.bgColor, 0.008);
-
-            // UZAK VE GENİŞ KAMERA AÇISI (GÖRÜŞ ALANI MÜKEMMELLEŞTİRİLDİ)
+            gameScene = new THREE.Scene(); gameScene.background = new THREE.Color(theme.bgColor);
             gameCamera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
-            gameCamera.position.set(0, 38, 30); // Kamera Yüksekliği 38 Yapıldı (Tam Kuş Bakışı Görüş)
-            gameCamera.lookAt(0, 0, 0);
+            gameCamera.position.set(0, 38, 30); gameCamera.lookAt(0, 0, 0);
 
             gameRenderer = new THREE.WebGLRenderer({ antialias: true });
             gameRenderer.setSize(window.innerWidth, window.innerHeight);
@@ -666,97 +465,75 @@
             document.body.appendChild(gameRenderer.domElement);
 
             gameScene.add(new THREE.AmbientLight(0xffffff, 0.9));
-            let dirLight = new THREE.DirectionalLight(0xffffff, 1.8);
-            dirLight.position.set(20, 50, 20);
-            gameScene.add(dirLight);
+            let dirLight = new THREE.DirectionalLight(0xffffff, 1.8); dirLight.position.set(20, 50, 20); gameScene.add(dirLight);
 
-            // Bal Peteği / Neon Grid Zemin
-            let floorGeo = new THREE.PlaneGeometry(180, 180);
-            let floorMat = new THREE.MeshStandardMaterial({ color: theme.floorColor, roughness: 0.8, metalness: 0.2 });
-            let floor = new THREE.Mesh(floorGeo, floorMat); floor.rotation.x = -Math.PI / 2;
-            gameScene.add(floor);
+            let floor = new THREE.Mesh(new THREE.PlaneGeometry(180, 180), new THREE.MeshStandardMaterial({ color: theme.floorColor, roughness: 0.8 }));
+            floor.rotation.x = -Math.PI / 2; gameScene.add(floor);
+            gameScene.add(new THREE.GridHelper(180, 60, theme.gridColor, theme.gridColor));
 
-            let gridHelper = new THREE.GridHelper(180, 60, theme.gridColor, theme.gridColor);
-            gridHelper.position.y = 0.05;
-            gameScene.add(gridHelper);
-
-            // Arena Duvar Sınırları (Işıklı Bariyerler)
-            let borderGeo = new THREE.BoxGeometry(180, 2, 2);
-            let borderMat = new THREE.MeshBasicMaterial({ color: theme.wallColor });
-            let wallN = new THREE.Mesh(borderGeo, borderMat); wallN.position.set(0, 1, -90); gameScene.add(wallN);
-            let wallS = new THREE.Mesh(borderGeo, borderMat); wallS.position.set(0, 1, 90); gameScene.add(wallS);
-            let wallE = new THREE.Mesh(borderGeo, borderMat); wallE.rotation.y = Math.PI/2; wallE.position.set(90, 1, 0); gameScene.add(wallE);
-            let wallW = new THREE.Mesh(borderGeo, borderMat); wallW.rotation.y = Math.PI/2; wallW.position.set(-90, 1, 0); gameScene.add(wallW);
-
-            // Oyuncu Oluşturma
+            // Oyuncu
             playerGroup = new THREE.Group();
             let pColor = skinConfigs[activeSkinIndex].color;
             let pTex = createSkinTexture(activeSkinIndex);
-            let pBody = new THREE.Mesh(new THREE.SphereGeometry(1.0, 32, 32), new THREE.MeshStandardMaterial({ map: pTex, roughness: 0.2, metalness: 0.5, emissive: pColor, emissiveIntensity: 0.3 }));
-            playerGroup.add(pBody);
-
-            let pLeftEye = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 12), new THREE.MeshBasicMaterial({color: 0xffffff}));
-            pLeftEye.position.set(-0.3, 0.2, 0.88);
-            let pRightEye = pLeftEye.clone(); pRightEye.position.x = 0.3;
-            playerGroup.add(pLeftEye); playerGroup.add(pRightEye);
+            playerGroup.add(new THREE.Mesh(new THREE.SphereGeometry(1.0, 32, 32), new THREE.MeshStandardMaterial({ map: pTex, roughness: 0.2, emissive: pColor, emissiveIntensity: 0.3 })));
+            
+            let le = new THREE.Mesh(new THREE.SphereGeometry(0.15, 12, 12), new THREE.MeshBasicMaterial({color: 0xffffff})); le.position.set(-0.3, 0.2, 0.88);
+            let re = le.clone(); re.position.x = 0.3; playerGroup.add(le); playerGroup.add(re);
             playerGroup.add(createCosmeticMesh(activeCosmeticType));
 
             playerBladesGroup = new THREE.Group();
             for(let i = 0; i < 4; i++) {
-                let angle = (i / 4) * Math.PI * 2;
-                let blade = new THREE.Mesh(new THREE.ConeGeometry(0.22, 1.5, 12), new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.95, roughness: 0.05 }));
-                blade.rotation.z = -Math.PI / 2; blade.position.set(Math.cos(angle) * 2.2, 0, Math.sin(angle) * 2.2); blade.rotation.y = -angle;
-                playerBladesGroup.add(blade);
+                let a = (i/4)*Math.PI*2;
+                let b = new THREE.Mesh(new THREE.ConeGeometry(0.22, 1.5, 12), new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.95 }));
+                b.rotation.z = -Math.PI/2; b.position.set(Math.cos(a)*2.2, 0, Math.sin(a)*2.2); b.rotation.y = -a;
+                playerBladesGroup.add(b);
             }
-            playerGroup.add(playerBladesGroup);
-            gameScene.add(playerGroup);
+            playerGroup.add(playerBladesGroup); gameScene.add(playerGroup);
 
-            // Kristalleri Üret
-            crystals = [];
-            for(let i = 0; i < 50; i++) { spawnCrystal(); }
-
-            // Gelişmiş Akıllı Botları Üret
-            bots = [];
-            for(let i = 0; i < 5; i++) { spawnBot(i); }
+            crystals = []; for(let i=0; i<50; i++) spawnCrystal();
+            bots = []; for(let i=0; i<6; i++) spawnBot(i);
         }
 
         function spawnCrystal() {
-            let geo = new THREE.OctahedronGeometry(0.45);
-            let mat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.9, roughness: 0.1 });
-            let crystal = new THREE.Mesh(geo, mat);
-            crystal.position.set((Math.random() - 0.5) * 160, 0.5, (Math.random() - 0.5) * 160);
-            gameScene.add(crystal);
-            crystals.push(crystal);
+            let c = new THREE.Mesh(new THREE.OctahedronGeometry(0.45), new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.9 }));
+            c.position.set((Math.random() - 0.5) * 160, 0.5, (Math.random() - 0.5) * 160);
+            gameScene.add(c); crystals.push(c);
+        }
+
+        function respawnBot(b) {
+            b.name = botNames[Math.floor(Math.random() * botNames.length)];
+            b.score = Math.floor(Math.random() * 80) + 40;
+            b.skinIndex = Math.floor(Math.random() * skinConfigs.length);
+            b.mesh.position.set((Math.random() - 0.5) * 140, 0, (Math.random() - 0.5) * 140);
+            
+            let newColor = skinConfigs[b.skinIndex].color;
+            b.mesh.children[0].material.map = createSkinTexture(b.skinIndex);
+            b.mesh.children[0].material.emissive.setHex(newColor);
+            b.mesh.children[0].material.needsUpdate = true;
         }
 
         function spawnBot(index) {
             let botGroup = new THREE.Group();
-            let bColor = [0xff0055, 0x10b981, 0xeab308, 0x9333ea, 0xf97316][index % 5];
-            let body = new THREE.Mesh(new THREE.SphereGeometry(1.0, 16, 16), new THREE.MeshStandardMaterial({ color: bColor, roughness: 0.2, metalness: 0.6, emissive: bColor, emissiveIntensity: 0.3 }));
+            let sIndex = index % skinConfigs.length;
+            let bColor = skinConfigs[sIndex].color;
+            let body = new THREE.Mesh(new THREE.SphereGeometry(1.0, 16, 16), new THREE.MeshStandardMaterial({ map: createSkinTexture(sIndex), roughness: 0.2, emissive: bColor, emissiveIntensity: 0.3 }));
             botGroup.add(body);
 
             let bBlades = new THREE.Group();
             for(let i=0; i<4; i++) {
-                let angle = (i/4)*Math.PI*2;
+                let a = (i/4)*Math.PI*2;
                 let bm = new THREE.Mesh(new THREE.ConeGeometry(0.2, 1.3, 8), new THREE.MeshStandardMaterial({color: 0xdddddd}));
-                bm.rotation.z = -Math.PI/2; bm.position.set(Math.cos(angle)*2.0, 0, Math.sin(angle)*2.0); bm.rotation.y = -angle;
+                bm.rotation.z = -Math.PI/2; bm.position.set(Math.cos(a)*2.0, 0, Math.sin(a)*2.0); bm.rotation.y = -a;
                 bBlades.add(bm);
             }
             botGroup.add(bBlades);
 
-            let rx = (Math.random() - 0.5) * 140;
-            let rz = (Math.random() - 0.5) * 140;
-            botGroup.position.set(rx, 0, rz);
-            gameScene.add(botGroup);
+            let rx = (Math.random() - 0.5) * 140; let rz = (Math.random() - 0.5) * 140;
+            botGroup.position.set(rx, 0, rz); gameScene.add(botGroup);
 
             bots.push({
-                id: index,
-                name: botNames[index % botNames.length],
-                mesh: botGroup,
-                blades: bBlades,
-                score: Math.floor(Math.random() * 150) + 50,
-                targetX: rx, targetZ: rz,
-                changeTargetTimer: 0
+                id: index, name: botNames[index % botNames.length], mesh: botGroup, blades: bBlades,
+                score: Math.floor(Math.random() * 100) + 50, skinIndex: sIndex, targetX: rx, targetZ: rz, changeTargetTimer: 0
             });
         }
 
@@ -764,11 +541,10 @@
             let list = [{ name: document.getElementById('nickname-input').value || "Shedx", score: playerScore }];
             bots.forEach(b => list.push({ name: b.name, score: b.score }));
             list.sort((a, b) => b.score - a.score);
-
             let html = "";
             list.slice(0, 5).forEach((item, i) => {
-                let colorClass = item.name === (document.getElementById('nickname-input').value || "Shedx") ? "text-cyan-300 font-bold" : "text-gray-300";
-                html += `<div class="${colorClass}">${i+1}. ${item.name} - ${item.score}</div>`;
+                let c = item.name === (document.getElementById('nickname-input').value || "Shedx") ? "text-cyan-300 font-bold" : "text-gray-300";
+                html += `<div class="${c}">${i+1}. ${item.name} - ${item.score}</div>`;
             });
             document.getElementById('leaderboard-list').innerHTML = html;
         }
@@ -777,33 +553,21 @@
             if(!isGameRunning) return;
             requestAnimationFrame(gameLoop);
 
-            // Oyuncu Hareketi
             const speed = 0.32;
-            playerPos.x += joystickInput.x * speed;
-            playerPos.z += joystickInput.z * speed;
+            playerPos.x += joystickInput.x * speed; playerPos.z += joystickInput.z * speed;
+            playerPos.x = Math.max(-85, Math.min(85, playerPos.x)); playerPos.z = Math.max(-85, Math.min(85, playerPos.z));
+            playerGroup.position.x = playerPos.x; playerGroup.position.z = playerPos.z;
 
-            playerPos.x = Math.max(-85, Math.min(85, playerPos.x));
-            playerPos.z = Math.max(-85, Math.min(85, playerPos.z));
+            if (joystickInput.x !== 0 || joystickInput.z !== 0) playerGroup.rotation.y = Math.atan2(joystickInput.x, joystickInput.z);
 
-            playerGroup.position.x = playerPos.x;
-            playerGroup.position.z = playerPos.z;
-
-            if (joystickInput.x !== 0 || joystickInput.z !== 0) {
-                playerGroup.rotation.y = Math.atan2(joystickInput.x, joystickInput.z);
-            }
-
-            // Geniş Kamera Yumuşak Takibi
             gameCamera.position.x += (playerPos.x - gameCamera.position.x) * 0.08;
             gameCamera.position.z += (playerPos.z + 30 - gameCamera.position.z) * 0.08;
             gameCamera.lookAt(playerPos.x, 0, playerPos.z);
-
             playerBladesGroup.rotation.y += 0.09;
 
-            // Kristal Toplama (Oyuncu)
             crystals.forEach((c, idx) => {
                 c.rotation.y += 0.03;
-                let dist = Math.hypot(playerPos.x - c.position.x, playerPos.z - c.position.z);
-                if(dist < 1.8) {
+                if(Math.hypot(playerPos.x - c.position.x, playerPos.z - c.position.z) < 1.8) {
                     gameScene.remove(c); crystals.splice(idx, 1);
                     crystalCollectedCount++; playerScore += 25;
                     document.getElementById('crystal-count').innerText = crystalCollectedCount;
@@ -812,72 +576,40 @@
                 }
             });
 
-            // AKILLI BOT YAPAY ZEKASI (KRİSTAL TOPLAMA VE BİRBİRİYLE SAVAŞMA)
             bots.forEach(b => {
                 b.blades.rotation.y += 0.08;
-
-                // En Yakın Kristalleri Arama Yapay Zekası
                 b.changeTargetTimer--;
                 if(b.changeTargetTimer <= 0) {
-                    let nearestCrystal = null;
-                    let minDist = 999;
-                    crystals.forEach(c => {
-                        let d = Math.hypot(b.mesh.position.x - c.position.x, b.mesh.position.z - c.position.z);
-                        if(d < minDist) { minDist = d; nearestCrystal = c; }
-                    });
-
-                    if(nearestCrystal && minDist < 40) {
-                        b.targetX = nearestCrystal.position.x;
-                        b.targetZ = nearestCrystal.position.z;
-                    } else {
-                        b.targetX = (Math.random() - 0.5) * 140;
-                        b.targetZ = (Math.random() - 0.5) * 140;
-                    }
-                    b.changeTargetTimer = 120;
+                    b.targetX = (Math.random() - 0.5) * 140; b.targetZ = (Math.random() - 0.5) * 140;
+                    b.changeTargetTimer = 100;
                 }
+                let dx = b.targetX - b.mesh.position.x; let dz = b.targetZ - b.mesh.position.z; let d = Math.hypot(dx, dz);
+                if(d > 0.5) { b.mesh.position.x += (dx/d)*0.18; b.mesh.position.z += (dz/d)*0.18; b.mesh.rotation.y = Math.atan2(dx, dz); }
 
-                // Bota Doğru Yönelme
-                let dx = b.targetX - b.mesh.position.x;
-                let dz = b.targetZ - b.mesh.position.z;
-                let dist = Math.hypot(dx, dz);
-                if(dist > 0.5) {
-                    b.mesh.position.x += (dx / dist) * 0.18;
-                    b.mesh.position.z += (dz / dist) * 0.18;
-                    b.mesh.rotation.y = Math.atan2(dx, dz);
-                }
-
-                // Botun Kristalleri Yemesi & Gelişmesi
                 crystals.forEach((c, cIdx) => {
-                    let cDist = Math.hypot(b.mesh.position.x - c.position.x, b.mesh.position.z - c.position.z);
-                    if(cDist < 1.8) {
-                        gameScene.remove(c); crystals.splice(cIdx, 1);
-                        b.score += 25; spawnCrystal();
+                    if(Math.hypot(b.mesh.position.x - c.position.x, b.mesh.position.z - c.position.z) < 1.8) {
+                        gameScene.remove(c); crystals.splice(cIdx, 1); b.score += 25; spawnCrystal();
                     }
                 });
 
-                // Botların Birbiriyle Dövüşmesi
-                bots.forEach(otherBot => {
-                    if(b.id !== otherBot.id) {
-                        let bDist = Math.hypot(b.mesh.position.x - otherBot.mesh.position.x, b.mesh.position.z - otherBot.mesh.position.z);
-                        if(bDist < 2.2) {
-                            // Savaş Kazananı
-                            if(b.score >= otherBot.score) {
-                                b.score += 75;
-                                otherBot.mesh.position.x = (Math.random() - 0.5) * 140;
-                                otherBot.mesh.position.z = (Math.random() - 0.5) * 140;
-                                otherBot.score = 50;
-                            }
+                bots.forEach(other => {
+                    if(b.id !== other.id && Math.hypot(b.mesh.position.x - other.mesh.position.x, b.mesh.position.z - other.mesh.position.z) < 2.2) {
+                        if(b.score >= other.score) {
+                            b.score += Math.floor(other.score / 2);
+                            respawnBot(other);
                         }
                     }
                 });
 
-                // Oyuncu İle Bot Savaş Alanı
                 let pDist = Math.hypot(playerPos.x - b.mesh.position.x, playerPos.z - b.mesh.position.z);
                 if(pDist < 2.3) {
-                    b.mesh.position.x = (Math.random() - 0.5) * 140;
-                    b.mesh.position.z = (Math.random() - 0.5) * 140;
-                    playerScore += 100;
-                    document.getElementById('player-score').innerText = "Skor: " + playerScore;
+                    if(playerScore >= b.score) {
+                        playerScore += 100;
+                        respawnBot(b);
+                        document.getElementById('player-score').innerText = "Skor: " + playerScore;
+                    } else {
+                        triggerDeathScreen();
+                    }
                 }
             });
 
