@@ -1,759 +1,466 @@
-```html
 <!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BladeStorm Pro .IO - Ultimate Edition</title>
+    <title>BladeStorm 3D - Pro Battle Royale</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; overflow: hidden; background: #0d0714; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; user-select: none; touch-action: none; }
-        #canvas-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; }
-        .ui-layer { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 16px; }
-        .interactive { pointer-events: auto !important; cursor: pointer; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
+        body { margin: 0; overflow: hidden; background: #0b0518; font-family: 'Inter', system-ui, -apple-system, sans-serif; touch-action: none; }
+        #canvas-container { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
         
-        /* Arcade UI Stilleri */
-        .arcade-panel { background: linear-gradient(135deg, #581c87, #3b0764); border: 2px solid #a855f7; box-shadow: 0 6px 0 #1e1b4b, inset 0 2px 4px rgba(255,255,255,0.3); border-radius: 18px; }
-        .btn-play-green { background: linear-gradient(180deg, #22c55e 0%, #16a34a 50%, #15803d 100%); border: 3px solid #86efac; box-shadow: 0 8px 0 #14532d, 0 10px 20px rgba(0,0,0,0.6); border-radius: 24px; transition: transform 0.1s, box-shadow 0.1s; }
-        .btn-play-green:active { transform: translateY(4px); box-shadow: 0 4px 0 #14532d, 0 5px 10px rgba(0,0,0,0.6); }
-        .arcade-btn { background: linear-gradient(180deg, #7e22ce 0%, #6b21a8 100%); border: 2px solid #c084fc; box-shadow: 0 5px 0 #3b0764; border-radius: 16px; transition: transform 0.1s; }
-        .arcade-btn:active { transform: translateY(3px); box-shadow: 0 2px 0 #3b0764; }
-        .modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); display: none; items-center: center; justify-content: center; padding: 20px; pointer-events: auto; }
+        /* Modern Glassmorphism UI */
+        .glass-panel { background: rgba(23, 15, 45, 0.75); backdrop-filter: blur(16px); border: 1px solid rgba(168, 85, 247, 0.3); box-shadow: 0 12px 32px 0 rgba(0, 0, 0, 0.5), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1); border-radius: 24px; }
+        .glass-card { background: linear-gradient(135deg, rgba(147, 51, 234, 0.2), rgba(88, 28, 135, 0.4)); border: 1px solid rgba(216, 180, 254, 0.3); backdrop-filter: blur(8px); border-radius: 20px; }
         
-        /* Sanal Joystick */
-        #virtual-joystick { position: fixed; bottom: 40px; left: 40px; width: 120px; height: 120px; border: 3px dashed rgba(168, 85, 247, 0.6); border-radius: 50%; z-index: 90; display: none; pointer-events: auto; touch-action: none; background: rgba(0,0,0,0.2); }
-        #joystick-knob { position: absolute; top: 32px; left: 32px; width: 50px; height: 50px; background: radial-gradient(circle, #f0abfc, #c084fc); border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 12px #d8b4fe; pointer-events: none; }
+        /* Pro Arcade Buttons */
+        .btn-play { background: linear-gradient(180deg, #22c55e 0%, #16a34a 100%); border: 2px solid #86efac; box-shadow: 0 8px 24px rgba(34, 197, 94, 0.4), inset 0 2px 4px rgba(255,255,255,0.4); border-radius: 24px; transition: all 0.15s ease; }
+        .btn-play:active { transform: scale(0.96); filter: brightness(0.9); }
+        .btn-action { background: linear-gradient(180deg, #a855f7 0%, #7e22ce 100%); border: 1px solid #e9d5ff; box-shadow: 0 4px 12px rgba(168, 85, 247, 0.3); border-radius: 16px; transition: all 0.15s ease; }
+        .btn-action:active { transform: scale(0.95); }
+
+        .modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(5, 2, 12, 0.85); backdrop-filter: blur(12px); display: none; align-items: center; justify-content: center; padding: 16px; }
+        
+        /* Smooth Joystick */
+        #joystick-base { position: fixed; bottom: 40px; left: 40px; width: 120px; height: 120px; background: rgba(168, 85, 247, 0.15); border: 2px solid rgba(216, 180, 254, 0.4); backdrop-filter: blur(6px); border-radius: 50%; z-index: 90; display: none; touch-action: none; }
+        #joystick-stick { position: absolute; top: 35px; left: 35px; width: 50px; height: 50px; background: linear-gradient(135deg, #c084fc, #9333ea); border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 20px #c084fc; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <!-- 3D Sahne -->
+    <!-- 3D Render Canvas -->
     <div id="canvas-container"></div>
 
-    <!-- Mobil Hareket İçin Sanal Joystick -->
-    <div id="virtual-joystick">
-        <div id="joystick-knob"></div>
-    </div>
+    <!-- Virtual Touch Joystick -->
+    <div id="joystick-base"><div id="joystick-stick"></div></div>
 
-    <!-- ANA LOBİ ARAYÜZÜ -->
-    <div id="lobby-ui" class="ui-layer">
+    <!-- MODERN LOBBY UI -->
+    <div id="lobby-ui" class="fixed inset-0 z-10 p-6 flex flex-col justify-between pointer-events-none">
         
-        <!-- Üst Bar -->
-        <div class="flex justify-between items-start w-full">
-            <!-- Profil Kutusu -->
-            <div class="arcade-panel p-3 flex items-center gap-3 interactive" id="profile-btn">
-                <div id="skin-avatar-icon" class="w-12 h-12 rounded-xl bg-cyan-500 border-2 border-white flex items-center justify-center text-2xl shadow-inner">⚔️</div>
+        <!-- Top Navigation -->
+        <div class="flex justify-between items-center w-full">
+            <div class="glass-panel p-2.5 px-4 flex items-center gap-3 pointer-events-auto cursor-pointer" id="profile-btn">
+                <div id="skin-avatar" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center text-xl border border-white/30 shadow-inner">🛡️</div>
                 <div>
-                    <div class="flex items-center gap-1">
-                        <span id="lobby-player-name" class="text-white font-black text-sm">Shedx</span>
-                        <span class="text-xs text-purple-200">✏️</span>
+                    <div class="text-white font-extrabold text-sm tracking-wide flex items-center gap-1">
+                        <span id="player-name">Shedx</span> <span class="text-xs text-purple-300">✏️</span>
                     </div>
-                    <span class="text-[10px] text-purple-300 font-mono">ID: #8574</span>
+                    <div class="text-[10px] text-purple-300 font-mono">RANK: GOLD III</div>
                 </div>
             </div>
 
-            <!-- Para ve En Yüksek Skor -->
-            <div class="flex items-center gap-3">
-                <div class="arcade-panel px-4 py-2 flex items-center gap-2">
-                    <span class="text-xl">🪙</span>
-                    <span id="lobby-coins" class="text-white font-black text-base">500</span>
+            <div class="flex items-center gap-3 pointer-events-auto">
+                <div class="glass-panel px-4 py-2 flex items-center gap-2">
+                    <span class="text-lg">🪙</span>
+                    <span id="coin-amount" class="text-white font-black text-sm font-mono">1,250</span>
                 </div>
-                <div class="arcade-panel px-4 py-2 text-center">
-                    <div class="text-[9px] text-purple-300 font-bold">EN YÜKSEK SKOR</div>
-                    <div id="high-score-val" class="text-white font-black text-sm font-mono">20,572</div>
+                <div class="glass-panel px-4 py-2 text-center">
+                    <div class="text-[9px] text-purple-300 font-bold uppercase">Best Score</div>
+                    <div class="text-yellow-400 font-black text-xs font-mono">20,572</div>
                 </div>
             </div>
         </div>
 
-        <!-- Orta Menü Butonları -->
-        <div class="grid grid-cols-3 gap-4 w-full max-w-md mx-auto my-auto">
-            <!-- Market Butonu (Altın İle Satın Alma) -->
-            <div class="arcade-btn p-4 flex flex-col items-center justify-center text-white interactive h-32" id="open-market-btn">
+        <!-- Center Menu Cards -->
+        <div class="grid grid-cols-3 gap-4 w-full max-w-lg mx-auto pointer-events-auto">
+            <div class="glass-card p-4 flex flex-col items-center justify-center text-center cursor-pointer transition transform hover:scale-105" id="store-btn">
                 <span class="text-3xl mb-1">🛒</span>
-                <span class="font-black text-xs tracking-wider">MARKET</span>
-                <span class="text-[10px] text-purple-300 font-mono">Altın Harca</span>
+                <span class="text-white font-bold text-xs">MAĞAZA</span>
+                <span class="text-[9px] text-purple-300 mt-0.5">Kılıçlar & Aura</span>
             </div>
-
-            <!-- Skinler Butonu -->
-            <div class="arcade-btn p-4 flex flex-col items-center justify-center text-white interactive h-32" id="open-skins-btn">
-                <span class="text-3xl mb-1">🗡️</span>
-                <span class="font-black text-xs tracking-wider">SKİNLER</span>
-                <span id="skin-status-text" class="text-[10px] text-purple-300 font-mono">Siyan Mecha</span>
+            <div class="glass-card p-4 flex flex-col items-center justify-center text-center cursor-pointer transition transform hover:scale-105" id="skins-btn">
+                <span class="text-3xl mb-1">⚔️</span>
+                <span class="text-white font-bold text-xs">SKİNLER</span>
+                <span id="skin-subtitle" class="text-[9px] text-purple-300 mt-0.5">Siyan Mecha</span>
             </div>
-
-            <!-- Görevler Butonu -->
-            <div class="arcade-btn p-4 flex flex-col items-center justify-center text-white interactive h-32 relative" id="open-quests-btn">
-                <span id="quest-badge" class="absolute top-2 right-2 w-5 h-5 bg-red-600 rounded-full text-white text-[10px] font-bold flex items-center justify-center shadow">1</span>
-                <span class="text-3xl mb-1">📋</span>
-                <span class="font-black text-xs tracking-wider">GÖREVLER</span>
-                <span class="text-[10px] text-purple-300 font-mono">Aktif</span>
+            <div class="glass-card p-4 flex flex-col items-center justify-center text-center cursor-pointer transition transform hover:scale-105 relative" id="quests-btn">
+                <span class="absolute top-2 right-2 w-2.5 h-2.5 bg-green-400 rounded-full animate-ping"></span>
+                <span class="text-3xl mb-1">📜</span>
+                <span class="text-white font-bold text-xs">GÖREVLER</span>
+                <span class="text-[9px] text-purple-300 mt-0.5">2 Oyunda Oyna</span>
             </div>
         </div>
 
-        <!-- Alt Alan: Sağ Alt Devasa Yeşil Oyna Düğmesi -->
-        <div class="flex justify-between items-end w-full pb-4">
-            <div class="arcade-panel px-4 py-3 text-white text-xs font-bold">
-                BladeStorm Pro v4.0<br><span class="text-[9px] text-purple-300">3D Battle Arena</span>
+        <!-- Bottom Play Control -->
+        <div class="flex justify-between items-end w-full pointer-events-auto">
+            <div class="glass-panel p-3 px-4 text-white text-xs font-medium">
+                <div class="text-purple-300 text-[10px] uppercase font-bold">Mod</div>
+                <div class="font-extrabold text-sm">Battle Royale Arena</div>
             </div>
 
-            <button class="btn-play-green px-12 py-5 text-white font-black text-2xl tracking-widest interactive shadow-2xl flex items-center gap-3" id="big-play-btn">
+            <button class="btn-play px-10 py-4 text-white font-black text-xl tracking-wider flex items-center gap-3 shadow-2xl" id="start-game-btn">
                 <span>OYNA</span>
-                <span class="text-3xl">▶</span>
+                <span class="text-2xl">▶</span>
             </button>
         </div>
 
     </div>
 
-    <!-- OYUN İÇİ HUD -->
-    <div id="game-hud" class="ui-layer" style="display: none; pointer-events: none;">
+    <!-- IN-GAME HUD -->
+    <div id="game-hud" class="fixed inset-0 z-10 p-4 flex flex-col justify-between pointer-events-none" style="display: none;">
         <div class="flex justify-between items-start w-full">
-            <div class="arcade-panel px-4 py-2 text-white font-mono text-xs">
-                <div>GÜÇ / SKOR: <span id="hud-score" class="text-yellow-300 font-bold">0</span></div>
-                <div>KILIÇ SAYISI: <span id="hud-blades" class="text-green-300 font-bold">2</span></div>
+            <div class="glass-panel p-3 text-white font-mono text-xs space-y-1">
+                <div class="flex items-center gap-2">SKOR: <span id="hud-score" class="text-yellow-400 font-bold text-sm">0</span></div>
+                <div class="flex items-center gap-2">KILIÇ: <span id="hud-blades" class="text-cyan-400 font-bold text-sm">2</span></div>
+                <div class="w-32 bg-black/50 h-2 rounded-full overflow-hidden border border-white/20 mt-1">
+                    <div id="hud-hp-bar" class="bg-gradient-to-r from-red-500 to-green-500 h-full w-full transition-all"></div>
+                </div>
             </div>
-            <div class="arcade-panel px-4 py-2 text-white font-mono text-xs min-w-[160px]">
-                <div class="text-purple-300 font-bold border-b border-purple-400/40 pb-1 mb-1">🏆 ARENA LİDERLERİ</div>
-                <div id="leaderboard-container" class="flex flex-col gap-1 text-[11px]"></div>
+
+            <!-- Leaderboard -->
+            <div class="glass-panel p-3 text-white font-mono text-[11px] min-w-[150px]">
+                <div class="text-purple-300 font-bold border-b border-white/10 pb-1 mb-1 flex justify-between">
+                    <span>LİDERLER</span> <span>KİLL</span>
+                </div>
+                <div id="leaderboard-list" class="space-y-1"></div>
             </div>
         </div>
-        <button class="arcade-btn px-6 py-2 text-white font-black text-xs self-center interactive mb-4" id="exit-game-btn" style="pointer-events: auto;">LOBİYE DÖN</button>
-    </div>
 
-    <!-- OYUN BİTTİ EKRANI -->
-    <div id="gameover-overlay" class="modal-overlay">
-        <div class="arcade-panel p-8 max-w-sm w-full text-center text-white">
-            <h2 class="text-3xl font-black text-red-500 mb-2">ELENDİN!</h2>
-            <p id="gameover-score" class="text-sm font-mono mb-2">Toplam Güç: 0</p>
-            <p id="gameover-coins" class="text-xs text-yellow-300 font-mono mb-6">Kazanılan Altın: +0 🪙</p>
-            <button class="btn-play-green w-full py-4 font-black text-base interactive" id="restart-btn">TEKRAR OYNA</button>
+        <!-- Emote & Exit -->
+        <div class="flex justify-between items-end w-full pointer-events-auto">
+            <button class="glass-panel p-3 text-2xl hover:scale-110 active:scale-95 transition" id="emote-btn">😎</button>
+            <button class="btn-action px-5 py-2.5 text-white font-bold text-xs" id="exit-btn">LOBİYE DÖN</button>
         </div>
     </div>
 
-    <!-- OYUN İÇİ ALTIN İLE SATIN ALMA MARKETİ -->
-    <div id="market-modal" class="modal-overlay">
-        <div class="arcade-panel p-6 max-w-md w-full text-white relative">
-            <div class="flex justify-between items-center mb-4 border-b border-purple-400/40 pb-2">
-                <h3 class="text-xl font-black text-yellow-300">🛒 ALTIN MARKETİ</h3>
-                <button class="w-8 h-8 rounded-full bg-red-600 text-white font-bold interactive close-modal-btn">✕</button>
+    <!-- GAME OVER / INTIKAM EKRANI -->
+    <div id="gameover-modal" class="modal-overlay">
+        <div class="glass-panel p-8 max-w-sm w-full text-center text-white pointer-events-auto">
+            <div class="text-5xl mb-2">☠️</div>
+            <h2 class="text-2xl font-black text-red-400 mb-1">ELENDİN!</h2>
+            <p id="killer-info" class="text-xs text-purple-200 mb-4">Seni <span class="text-yellow-400 font-bold">CyberBlade</span> yok etti!</p>
+            <div class="glass-card p-3 mb-6 font-mono text-sm">
+                Skorun: <span id="final-score" class="text-yellow-400 font-bold">0</span>
+            </div>
+            <button class="btn-play w-full py-3.5 font-black text-base shadow-xl" id="respawn-btn">İNTİKAM AL (TEKRAR OYNA)</button>
+        </div>
+    </div>
+
+    <!-- MAĞAZA MODAL (Altın ile Satın Alma) -->
+    <div id="store-modal" class="modal-overlay">
+        <div class="glass-panel p-6 max-w-md w-full text-white pointer-events-auto">
+            <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
+                <h3 class="font-black text-lg text-yellow-400">🛒 ALTIN MAĞAZASI</h3>
+                <button class="close-modal text-purple-300 hover:text-white font-bold">✕</button>
             </div>
             <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-purple-950/60 p-3 rounded-xl border border-purple-500/50 text-center flex flex-col justify-between h-36">
-                    <div>
-                        <div class="text-2xl mb-1">🔥</div>
-                        <div class="font-black text-xs">Ateş Aurası</div>
-                        <div class="text-[10px] text-purple-300">Karakter Etrafında Işık</div>
-                    </div>
-                    <button class="buy-item-btn bg-yellow-500 hover:bg-yellow-400 text-purple-950 text-xs font-black py-1 px-3 rounded-lg interactive mt-2" data-cost="200" data-type="aura" data-val="fire">200 🪙</button>
+                <div class="glass-card p-3 text-center border border-purple-500/30">
+                    <div class="text-3xl mb-1">⚡</div>
+                    <div class="font-bold text-xs">Neon Aura</div>
+                    <div class="text-[10px] text-purple-300 mb-2">Karakter Parlaması</div>
+                    <button class="btn-action w-full py-1.5 text-xs font-bold buy-item" data-cost="500">500 🪙</button>
                 </div>
-                <div class="bg-purple-950/60 p-3 rounded-xl border border-purple-500/50 text-center flex flex-col justify-between h-36">
-                    <div>
-                        <div class="text-2xl mb-1">⚡</div>
-                        <div class="font-black text-xs">Yıldırım Kılıçlar</div>
-                        <div class="text-[10px] text-purple-300">Extra Parlak Bıçaklar</div>
-                    </div>
-                    <button class="buy-item-btn bg-yellow-500 hover:bg-yellow-400 text-purple-950 text-xs font-black py-1 px-3 rounded-lg interactive mt-2" data-cost="400" data-type="skin" data-val="lightning">400 🪙</button>
+                <div class="glass-card p-3 text-center border border-purple-500/30">
+                    <div class="text-3xl mb-1">🗡️</div>
+                    <div class="font-bold text-xs">Dev Kılıç Skini</div>
+                    <div class="text-[10px] text-purple-300 mb-2">Geniş Menzil</div>
+                    <button class="btn-action w-full py-1.5 text-xs font-bold buy-item" data-cost="1000">1000 🪙</button>
                 </div>
             </div>
-            <p class="text-[10px] text-purple-300 text-center">Oyun oynayarak altın kazanabilirsin!</p>
+            <button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button>
         </div>
     </div>
 
-    <!-- SKİN SEÇİM MODALI -->
-    <div id="skins-modal" class="modal-overlay">
-        <div class="arcade-panel p-6 max-w-md w-full text-white relative">
-            <div class="flex justify-between items-center mb-4 border-b border-purple-400/40 pb-2">
-                <h3 class="text-xl font-black text-yellow-300">🗡️ KILIÇ & SKİN SEÇİMİ</h3>
-                <button class="w-8 h-8 rounded-full bg-red-600 text-white font-bold interactive close-modal-btn">✕</button>
-            </div>
-            <div class="grid grid-cols-3 gap-3 mb-4" id="skin-list-container">
-                <div class="bg-purple-950/60 p-3 rounded-xl border-2 border-cyan-400 text-center interactive skin-select-btn" data-color="0x00f0ff" data-name="Siyan Mecha">
-                    <div class="w-10 h-10 mx-auto rounded-full bg-cyan-400 mb-2 shadow-[0_0_10px_#00f0ff]"></div>
-                    <div class="font-bold text-xs">Siyan</div>
-                </div>
-                <div class="bg-purple-950/60 p-3 rounded-xl border border-purple-500/40 text-center interactive skin-select-btn" data-color="0xff0055" data-name="Kırmızı Öfke">
-                    <div class="w-10 h-10 mx-auto rounded-full bg-rose-500 mb-2 shadow-[0_0_10px_#ff0055]"></div>
-                    <div class="font-bold text-xs">Kırmızı</div>
-                </div>
-                <div class="bg-purple-950/60 p-3 rounded-xl border border-purple-500/40 text-center interactive skin-select-btn" data-color="0x10b981" data-name="Zümrüt Savaşçı">
-                    <div class="w-10 h-10 mx-auto rounded-full bg-emerald-500 mb-2 shadow-[0_0_10px_#10b981]"></div>
-                    <div class="font-bold text-xs">Yeşil</div>
-                </div>
-            </div>
-            <button class="btn-play-green w-full py-3 font-black text-sm interactive close-modal-btn">KAYDET VE KAPAT</button>
-        </div>
-    </div>
-
-    <!-- GÖREVLER MODALI -->
-    <div id="quests-modal" class="modal-overlay">
-        <div class="arcade-panel p-6 max-w-md w-full text-white relative">
-            <div class="flex justify-between items-center mb-4 border-b border-purple-400/40 pb-2">
-                <h3 class="text-xl font-black text-yellow-300">📋 GÜNLÜK GÖREVLER</h3>
-                <button class="w-8 h-8 rounded-full bg-red-600 text-white font-bold interactive close-modal-btn">✕</button>
-            </div>
-            <div class="space-y-3 mb-4">
-                <div class="bg-purple-950/60 p-3 rounded-xl border border-purple-500/40 flex justify-between items-center">
-                    <div>
-                        <div class="font-bold text-xs">2 Oyun Oyna</div>
-                        <div id="quest-progress-text" class="text-[10px] text-purple-300 font-mono">İlerleme: 0/2</div>
-                    </div>
-                    <button id="claim-quest-btn" class="bg-gray-600 text-white px-4 py-2 rounded-xl text-xs font-black opacity-60 cursor-not-allowed" disabled>ÖDÜLÜ AL (300 🪙)</button>
-                </div>
-            </div>
-            <button class="btn-play-green w-full py-3 font-black text-sm interactive close-modal-btn">KAPAT</button>
-        </div>
-    </div>
-
-    <!-- JAVASCRIPT OYUN MOTORU VE MANTIK -->
+    <!-- 3D GAME & AI ENGINE -->
     <script>
-        // --- 📊 OYUN VE LOBİ DURUMU ---
-        const GameState = {
-            coins: 500,
+        const State = {
+            coins: 1250,
             playerName: "Shedx",
-            selectedSkinColor: 0x00f0ff,
-            skinName: "Siyan Mecha",
+            selectedColor: 0x00f0ff,
             gamesPlayed: 0,
-            questClaimed: false,
             score: 0,
-            bladesCount: 2,
+            hp: 100,
+            maxHp: 100,
             isPlaying: false,
-            highScore: 20572,
-            unlockedAura: false
+            blades: 2,
+            hasAura: false
         };
 
-        // --- 🔊 SES SİSTEMİ (Web Audio API) ---
-        let audioCtx = null;
-        function initAudio() {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        }
-        function playSound(type) {
-            try {
-                initAudio();
-                if (!audioCtx) return;
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(audioCtx.destination);
-                let now = audioCtx.currentTime;
-
-                if (type === 'click') {
-                    osc.type = 'triangle'; osc.frequency.setValueAtTime(500, now);
-                    gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
-                    osc.start(now); osc.stop(now + 0.05);
-                } else if (type === 'eat') {
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(900, now + 0.08);
-                    gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-                    osc.start(now); osc.stop(now + 0.08);
-                } else if (type === 'success') {
-                    osc.type = 'square'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.2);
-                    gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-                    osc.start(now); osc.stop(now + 0.2);
-                } else if (type === 'crash') {
-                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, now); osc.frequency.linearRampToValueAtTime(30, now + 0.3);
-                    gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                    osc.start(now); osc.stop(now + 0.3);
-                }
-            } catch(e) {}
-        }
-
-        // --- 🪟 DOM VE ETKİLEŞİM BAĞLANTILARI ---
+        // UI Event Handlers
         document.addEventListener('DOMContentLoaded', () => {
-            // Modalları Açma
-            document.getElementById('open-market-btn').addEventListener('click', () => { playSound('click'); document.getElementById('market-modal').style.display = 'flex'; });
-            document.getElementById('open-skins-btn').addEventListener('click', () => { playSound('click'); document.getElementById('skins-modal').style.display = 'flex'; });
-            document.getElementById('open-quests-btn').addEventListener('click', () => { playSound('click'); document.getElementById('quests-modal').style.display = 'flex'; });
+            document.getElementById('start-game-btn').addEventListener('click', startGame);
+            document.getElementById('respawn-btn').addEventListener('click', () => {
+                document.getElementById('gameover-modal').style.display = 'none';
+                startGame();
+            });
+            document.getElementById('exit-btn').addEventListener('click', returnToLobby);
             
-            document.getElementById('profile-btn').addEventListener('click', () => {
-                playSound('click');
-                let newName = prompt("Kullanıcı adınızı girin:", GameState.playerName);
-                if (newName && newName.trim().length > 0) {
-                    GameState.playerName = newName.trim();
-                    document.getElementById('lobby-player-name').innerText = GameState.playerName;
-                }
-            });
+            document.getElementById('store-btn').addEventListener('click', () => document.getElementById('store-modal').style.display = 'flex');
+            document.querySelectorAll('.close-modal').forEach(b => b.addEventListener('click', () => {
+                document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+            }));
 
-            // Modalları Kapatma
-            document.querySelectorAll('.close-modal-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    playSound('click');
-                    document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-                });
-            });
-
-            // Market Altın Satın Alma Mantığı
-            document.querySelectorAll('.buy-item-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
+            document.querySelectorAll('.buy-item').forEach(btn => {
+                btn.addEventListener('click', (e) => {
                     let cost = parseInt(btn.getAttribute('data-cost'));
-                    let type = btn.getAttribute('data-type');
-                    
-                    if (GameState.coins >= cost) {
-                        playSound('success');
-                        GameState.coins -= cost;
-                        document.getElementById('lobby-coins').innerText = GameState.coins;
+                    if(State.coins >= cost) {
+                        State.coins -= cost;
+                        document.getElementById('coin-amount').innerText = State.coins.toLocaleString();
                         btn.innerText = "ALINDI";
-                        btn.classList.remove('bg-yellow-500', 'interactive');
-                        btn.classList.add('bg-gray-600', 'opacity-50');
                         btn.disabled = true;
-
-                        if (type === 'aura') {
-                            GameState.unlockedAura = true;
-                            alert("Ateş Aurası Açıldı! Karakterinize özel ışık eklendi.");
-                        } else if (type === 'skin') {
-                            alert("Yıldırım Kılıçlar Başarıyla Satın Alındı!");
-                        }
+                        btn.classList.add('opacity-50');
+                        alert("Satın alma başarılı!");
                     } else {
-                        alert("Yetersiz Altın! Oyun oynayarak altın toplayabilirsin.");
+                        alert("Yeterli altının yok!");
                     }
                 });
             });
 
-            // Skin Seçimi
-            document.querySelectorAll('.skin-select-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    playSound('click');
-                    document.querySelectorAll('.skin-select-btn').forEach(b => b.classList.remove('border-2', 'border-cyan-400'));
-                    btn.classList.add('border-2', 'border-cyan-400');
-                    GameState.selectedSkinColor = parseInt(btn.getAttribute('data-color'));
-                    GameState.skinName = btn.getAttribute('data-name');
-                    document.getElementById('skin-status-text').innerText = GameState.skinName;
-                    document.getElementById('skin-avatar-icon').style.backgroundColor = '#' + GameState.selectedSkinColor.toString(16).padStart(6, '0');
-                });
-            });
-
-            // Görev Ödülü Al
-            const claimBtn = document.getElementById('claim-quest-btn');
-            claimBtn.addEventListener('click', () => {
-                if (GameState.gamesPlayed >= 2 && !GameState.questClaimed) {
-                    playSound('success');
-                    GameState.questClaimed = true;
-                    GameState.coins += 300;
-                    document.getElementById('lobby-coins').innerText = GameState.coins;
-                    claimBtn.innerText = "ALINDI";
-                    claimBtn.classList.remove('bg-green-600', 'interactive');
-                    claimBtn.classList.add('bg-gray-600', 'opacity-50');
-                    claimBtn.disabled = true;
-                    document.getElementById('quest-badge').style.display = 'none';
-                }
-            });
-
-            // Oyunu Başlat / Tekrar Oyna / Çıkış
-            document.getElementById('big-play-btn').addEventListener('click', () => { startGame(); });
-            document.getElementById('restart-btn').addEventListener('click', () => {
-                document.getElementById('gameover-overlay').style.display = 'none';
-                startGame();
-            });
-            document.getElementById('exit-game-btn').addEventListener('click', () => { returnToLobby(); });
-
-            // 3D Motorunu Başlat
-            initThreeEngine();
+            initThree();
         });
 
-        // --- 🎮 3D THREE.JS OYUN MOTORU VE GELİŞMİŞ BOT AI ---
-        let scene, camera, renderer, playerHero;
-        let crystals = [], bots = [];
-        let joystickVector = { x: 0, y: 0 };
-        const BOT_NAMES = ["Vortex", "Slasher", "CyberBlade", "Shadow", "Titan", "Phantom", "Apex", "Spectre"];
+        // THREE.JS Engine
+        let scene, camera, renderer, player;
+        let crystals = [], bots = [], powerups = [];
+        let joystick = { x: 0, y: 0 };
 
-        function initThreeEngine() {
+        function initThree() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x0d0714);
-            scene.fog = new THREE.FogExp2(0x0d0714, 0.012);
+            scene.background = new THREE.Color(0x0b0518);
+            scene.fog = new THREE.FogExp2(0x0b0518, 0.012);
 
-            camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 26, 18);
-            camera.lookAt(0, 0, 0);
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 22, 16);
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.shadowMap.enabled = true;
             container.appendChild(renderer.domElement);
 
-            const ambient = new THREE.AmbientLight(0xffffff, 0.7);
-            scene.add(ambient);
+            // Arena & Grid
+            const grid = new THREE.GridHelper(260, 50, 0xa855f7, 0x2e1065);
+            grid.position.y = 0.01;
+            scene.add(grid);
 
-            const dirLight = new THREE.DirectionalLight(0xc084fc, 1.2);
-            dirLight.position.set(30, 60, 30);
-            dirLight.castShadow = true;
-            scene.add(dirLight);
-
-            // Zemin Izgarası
-            const floorGeo = new THREE.PlaneGeometry(320, 320);
-            const floorMat = new THREE.MeshStandardMaterial({ color: 0x160c28, roughness: 0.8, metalness: 0.2 });
-            const floor = new THREE.Mesh(floorGeo, floorMat);
+            const floor = new THREE.Mesh(
+                new THREE.PlaneGeometry(260, 260),
+                new THREE.MeshBasicMaterial({ color: 0x120826 })
+            );
             floor.rotation.x = -Math.PI / 2;
             scene.add(floor);
 
-            const grid = new THREE.GridHelper(320, 64, 0x9333ea, 0x3b0764);
-            grid.position.y = 0.02;
-            scene.add(grid);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
+            scene.add(ambientLight);
 
-            setupVirtualJoystick();
-            window.addEventListener('resize', onWindowResize);
-            animateGameLoop();
+            setupJoystick();
+            window.addEventListener('resize', onResize);
+            loop();
         }
 
-        // Joystick Kontrol Mekaniği (DÜZELTİLDİ: Ters Yön Düzeltildi)
-        function setupVirtualJoystick() {
-            const joystick = document.getElementById('virtual-joystick');
-            const knob = document.getElementById('joystick-knob');
-            let active = false;
-            let center = { x: 0, y: 0 };
+        function createHero(color, isPlayer = false) {
+            const group = new THREE.Group();
+            
+            // Mecha Body (Işıltılı Küre + Taban Halka)
+            const bodyGeo = new THREE.CylinderGeometry(1, 1.2, 0.8, 16);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: color, roughness: 0.3, metalness: 0.8 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0.8;
+            group.add(body);
 
-            joystick.addEventListener('pointerdown', (e) => {
-                active = true;
-                let rect = joystick.getBoundingClientRect();
-                center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-            });
+            // Aura Ring
+            const ringGeo = new THREE.RingGeometry(1.4, 1.6, 32);
+            const ringMat = new THREE.MeshBasicMaterial({ color: color, side: THREE.DoubleSide });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.rotation.x = Math.PI / 2;
+            ring.position.y = 0.05;
+            group.add(ring);
 
-            window.addEventListener('pointermove', (e) => {
-                if (!active) return;
-                let dx = e.clientX - center.x;
-                let dy = e.clientY - center.y;
-                let dist = Math.hypot(dx, dy);
-                let maxDist = 40;
-
-                if (dist > maxDist) {
-                    dx = (dx / dist) * maxDist;
-                    dy = (dy / dist) * maxDist;
-                }
-
-                knob.style.transform = `translate(${dx}px, ${dy}px)`;
-                
-                // İLERİ/GERİ DÜZELTİLDİ: dy işareti ters çevrildi
-                joystickVector.x = dx / maxDist;
-                joystickVector.y = dy / maxDist; 
-            });
-
-            window.addEventListener('pointerup', () => {
-                active = false;
-                joystickVector.x = 0;
-                joystickVector.y = 0;
-                knob.style.transform = `translate(0px, 0px)`;
-            });
-        }
-
-        // GELİŞMİŞ KARAKTER VE KILIÇ MODELLEMESİ
-        function createHero(color, isPlayer = false, customName = "") {
-            let group = new THREE.Group();
-
-            // Gövde (Detaylı Mecha Şekil)
-            let coreMat = new THREE.MeshStandardMaterial({ color: color, metalness: 0.8, roughness: 0.2, emissive: color, emissiveIntensity: 0.3 });
-            let core = new THREE.Mesh(new THREE.CylinderGeometry(1.0, 0.7, 1.8, 16), coreMat);
-            core.position.y = 1.1;
-            group.add(core);
-
-            // Baş / Kask
-            let head = new THREE.Mesh(new THREE.SphereGeometry(0.65, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.9, roughness: 0.1 }));
-            head.position.y = 2.2;
-            group.add(head);
-
-            // Visor (Göz Bandı)
-            let visor = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.2, 0.5), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
-            visor.position.set(0, 2.25, 0.4);
-            group.add(visor);
-
-            // Aura Efekti (Satın Alındıysa)
-            if (isPlayer && GameState.unlockedAura) {
-                let auraGeo = new THREE.RingGeometry(1.2, 1.8, 32);
-                let auraMat = new THREE.MeshBasicMaterial({ color: 0xffa500, side: THREE.DoubleSide, transparent: true, opacity: 0.6 });
-                let aura = new THREE.Mesh(auraGeo, auraMat);
-                aura.rotation.x = -Math.PI / 2;
-                aura.position.y = 0.1;
-                group.add(aura);
-            }
-
-            let bladeGroup = new THREE.Group();
-            bladeGroup.position.y = 1.2;
+            // Blades Container
+            const bladeGroup = new THREE.Group();
+            bladeGroup.position.y = 0.8;
             group.add(bladeGroup);
-
-            let initialBlades = 2;
-            let blades = [];
-            for (let i = 0; i < initialBlades; i++) {
-                let blade = createBladeMesh(color);
-                bladeGroup.add(blade);
-                blades.push(blade);
-            }
 
             scene.add(group);
             return {
-                group,
-                bladeGroup,
-                blades,
-                x: (Math.random() - 0.5) * 160,
-                z: (Math.random() - 0.5) * 160,
-                color,
-                count: initialBlades,
-                isPlayer,
-                name: isPlayer ? GameState.playerName : customName
+                group, bladeGroup, color,
+                x: (Math.random() - 0.5) * 120,
+                z: (Math.random() - 0.5) * 120,
+                bladesCount: 2,
+                blades: [],
+                hp: 100,
+                maxHp: 100,
+                isPlayer
             };
         }
 
-        function createBladeMesh(color) {
-            let bladeContainer = new THREE.Group();
-            let swordGeo = new THREE.BoxGeometry(0.18, 0.1, 2.8);
-            let swordMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: color, emissiveIntensity: 0.6, metalness: 0.9, roughness: 0.1 });
-            let sword = new THREE.Mesh(swordGeo, swordMat);
-            sword.position.z = 1.4;
-            bladeContainer.add(sword);
-
-            let tipGeo = new THREE.ConeGeometry(0.12, 0.6, 4);
-            let tipMat = new THREE.MeshStandardMaterial({ color: color, emissive: color, emissiveIntensity: 0.8 });
-            let tip = new THREE.Mesh(tipGeo, tipMat);
-            tip.rotation.x = Math.PI / 2;
-            tip.position.z = 2.9;
-            bladeContainer.add(tip);
-
-            return bladeContainer;
-        }
-
-        function updateHeroBlades(hero) {
+        function updateBlades(hero) {
             hero.blades.forEach(b => hero.bladeGroup.remove(b));
             hero.blades = [];
-            for (let i = 0; i < hero.count; i++) {
-                let blade = createBladeMesh(hero.color);
+            for(let i = 0; i < hero.bladesCount; i++) {
+                const bladeGeo = new THREE.BoxGeometry(0.2, 0.1, 2.2);
+                const bladeMat = new THREE.MeshBasicMaterial({ color: hero.color });
+                const blade = new THREE.Mesh(bladeGeo, bladeMat);
                 hero.bladeGroup.add(blade);
                 hero.blades.push(blade);
             }
         }
 
-        // GELİŞMİŞ YEM KÜPLERİ (Çift Katmanlı Işıltılı Kristaller)
         function spawnCrystals() {
-            crystals.forEach(c => scene.remove(c.mesh));
+            crystals.forEach(c => scene.remove(c));
             crystals = [];
-            for (let i = 0; i < 100; i++) {
-                let group = new THREE.Group();
-                let inner = new THREE.Mesh(new THREE.OctahedronGeometry(0.55), new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00f0ff, emissiveIntensity: 0.8 }));
-                let outer = new THREE.Mesh(new THREE.OctahedronGeometry(0.8), new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true, transparent: true, opacity: 0.5 }));
-                group.add(inner);
-                group.add(outer);
-
-                let x = (Math.random() - 0.5) * 260;
-                let z = (Math.random() - 0.5) * 260;
-                group.position.set(x, 0.8, z);
-
-                scene.add(group);
-                crystals.push({ mesh: group, x, z, inner, outer, rotSpeed: Math.random() * 0.04 + 0.02 });
+            for(let i = 0; i < 80; i++) {
+                const geo = new THREE.OctahedronGeometry(0.5);
+                const mat = new THREE.MeshBasicMaterial({ color: 0x00f0ff });
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.set((Math.random() - 0.5) * 220, 0.5, (Math.random() - 0.5) * 220);
+                scene.add(mesh);
+                crystals.push(mesh);
             }
-        }
-
-        function createSingleBot() {
-            let name = BOT_NAMES[Math.floor(Math.random() * BOT_NAMES.length)];
-            let color = Math.random() * 0xffffff;
-            let bot = createHero(color, false, name);
-            bot.count = Math.floor(Math.random() * 3) + 2;
-            updateHeroBlades(bot);
-            return bot;
         }
 
         function spawnBots() {
             bots.forEach(b => scene.remove(b.group));
             bots = [];
-            for (let i = 0; i < 6; i++) {
-                bots.push(createSingleBot());
-            }
-        }
-
-        function respawnBot(botIndex) {
-            scene.remove(bots[botIndex].group);
-            bots[botIndex] = createSingleBot();
+            const names = ["Slasher", "CyberBlade", "Vortex", "ShadowMaster", "MechaX"];
+            names.forEach(name => {
+                let bot = createHero(Math.random() * 0xffffff, false);
+                bot.name = name;
+                updateBlades(bot);
+                bots.push(bot);
+            });
         }
 
         function startGame() {
-            initAudio();
             document.getElementById('lobby-ui').style.display = 'none';
-            document.getElementById('gameover-overlay').style.display = 'none';
             document.getElementById('game-hud').style.display = 'flex';
-            document.getElementById('virtual-joystick').style.display = 'block';
-            document.getElementById('canvas-container').style.pointerEvents = 'auto';
+            document.getElementById('joystick-base').style.display = 'block';
 
-            GameState.score = 0;
-            GameState.isPlaying = true;
+            State.score = 0;
+            State.hp = 100;
+            State.blades = 2;
+            State.isPlaying = true;
 
-            if (playerHero) scene.remove(playerHero.group);
-            playerHero = createHero(GameState.selectedSkinColor, true);
-            playerHero.x = 0; playerHero.z = 0;
+            if(player) scene.remove(player.group);
+            player = createHero(State.selectedColor, true);
+            player.x = 0; player.z = 0;
+            updateBlades(player);
 
             spawnCrystals();
             spawnBots();
         }
 
         function returnToLobby() {
-            GameState.isPlaying = false;
+            State.isPlaying = false;
             document.getElementById('game-hud').style.display = 'none';
-            document.getElementById('virtual-joystick').style.display = 'none';
-            document.getElementById('canvas-container').style.pointerEvents = 'none';
+            document.getElementById('gameover-modal').style.display = 'none';
+            document.getElementById('joystick-base').style.display = 'none';
             document.getElementById('lobby-ui').style.display = 'flex';
-            if (playerHero) scene.remove(playerHero.group);
-            bots.forEach(b => scene.remove(b.group));
-            crystals.forEach(c => scene.remove(c.mesh));
         }
 
-        function gameOver() {
-            GameState.isPlaying = false;
-            playSound('crash');
-            GameState.gamesPlayed++;
+        function setupJoystick() {
+            const base = document.getElementById('joystick-base');
+            const stick = document.getElementById('joystick-stick');
+            let active = false, center = { x: 0, y: 0 };
 
-            let earnedCoins = Math.floor(GameState.score / 10);
-            GameState.coins += earnedCoins;
-            document.getElementById('lobby-coins').innerText = GameState.coins;
-
-            if (GameState.score > GameState.highScore) {
-                GameState.highScore = GameState.score;
-                document.getElementById('high-score-val').innerText = GameState.highScore.toLocaleString();
-            }
-            
-            if (GameState.gamesPlayed >= 2 && !GameState.questClaimed) {
-                const claimBtn = document.getElementById('claim-quest-btn');
-                claimBtn.disabled = false;
-                claimBtn.classList.remove('bg-gray-600', 'opacity-50', 'cursor-not-allowed');
-                claimBtn.classList.add('bg-green-600', 'interactive');
-                claimBtn.innerText = "ÖDÜLÜ AL (300 🪙)";
-                document.getElementById('quest-progress-text').innerText = "İlerleme: 2/2 (Tamamlandı!)";
-            }
-
-            document.getElementById('game-hud').style.display = 'none';
-            document.getElementById('virtual-joystick').style.display = 'none';
-            document.getElementById('canvas-container').style.pointerEvents = 'none';
-            document.getElementById('gameover-score').innerText = `Toplam Güç: ${GameState.score}`;
-            document.getElementById('gameover-coins').innerText = `Kazanılan Altın: +${earnedCoins} 🪙`;
-            document.getElementById('gameover-overlay').style.display = 'flex';
-        }
-
-        function updateLeaderboardUI() {
-            let list = [{ name: GameState.playerName, score: GameState.score }];
-            bots.forEach(b => list.push({ name: b.name, score: b.count * 300 }));
-            list.sort((a, b) => b.score - a.score);
-
-            let html = "";
-            list.forEach((p, idx) => {
-                if (idx < 5) {
-                    html += `<div class="flex justify-between ${p.name === GameState.playerName ? 'text-yellow-300 font-bold' : ''}"><span>${idx+1}. ${p.name}</span><span>${p.score}</span></div>`;
-                }
+            base.addEventListener('pointerdown', e => {
+                active = true;
+                let rect = base.getBoundingClientRect();
+                center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
             });
-            document.getElementById('leaderboard-container').innerHTML = html;
+
+            window.addEventListener('pointermove', e => {
+                if(!active) return;
+                let dx = e.clientX - center.x;
+                let dy = e.clientY - center.y;
+                let dist = Math.hypot(dx, dy);
+                let max = 40;
+                if(dist > max) { dx = (dx / dist) * max; dy = (dy / dist) * max; }
+                stick.style.transform = `translate(${dx}px, ${dy}px)`;
+                
+                // DÜZELTİLDİ: Yönler tam doğru eksende!
+                joystick.x = dx / max;
+                joystick.y = dy / max;
+            });
+
+            window.addEventListener('pointerup', () => {
+                active = false;
+                joystick.x = 0; joystick.y = 0;
+                stick.style.transform = `translate(0px, 0px)`;
+            });
         }
 
-        function animateGameLoop() {
-            requestAnimationFrame(animateGameLoop);
+        function loop() {
+            requestAnimationFrame(loop);
 
-            if (GameState.isPlaying && playerHero) {
-                let speed = 0.38;
-                playerHero.x += joystickVector.x * speed;
-                playerHero.z += joystickVector.y * speed;
+            if(State.isPlaying && player) {
+                // Movement
+                let speed = 0.35;
+                player.x += joystick.x * speed;
+                player.z += joystick.y * speed;
+                player.group.position.set(player.x, 0, player.z);
 
-                playerHero.x = Math.max(-150, Math.min(150, playerHero.x));
-                playerHero.z = Math.max(-150, Math.min(150, playerHero.z));
-
-                playerHero.group.position.set(playerHero.x, 0, playerHero.z);
-
-                // Yön Dönüşü
-                if (joystickVector.x !== 0 || joystickVector.y !== 0) {
-                    let angle = Math.atan2(joystickVector.x, joystickVector.y);
-                    playerHero.group.rotation.y = angle;
-                }
-
-                playerHero.bladeGroup.rotation.y += 0.12;
-                playerHero.blades.forEach((b, idx) => {
-                    let angle = (idx / playerHero.count) * Math.PI * 2;
-                    b.position.set(Math.cos(angle) * 2.6, 0, Math.sin(angle) * 2.6);
-                    b.rotation.y = -angle;
+                // Blade Rotation
+                player.bladeGroup.rotation.y += 0.08;
+                player.blades.forEach((b, idx) => {
+                    let angle = (idx / player.bladesCount) * Math.PI * 2;
+                    b.position.set(Math.cos(angle) * 2.4, 0, Math.sin(angle) * 2.4);
                 });
 
-                // Kamera Takibi
-                camera.position.x += (playerHero.x - camera.position.x) * 0.1;
-                camera.position.z += (playerHero.z + 18 - camera.position.z) * 0.1;
-                camera.lookAt(playerHero.x, 0, playerHero.z);
+                // Camera Tracking
+                camera.position.x += (player.x - camera.position.x) * 0.1;
+                camera.position.z += (player.z + 16 - camera.position.z) * 0.1;
+                camera.lookAt(player.x, 0, player.z);
 
-                // YEM KÜPLERİ TOPLAMA (+30 Güç/Skor)
-                for (let i = crystals.length - 1; i >= 0; i--) {
+                // Yem Küpleri (+30 Güç/Skor)
+                for(let i = crystals.length - 1; i >= 0; i--) {
                     let c = crystals[i];
-                    c.mesh.rotation.y += c.rotSpeed;
-                    c.outer.rotation.x += 0.01;
-                    c.mesh.position.y = 0.8 + Math.sin(Date.now() * 0.003 + i) * 0.2;
-
-                    if (playerHero.group.position.distanceTo(c.mesh.position) < 2.4) {
-                        playSound('eat');
-                        scene.remove(c.mesh);
+                    c.rotation.y += 0.04;
+                    if(player.group.position.distanceTo(c.position) < 2.0) {
+                        scene.remove(c);
                         crystals.splice(i, 1);
-                        
-                        // +30 GÜÇ VE SKOR
-                        GameState.score += 30;
+                        State.score += 30; // Tam +30 güç!
 
-                        if (GameState.score % 300 === 0 && playerHero.count < 12) {
-                            playerHero.count++;
-                            updateHeroBlades(playerHero);
+                        if(State.score % 150 === 0 && player.bladesCount < 10) {
+                            player.bladesCount++;
+                            updateBlades(player);
                         }
 
-                        // Yeni Kristal Doğur
-                        let group = new THREE.Group();
-                        let inner = new THREE.Mesh(new THREE.OctahedronGeometry(0.55), new THREE.MeshStandardMaterial({ color: 0x00ffff, emissive: 0x00f0ff, emissiveIntensity: 0.8 }));
-                        let outer = new THREE.Mesh(new THREE.OctahedronGeometry(0.8), new THREE.MeshBasicMaterial({ color: 0xa855f7, wireframe: true, transparent: true, opacity: 0.5 }));
-                        group.add(inner); group.add(outer);
-                        let x = (Math.random() - 0.5) * 260;
-                        let z = (Math.random() - 0.5) * 260;
-                        group.position.set(x, 0.8, z);
-                        scene.add(group);
-                        crystals.push({ mesh: group, x, z, inner, outer, rotSpeed: Math.random() * 0.04 + 0.02 });
+                        // Respawn Crystal
+                        let mesh = new THREE.Mesh(new THREE.OctahedronGeometry(0.5), new THREE.MeshBasicMaterial({ color: 0x00f0ff }));
+                        mesh.position.set((Math.random() - 0.5) * 220, 0.5, (Math.random() - 0.5) * 220);
+                        scene.add(mesh);
+                        crystals.push(mesh);
                     }
                 }
 
-                // AKILLI BOTLAR VE RE-SPAWN MANTIKI
+                // AI Bots Logic
                 bots.forEach((bot, idx) => {
-                    let distToPlayer = bot.group.position.distanceTo(playerHero.group.position);
-                    
-                    // Bot AI Mantığı
-                    if (distToPlayer < 40) {
-                        let angleToPlayer = Math.atan2(playerHero.x - bot.x, playerHero.z - bot.z);
-                        if (bot.count >= playerHero.count) {
-                            bot.x += Math.sin(angleToPlayer) * 0.25;
-                            bot.z += Math.cos(angleToPlayer) * 0.25;
-                        } else {
-                            bot.x -= Math.sin(angleToPlayer) * 0.22;
-                            bot.z -= Math.cos(angleToPlayer) * 0.22;
-                        }
-                    } else {
-                        bot.x += Math.sin(Date.now() * 0.001 + idx) * 0.18;
-                        bot.z += Math.cos(Date.now() * 0.001 + idx) * 0.18;
-                    }
-
-                    bot.x = Math.max(-150, Math.min(150, bot.x));
-                    bot.z = Math.max(-150, Math.min(150, bot.z));
-
+                    bot.x += Math.sin(Date.now() * 0.001 + idx) * 0.15;
+                    bot.z += Math.cos(Date.now() * 0.001 + idx) * 0.15;
                     bot.group.position.set(bot.x, 0, bot.z);
-                    bot.bladeGroup.rotation.y += 0.12;
+
+                    bot.bladeGroup.rotation.y += 0.08;
                     bot.blades.forEach((b, bIdx) => {
-                        let angle = (bIdx / bot.count) * Math.PI * 2;
-                        b.position.set(Math.cos(angle) * 2.6, 0, Math.sin(angle) * 2.6);
-                        b.rotation.y = -angle;
+                        let angle = (bIdx / bot.bladesCount) * Math.PI * 2;
+                        b.position.set(Math.cos(angle) * 2.4, 0, Math.sin(angle) * 2.4);
                     });
 
-                    // Çarpışma Mantığı
-                    if (playerHero.group.position.distanceTo(bot.group.position) < 3.2) {
-                        if (playerHero.count >= bot.count) {
-                            playSound('success');
-                            GameState.score += 500;
-                            playerHero.count++;
-                            updateHeroBlades(playerHero);
-                            
-                            // BOT ÖLDÜ: Yeniden Başka Biri Olarak Doğsun (Respawn)
-                            respawnBot(idx);
-                        } else {
-                            gameOver();
+                    // Combat Mechanics (Tek atmaz, CAN DÜŞÜRÜR!)
+                    if(player.group.position.distanceTo(bot.group.position) < 3.0) {
+                        State.hp -= 0.5; // Kademeli can gitmesi
+                        document.getElementById('hud-hp-bar').style.width = `${State.hp}%`;
+
+                        if(State.hp <= 0) {
+                            // Player Dead
+                            State.isPlaying = false;
+                            document.getElementById('killer-info').innerHTML = `Seni <span class="text-yellow-400 font-bold">${bot.name}</span> yok etti!`;
+                            document.getElementById('final-score').innerText = State.score;
+                            document.getElementById('gameover-modal').style.display = 'flex';
                         }
                     }
                 });
 
-                document.getElementById('hud-score').innerText = GameState.score;
-                document.getElementById('hud-blades').innerText = playerHero.count;
-                updateLeaderboardUI();
+                document.getElementById('hud-score').innerText = State.score;
+                document.getElementById('hud-blades').innerText = player.bladesCount;
             }
 
             renderer.render(scene, camera);
         }
 
-        function onWindowResize() {
+        function onResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -761,4 +468,3 @@
     </script>
 </body>
 </html>
-```
