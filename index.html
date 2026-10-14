@@ -101,17 +101,32 @@
             transform: translate(0px, 0px);
         }
 
+        /* Reklam Alanları */
         .adsterra-banner-container {
-            width: 320px; height: 100px; background: rgba(0,0,0,0.6);
-            border: 1px dashed rgba(168, 85, 247, 0.4); border-radius: 12px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            overflow: hidden; margin: 10px auto;
+            width: 320px; height: 50px; background: rgba(0,0,0,0.3);
+            border-radius: 8px; display: flex; flex-direction: column; align-items: center;
+            justify-content: center; overflow: hidden; margin: 10px auto;
+        }
+
+        /* Lobi Altındaki Şeffaf/Görünmez Reklam Alanı */
+        .lobby-hidden-ad {
+            position: fixed; bottom: 5px; left: 50%; transform: translateX(-50%);
+            width: 320px; height: 50px; opacity: 0.02; pointer-events: auto; z-index: 5;
+            overflow: hidden;
         }
     </style>
 </head>
 <body>
 
     <div class="hexagon-bg" id="main-bg"></div>
+
+    <!-- LOBİ EN ALTINA SİZLİ BANNER (31734226) -->
+    <div class="lobby-hidden-ad" id="lobby-ad-box">
+        <script type="text/javascript">
+            atOptions = { 'key' : '31734226', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+        </script>
+        <script type="text/javascript" src="//www.highperformanceformat.com/31734226/invoke.js"></script>
+    </div>
 
     <header class="absolute top-5 right-5 z-20" id="lobby-header">
         <div class="glass-panel px-5 py-2.5 flex items-center gap-2 shadow-xl">
@@ -156,7 +171,7 @@
 
         <div class="absolute top-5 right-5 flex gap-3">
             <div class="glass-panel px-4 py-2 flex items-center gap-2">
-                <span class="text-lg">💎</span>
+                <span class="text-lg">⚡</span>
                 <span id="crystal-count" class="text-cyan-300 font-black font-mono">0</span>
             </div>
             <button onclick="returnToLobby()" class="glass-panel px-4 py-2 font-bold text-xs text-rose-400 hover:bg-rose-500/20 hud-element">ÇIKIŞ</button>
@@ -185,30 +200,29 @@
         </div>
     </div>
 
-    <!-- 20 SANİYE REKLAM VE X ÇIKIŞ EKRANI -->
+    <!-- 20 SANİYE ADSTERRA BANNER (31734226) REKLAM EKRANI -->
     <div id="ad-view-modal" class="modal-overlay flex-col" style="z-index: 2000;">
         <div class="glass-panel p-5 max-w-sm w-full text-center space-y-3 relative border-cyan-400/50">
             
-            <!-- X DÜĞMESİ (SÜRE BİTİNCE BELİRİR) -->
             <button id="ad-close-x-btn" onclick="finishAdAndRevive()" class="absolute -top-3 -right-3 w-10 h-10 bg-rose-600 hover:bg-rose-500 text-white font-black text-lg rounded-full border-2 border-white shadow-xl hidden items-center justify-center">
                 ✕
             </button>
 
             <div class="text-xs font-bold text-cyan-300" id="ad-timer-text">REKLAM İZLENİYOR: 20s</div>
 
-            <!-- ADSTERRA BANNER 31671986 -->
+            <!-- ADSTERRA BANNER 31734226 -->
             <div class="adsterra-banner-container">
                 <script type="text/javascript">
-                    atOptions = { 'key' : '31671986', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+                    atOptions = { 'key' : '31734226', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
                 </script>
-                <script type="text/javascript" src="//www.highperformanceformat.com/31671986/invoke.js"></script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/31734226/invoke.js"></script>
             </div>
 
-            <p class="text-[10px] text-gray-400">Lütfen bekleyin, süre bittiğinde sağ üstteki X butonuna basarak canlanabilirsiniz.</p>
+            <p class="text-[10px] text-gray-400">Süre dolduğunda sağ üstte açılan X butonuna basıp 2 kat güçle doğabilirsiniz.</p>
         </div>
     </div>
 
-    <!-- MODALLAR (SKIN, KOZMETIK, MAGA ZA) -->
+    <!-- MODALLAR (SKIN, KOZMETIK, MAĞAZA) -->
     <div id="skins-modal" class="modal-overlay flex-col">
         <div class="hexagon-bg"></div>
         <div class="fixed top-6 left-6 z-20 flex flex-col items-center gap-1 cursor-pointer" id="switch-arena-btn">
@@ -393,13 +407,13 @@
         window.addEventListener('mousemove', (e) => { if(isJoystickActive) handleJoystickMove(e.clientX, e.clientY); });
         window.addEventListener('mouseup', resetJoystick);
 
-        // OYUN MOTORU & 20s ADSTERRA GERİ SAYIM SİSTEMİ
+        // OYUN MOTORU
         let gameScene, gameCamera, gameRenderer;
         let isGameRunning = false;
         let playerGroup, playerBladesGroup;
         let playerPos = { x: 0, z: 0 };
-        let crystals = []; let bots = [];
-        let playerScore = 100; let crystalCollectedCount = 0;
+        let energyOrbs = []; let bots = [];
+        let playerScore = 100; let energyCollectedCount = 0;
         let adCountdownTimer = null;
         const botNames = ["CyberNinja", "BladeMaster", "ShadowX", "Vortex", "Slayer99", "NeonGhost", "Apex"];
 
@@ -407,6 +421,7 @@
             document.getElementById('lobby-container').style.display = 'none';
             document.getElementById('lobby-header').style.display = 'none';
             document.getElementById('main-bg').style.display = 'none';
+            document.getElementById('lobby-ad-box').style.display = 'none';
             document.getElementById('game-hud').style.display = 'block';
             initGameEngine(); isGameRunning = true; gameLoop();
         }
@@ -420,6 +435,7 @@
             document.getElementById('lobby-container').style.display = 'flex';
             document.getElementById('lobby-header').style.display = 'block';
             document.getElementById('main-bg').style.display = 'block';
+            document.getElementById('lobby-ad-box').style.display = 'block';
             document.getElementById('game-hud').style.display = 'none';
         }
 
@@ -428,13 +444,12 @@
             document.getElementById('death-modal').style.display = 'flex';
         }
 
-        // 20 SANİYE REKLAM SÜRECİ
         function start20sAdTimer() {
             document.getElementById('death-modal').style.display = 'none';
             document.getElementById('ad-view-modal').style.display = 'flex';
             
             let closeBtn = document.getElementById('ad-close-x-btn');
-            closeBtn.style.display = 'none'; // İlk başta gizli
+            closeBtn.style.display = 'none';
 
             let timeLeft = 20;
             let timerText = document.getElementById('ad-timer-text');
@@ -449,14 +464,14 @@
                 if(timeLeft <= 0) {
                     clearInterval(adCountdownTimer);
                     timerText.innerText = "SÜRE BİTTİ! X BUTONUNA BASARAK CANLAN";
-                    closeBtn.style.display = 'flex'; // X Butonunu göster
+                    closeBtn.style.display = 'flex';
                 }
             }, 1000);
         }
 
         function finishAdAndRevive() {
             document.getElementById('ad-view-modal').style.display = 'none';
-            playerScore *= 2; // 2 Kat Güç
+            playerScore *= 2;
             playerPos.x = (Math.random() - 0.5) * 60;
             playerPos.z = (Math.random() - 0.5) * 60;
             
@@ -471,7 +486,7 @@
         }
 
         function initGameEngine() {
-            playerPos = { x: 0, z: 0 }; playerScore = 100; crystalCollectedCount = 0;
+            playerPos = { x: 0, z: 0 }; playerScore = 100; energyCollectedCount = 0;
             const theme = arenaThemes[activeArenaIndex];
 
             gameScene = new THREE.Scene(); gameScene.background = new THREE.Color(theme.bgColor);
@@ -486,22 +501,21 @@
             gameScene.add(new THREE.AmbientLight(0xffffff, 0.9));
             let dirLight = new THREE.DirectionalLight(0xffffff, 1.8); dirLight.position.set(20, 50, 20); gameScene.add(dirLight);
 
-            // ÇİZGİSİZ ŞIK SİBER ZEMİN
+            // ZEMİN VE HALKA SINIRLARI
             let floor = new THREE.Mesh(new THREE.PlaneGeometry(220, 220), new THREE.MeshStandardMaterial({ color: theme.floorColor, roughness: 0.6, metalness: 0.4 }));
             floor.rotation.x = -Math.PI / 2; gameScene.add(floor);
 
-            // Dairesel Dış Saha Sınırı
             let ringMesh = new THREE.Mesh(new THREE.RingGeometry(95, 97, 64), new THREE.MeshBasicMaterial({ color: theme.ringColor, side: THREE.DoubleSide }));
             ringMesh.rotation.x = -Math.PI / 2; ringMesh.position.y = 0.1; gameScene.add(ringMesh);
 
-            // Yıldızlar/Parçacıklar
+            // TATLI SÜZÜLEN YILDIZ TOZLARI
             let starsGeo = new THREE.BufferGeometry();
             let starsCoords = [];
-            for(let i=0; i<300; i++) {
-                starsCoords.push((Math.random()-0.5)*200, Math.random()*2, (Math.random()-0.5)*200);
+            for(let i=0; i<250; i++) {
+                starsCoords.push((Math.random()-0.5)*180, Math.random()*1.5, (Math.random()-0.5)*180);
             }
             starsGeo.setAttribute('position', new THREE.Float32BufferAttribute(starsCoords, 3));
-            let stars = new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: theme.ringColor, size: 0.6 }));
+            let stars = new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: theme.ringColor, size: 0.5, transparent: true, opacity: 0.7 }));
             gameScene.add(stars);
 
             // Oyuncu
@@ -524,14 +538,23 @@
             playerGroup.add(playerBladesGroup); gameScene.add(playerGroup);
             updatePlayerScale();
 
-            crystals = []; for(let i=0; i<55; i++) spawnCrystal();
+            // YENİ ENERJİ ÇEKİRDEKLERİ (ORBS)
+            energyOrbs = []; for(let i=0; i<55; i++) spawnEnergyOrb();
             bots = []; for(let i=0; i<6; i++) spawnBot(i);
         }
 
-        function spawnCrystal() {
-            let c = new THREE.Mesh(new THREE.OctahedronGeometry(0.45), new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.9 }));
-            c.position.set((Math.random() - 0.5) * 160, 0.5, (Math.random() - 0.5) * 160);
-            gameScene.add(c); crystals.push(c);
+        // YENİ PARLAYAN ENERJİ ÇEKİRDEĞİ ÜRETME
+        function spawnEnergyOrb() {
+            let group = new THREE.Group();
+            let core = new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 16), new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.9 }));
+            let ring = new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.04, 8, 24), new THREE.MeshBasicMaterial({ color: 0x00f0ff }));
+            ring.rotation.x = Math.PI/2;
+            group.add(core); group.add(ring);
+
+            let rx = (Math.random() - 0.5) * 160; let rz = (Math.random() - 0.5) * 160;
+            group.position.set(rx, 0.5, rz);
+            gameScene.add(group);
+            energyOrbs.push({ mesh: group, ring: ring });
         }
 
         function respawnBot(b) {
@@ -606,44 +629,38 @@
             gameCamera.lookAt(playerPos.x, 0, playerPos.z);
             playerBladesGroup.rotation.y += 0.09;
 
-            crystals.forEach((c, idx) => {
-                c.rotation.y += 0.03;
-                if(Math.hypot(playerPos.x - c.position.x, playerPos.z - c.position.z) < 2.0) {
-                    gameScene.remove(c); crystals.splice(idx, 1);
-                    crystalCollectedCount++; playerScore += 25;
+            // Enerji Çekirdeklerinin Dönüşü ve Toplanması
+            energyOrbs.forEach((orb, idx) => {
+                orb.ring.rotation.z += 0.05;
+                if(Math.hypot(playerPos.x - orb.mesh.position.x, playerPos.z - orb.mesh.position.z) < 2.0) {
+                    gameScene.remove(orb.mesh); energyOrbs.splice(idx, 1);
+                    energyCollectedCount++; playerScore += 25;
                     updatePlayerScale();
-                    document.getElementById('crystal-count').innerText = crystalCollectedCount;
+                    document.getElementById('crystal-count').innerText = energyCollectedCount;
                     document.getElementById('player-score').innerText = "Skor: " + playerScore;
-                    spawnCrystal();
+                    spawnEnergyOrb();
                 }
             });
 
-            // GERÇEKÇİ BOT YAPAY ZEKASI VE KESİN GÜÇ SAVAŞI
+            // BOT YARAY ZEKASI VE SAVAŞ
             bots.forEach(b => {
                 b.blades.rotation.y += 0.08;
                 b.changeTargetTimer--;
 
-                // Akıllı Hedef Belirleme
                 if(b.changeTargetTimer <= 0) {
                     let pDist = Math.hypot(playerPos.x - b.mesh.position.x, playerPos.z - b.mesh.position.z);
-                    
-                    // Eğer oyuncu daha zayıfsa oyuncuyu avlamaya çalış
                     if(pDist < 35 && b.score > playerScore) {
                         b.targetX = playerPos.x; b.targetZ = playerPos.z;
-                    } 
-                    // Eğer oyuncu güçlüyse kaç
-                    else if(pDist < 25 && b.score <= playerScore) {
+                    } else if(pDist < 25 && b.score <= playerScore) {
                         b.targetX = b.mesh.position.x - (playerPos.x - b.mesh.position.x);
                         b.targetZ = b.mesh.position.z - (playerPos.z - b.mesh.position.z);
-                    } 
-                    // Kristalleri ara
-                    else {
-                        let nearestC = null; let minD = 999;
-                        crystals.forEach(c => {
-                            let d = Math.hypot(b.mesh.position.x - c.position.x, b.mesh.position.z - c.position.z);
-                            if(d < minD) { minD = d; nearestC = c; }
+                    } else {
+                        let nearestO = null; let minD = 999;
+                        energyOrbs.forEach(orb => {
+                            let d = Math.hypot(b.mesh.position.x - orb.mesh.position.x, b.mesh.position.z - orb.mesh.position.z);
+                            if(d < minD) { minD = d; nearestO = orb; }
                         });
-                        if(nearestC) { b.targetX = nearestC.position.x; b.targetZ = nearestC.position.z; }
+                        if(nearestO) { b.targetX = nearestO.mesh.position.x; b.targetZ = nearestO.mesh.position.z; }
                         else { b.targetX = (Math.random() - 0.5) * 140; b.targetZ = (Math.random() - 0.5) * 140; }
                     }
                     b.changeTargetTimer = 80;
@@ -652,13 +669,12 @@
                 let dx = b.targetX - b.mesh.position.x; let dz = b.targetZ - b.mesh.position.z; let d = Math.hypot(dx, dz);
                 if(d > 0.5) { b.mesh.position.x += (dx/d)*0.20; b.mesh.position.z += (dz/d)*0.20; b.mesh.rotation.y = Math.atan2(dx, dz); }
 
-                crystals.forEach((c, cIdx) => {
-                    if(Math.hypot(b.mesh.position.x - c.position.x, b.mesh.position.z - c.position.z) < 2.0) {
-                        gameScene.remove(c); crystals.splice(cIdx, 1); b.score += 25; updateBotScale(b); spawnCrystal();
+                energyOrbs.forEach((orb, oIdx) => {
+                    if(Math.hypot(b.mesh.position.x - orb.mesh.position.x, b.mesh.position.z - orb.mesh.position.z) < 2.0) {
+                        gameScene.remove(orb.mesh); energyOrbs.splice(oIdx, 1); b.score += 25; updateBotScale(b); spawnEnergyOrb();
                     }
                 });
 
-                // Botlar Arası Kapışma
                 bots.forEach(other => {
                     if(b.id !== other.id && Math.hypot(b.mesh.position.x - other.mesh.position.x, b.mesh.position.z - other.mesh.position.z) < 2.4) {
                         if(b.score >= other.score) {
@@ -668,19 +684,16 @@
                     }
                 });
 
-                // Oyuncu - Bot Savaş Mantığı (Skoru Yüksek Olan Kesin Kazanır!)
                 let pDist = Math.hypot(playerPos.x - b.mesh.position.x, playerPos.z - b.mesh.position.z);
                 let hitDistance = 2.2 * (playerGroup.scale.x * 0.5 + b.mesh.scale.x * 0.5);
                 
                 if(pDist < hitDistance) {
                     if(playerScore >= b.score) {
-                        // Oyuncu güçlü -> Bot elendi
                         playerScore += Math.floor(b.score / 2) + 50;
                         updatePlayerScale();
                         respawnBot(b);
                         document.getElementById('player-score').innerText = "Skor: " + playerScore;
                     } else {
-                        // Bot güçlü -> Oyuncu elendi
                         triggerDeathScreen();
                     }
                 }
