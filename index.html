@@ -3,15 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BladeStorm.io - Real Adsterra Monetization Edition</title>
+    <title>BladeStorm.io - Ultimate 1000+ Lines Adsterra Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-
-    <!-- ======================================================== -->
-    <!-- ADSTERRA POPUNDER / BANNER SCRIPT'INI BURAYA YAPIŞTIR   -->
-    <!-- ÖRNEK: <script type="text/javascript" src="//..."></script> -->
-    <!-- ======================================================== -->
-
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; margin: 0; padding: 0; }
         body { 
@@ -109,6 +103,13 @@
             position: absolute; pointer-events: none;
             transform: translate(0px, 0px);
         }
+
+        /* Adsterra Banner Konteynerleri */
+        .adsterra-banner-box {
+            width: 100%; min-height: 50px; background: rgba(0,0,0,0.4);
+            border: 1px dashed rgba(255,255,255,0.2); border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
     </style>
 </head>
 <body>
@@ -123,25 +124,35 @@
     </header>
 
     <main class="w-full px-5 flex flex-col items-center justify-center z-10 max-w-sm mx-auto h-screen relative" id="lobby-container">
-        <h1 class="text-5xl font-black mb-6 tracking-tighter text-center">
+        <h1 class="text-5xl font-black mb-4 tracking-tighter text-center">
             <span class="text-cyan-400">B</span><span class="text-rose-400">l</span><span class="text-emerald-400">a</span><span class="text-yellow-400">d</span><span class="text-cyan-400">e</span><span class="text-rose-400">S</span><span class="text-emerald-400">t</span><span class="text-yellow-400">o</span><span class="text-cyan-400">r</span><span class="text-rose-400">m</span><span class="text-emerald-400 font-black">.</span><span class="text-yellow-400">i</span><span class="text-cyan-400">o</span>
         </h1>
 
-        <div class="glass-panel p-6 w-full flex flex-col gap-3.5 shadow-2xl">
-            <input type="text" id="nickname-input" value="Shedx" class="w-full p-3.5 rounded-xl bg-black/50 border border-purple-400/60 text-white outline-none font-bold text-center">
+        <div class="glass-panel p-5 w-full flex flex-col gap-3 shadow-2xl">
+            <input type="text" id="nickname-input" value="Shedx" class="w-full p-3 rounded-xl bg-black/50 border border-purple-400/60 text-white outline-none font-bold text-center">
 
-            <button class="btn-play w-full py-4 text-white font-black text-xl tracking-wider flex items-center justify-center gap-3 shadow-xl" onclick="startGame()">
+            <button class="btn-play w-full py-3.5 text-white font-black text-xl tracking-wider flex items-center justify-center gap-3 shadow-xl" onclick="startGame()">
                 <span>PLAY ONLINE!</span> <span class="text-2xl">▶</span>
             </button>
             
-            <button class="btn-action w-full py-3.5 text-white font-black text-sm shadow-lg" id="open-skins">
+            <button class="btn-action w-full py-3 text-white font-black text-sm shadow-lg" id="open-skins">
                 🗡️ SKIN SEÇİMİ (3D SHOWCASE)
             </button>
 
-            <div class="grid grid-cols-3 gap-2.5 pt-1">
-                <button class="btn-action py-2.5 text-xs font-bold flex items-center justify-center gap-1" id="open-market">🛒 Mağaza</button>
-                <button class="btn-action py-2.5 text-xs font-bold flex items-center justify-center gap-1" id="open-quests">📜 Görev</button>
-                <button class="btn-action py-2.5 text-xs font-bold flex items-center justify-center gap-1" id="open-daily">🎁 Günlük</button>
+            <div class="grid grid-cols-3 gap-2 pt-1">
+                <button class="btn-action py-2 text-xs font-bold flex items-center justify-center gap-1" id="open-market">🛒 Mağaza</button>
+                <button class="btn-action py-2 text-xs font-bold flex items-center justify-center gap-1" id="open-quests">📜 Görev</button>
+                <button class="btn-action py-2 text-xs font-bold flex items-center justify-center gap-1" id="open-daily">🎁 Günlük</button>
+            </div>
+
+            <!-- ADSTERRA BANNER 1 (ID: 31671986) LOBİ ALTI -->
+            <div class="adsterra-banner-box mt-1">
+                <!-- Adsterra 31671986 Banner Entegrasyon Alanı -->
+                <script type="text/javascript">
+                    atOptions = { 'key' : '31671986', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+                </script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/31671986/invoke.js"></script>
+                <span class="text-[10px] text-gray-400">Adsterra Banner (31671986)</span>
             </div>
         </div>
     </main>
@@ -169,21 +180,30 @@
         </div>
     </div>
 
-    <!-- GERÇEK ADSTERRA REKLAM İLE DİRİLME POPUP'I -->
+    <!-- ÖLÜM VE ADSTERRA BANNER 2 (ID: 31672592) EKRANI -->
     <div id="death-modal" class="modal-overlay flex-col">
-        <div class="glass-panel p-6 max-w-sm w-full text-center space-y-4 shadow-2xl border-rose-500/50">
-            <div class="text-5xl">💀</div>
+        <div class="glass-panel p-5 max-w-sm w-full text-center space-y-3 shadow-2xl border-rose-500/50">
+            <div class="text-4xl">💀</div>
             <h2 class="text-2xl font-black text-rose-400">ELENDİN!</h2>
-            <p class="text-xs text-gray-300">Seni güçlü bir rakip avladı.</p>
+            <p class="text-xs text-gray-300">Güçlü bir rakip seni avladı.</p>
             
-            <div class="bg-black/40 p-3 rounded-xl border border-yellow-400/30 text-xs text-yellow-300 font-bold">
-                ⭐ Yeniden canlanmak istiyor musun? Reklamı izle, skorunun ve bıçaklarının **2 KAT GÜCÜYLE** hemen diril!
+            <div class="bg-black/40 p-2.5 rounded-xl border border-yellow-400/30 text-xs text-yellow-300 font-bold">
+                ⭐ Skorunun ve bıçaklarının **2 KAT GÜCÜYLE** hemen diril!
             </div>
 
-            <button class="btn-ad w-full py-3.5 text-sm flex items-center justify-center gap-2 shadow-xl" onclick="triggerAdsterraAndRevive()">
-                <span>📺 REKLAM İZLE VE 2X GÜÇLE DİRİL</span>
+            <!-- ADSTERRA BANNER 2 (ID: 31672592) ÖLÜM EKRANI -->
+            <div class="adsterra-banner-box">
+                <script type="text/javascript">
+                    atOptions = { 'key' : '31672592', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+                </script>
+                <script type="text/javascript" src="//www.highperformanceformat.com/31672592/invoke.js"></script>
+                <span class="text-[10px] text-gray-400">Adsterra Banner (31672592)</span>
+            </div>
+
+            <button class="btn-ad w-full py-3 text-xs flex items-center justify-center gap-2 shadow-xl" onclick="reviveWithDoublePower()">
+                <span>⚡ 2 KAT GÜÇLE HEMEN DİRİL</span>
             </button>
-            <button class="btn-action w-full py-2.5 text-xs font-bold" onclick="returnToLobby()">LOBİYE DÖN</button>
+            <button class="btn-action w-full py-2 text-xs font-bold" onclick="returnToLobby()">LOBİYE DÖN</button>
         </div>
     </div>
 
@@ -247,12 +267,6 @@
     
     <div id="daily-modal" class="modal-overlay"><div class="glass-panel p-6 max-w-sm w-full text-white text-center"><div class="text-5xl mb-2">🎁</div><h3 class="font-black text-xl text-yellow-400 mb-2">GÜNLÜK ÖDÜL</h3><p class="text-xs text-purple-200 mb-4">Bugünkü ücretsiz 300 altınını al!</p><button class="btn-play w-full py-3 font-black text-sm mb-2" id="claim-daily-btn" onclick="claimDaily()">300 ALTINI AL</button><button class="btn-action w-full py-2 font-bold text-xs close-modal">KAPAT</button></div></div>
     <script>
-        // ========================================================
-        // ADSTERRA DIRECT LINK URL'İNİ BURAYA YAPIŞTIR!
-        // Örnek: "https://www.highrevenuegate.com/xxxxxx"
-        // ========================================================
-        const adsterraDirectLink = "https://www.google.com"; // Buraya kendi Adsterra Direct Link adresini koy
-
         let playerCoins = 350;
         let activeSkinIndex = 0;
         let activeCosmeticType = 'crown';
@@ -397,7 +411,7 @@
         window.addEventListener('mousemove', (e) => { if(isJoystickActive) handleJoystickMove(e.clientX, e.clientY); });
         window.addEventListener('mouseup', resetJoystick);
 
-        // OYUN MOTORU & GERÇEK ADSTERRA REKLAM MANTIĞI
+        // OYUN MOTORU & 2X GÜÇLE CANLANMA MANTIĞI
         let gameScene, gameCamera, gameRenderer;
         let isGameRunning = false;
         let playerGroup, playerBladesGroup;
@@ -429,24 +443,12 @@
             document.getElementById('death-modal').style.display = 'flex';
         }
 
-        // GERÇEK ADSTERRA REKLAMINI TETİKLEME VE OYUNCUYU CANLANDIRMA
-        function triggerAdsterraAndRevive() {
-            // 1. Adsterra Reklam Linkini Yeni Sekmede Aç (Para Kazandırır)
-            if(adsterraDirectLink && adsterraDirectLink !== "") {
-                window.open(adsterraDirectLink, '_blank');
-            }
-
-            // 2. Oyuncuyu 2 Kat Güçle Oyuna Geri Döndür
+        function reviveWithDoublePower() {
             document.getElementById('death-modal').style.display = 'none';
             playerScore *= 2;
             playerPos.x = (Math.random() - 0.5) * 60;
             playerPos.z = (Math.random() - 0.5) * 60;
-
-            // Bıçak Yarıçapını Büyüt (2 Kat Güç Hissettirsin)
-            playerBladesGroup.children.forEach(b => {
-                b.scale.set(1.4, 1.4, 1.4);
-            });
-
+            playerBladesGroup.children.forEach(b => { b.scale.set(1.4, 1.4, 1.4); });
             isGameRunning = true;
             gameLoop();
         }
@@ -471,7 +473,6 @@
             floor.rotation.x = -Math.PI / 2; gameScene.add(floor);
             gameScene.add(new THREE.GridHelper(180, 60, theme.gridColor, theme.gridColor));
 
-            // Oyuncu
             playerGroup = new THREE.Group();
             let pColor = skinConfigs[activeSkinIndex].color;
             let pTex = createSkinTexture(activeSkinIndex);
@@ -505,7 +506,6 @@
             b.score = Math.floor(Math.random() * 80) + 40;
             b.skinIndex = Math.floor(Math.random() * skinConfigs.length);
             b.mesh.position.set((Math.random() - 0.5) * 140, 0, (Math.random() - 0.5) * 140);
-            
             let newColor = skinConfigs[b.skinIndex].color;
             b.mesh.children[0].material.map = createSkinTexture(b.skinIndex);
             b.mesh.children[0].material.emissive.setHex(newColor);
