@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BladeStorm.io - Unique Skins & Payment System</title>
+    <title>BladeStorm.io - Full Game Engine Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; margin: 0; padding: 0; }
         body { 
-            margin: 0; overflow-x: hidden; background: #04010a; 
+            margin: 0; overflow: hidden; background: #04010a; 
             font-family: 'Segoe UI', Roboto, system-ui, sans-serif; color: #fff;
-            min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
+            width: 100vw; height: 100vh;
         }
 
         .hexagon-bg {
@@ -85,20 +85,28 @@
         }
         
         .skin-canvas-box { width: 95px; height: 95px; pointer-events: none; }
+
+        /* OYUN İÇİ HUD / ARAYÜZ */
+        #game-hud {
+            position: fixed; inset: 0; pointer-events: none; z-index: 10; display: none;
+        }
+        .hud-element { pointer-events: auto; }
     </style>
 </head>
 <body>
 
-    <div class="hexagon-bg"></div>
+    <div class="hexagon-bg" id="main-bg"></div>
 
-    <header class="absolute top-5 right-5 z-10">
+    <!-- ÜST KISIM ALTIN GÖSTERGESİ (LOBİ) -->
+    <header class="absolute top-5 right-5 z-20" id="lobby-header">
         <div class="glass-panel px-5 py-2.5 flex items-center gap-2 shadow-xl">
             <span class="text-xl">🪙</span>
             <span id="coin-amount" class="text-yellow-400 font-black text-base font-mono">350</span>
         </div>
     </header>
 
-    <main class="w-full px-5 flex flex-col items-center justify-center z-10 max-w-sm mx-auto my-auto">
+    <!-- ANA LOBİ EKRANI -->
+    <main class="w-full px-5 flex flex-col items-center justify-center z-10 max-w-sm mx-auto h-screen relative" id="lobby-container">
         <h1 class="text-5xl font-black mb-6 tracking-tighter text-center">
             <span class="text-cyan-400">B</span><span class="text-rose-400">l</span><span class="text-emerald-400">a</span><span class="text-yellow-400">d</span><span class="text-cyan-400">e</span><span class="text-rose-400">S</span><span class="text-emerald-400">t</span><span class="text-yellow-400">o</span><span class="text-cyan-400">r</span><span class="text-rose-400">m</span><span class="text-emerald-400">.</span><span class="text-yellow-400">i</span><span class="text-cyan-400">o</span>
         </h1>
@@ -106,7 +114,7 @@
         <div class="glass-panel p-6 w-full flex flex-col gap-3.5 shadow-2xl">
             <input type="text" id="nickname-input" value="Shedx" class="w-full p-3.5 rounded-xl bg-black/50 border border-purple-400/60 text-white outline-none font-bold text-center">
 
-            <button class="btn-play w-full py-4 text-white font-black text-xl tracking-wider flex items-center justify-center gap-3 shadow-xl" onclick="alert('Oyun motoru sonraki adımda başlatılacak!')">
+            <button class="btn-play w-full py-4 text-white font-black text-xl tracking-wider flex items-center justify-center gap-3 shadow-xl" onclick="startGame()">
                 <span>PLAY ONLINE!</span> <span class="text-2xl">▶</span>
             </button>
             
@@ -121,6 +129,37 @@
             </div>
         </div>
     </main>
+
+    <!-- OYUN İÇİ HUD (SKOR & LEADERBOARD) -->
+    <div id="game-hud">
+        <!-- Skor Tablosu Sol Üst -->
+        <div class="absolute top-5 left-5 glass-panel p-4 w-52 text-xs">
+            <div class="font-black text-yellow-400 mb-2 border-b border-white/10 pb-1 flex justify-between">
+                <span>🏆 SKOR TABLOSU</span>
+                <span id="player-score" class="text-cyan-300 font-mono">Skor: 0</span>
+            </div>
+            <div id="leaderboard-list" class="space-y-1 font-mono text-gray-300">
+                <div>1. Shedx - <span id="lb-p1">0</span></div>
+                <div>2. CyberNinja - 420</div>
+                <div>3. BladeMaster - 310</div>
+                <div>4. ShadowX - 190</div>
+            </div>
+        </div>
+
+        <!-- Sağ Üst Altın / Kristal Sayacı -->
+        <div class="absolute top-5 right-5 flex gap-3">
+            <div class="glass-panel px-4 py-2 flex items-center gap-2">
+                <span class="text-lg">💎</span>
+                <span id="crystal-count" class="text-cyan-300 font-black font-mono">0</span>
+            </div>
+            <button onclick="returnToLobby()" class="glass-panel px-4 py-2 font-bold text-xs text-rose-400 hover:bg-rose-500/20 hud-element">ÇIKIŞ</button>
+        </div>
+
+        <!-- Alt Orta Kontrol Bilgisi -->
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 glass-panel px-6 py-2 text-center text-xs text-purple-200">
+            🖱️ Fareyi hareket ettirerek karakterini yönlendir, rakiplerin etrafındaki bıçaklarla onları yok et!
+        </div>
+    </div>
 
     <!-- SKİN SEÇİMİ EKRANI -->
     <div id="skins-modal" class="modal-overlay flex-col">
@@ -251,7 +290,7 @@
         </div>
     </div>
 
-    <!-- KREDİ KARTIYLA ÖDEME POPUP'I (KART BİLGİSİ OLMADAN BEDAVA ALINAMAZ) -->
+    <!-- KREDİ KARTI ÖDEME MODALI -->
     <div id="payment-modal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-sm w-full text-white">
             <div class="flex justify-between items-center mb-3 border-b border-white/10 pb-2">
@@ -294,11 +333,11 @@
             <div class="space-y-3 mb-4 text-xs">
                 <div class="glass-card p-3 flex justify-between items-center">
                     <div><div class="font-bold">2 Maç Tamamla</div><div class="text-[10px] text-purple-300">Durum: 0/2 Maç</div></div>
-                    <button class="btn-play px-3 py-1 text-xs font-black opacity-50 cursor-not-allowed" disabled onclick="alert('Önce maç oynayıp görevi tamamlamalısın!')">ÖDÜLÜ AL</button>
+                    <button class="btn-play px-3 py-1 text-xs font-black opacity-50 cursor-not-allowed" disabled>ÖDÜLÜ AL</button>
                 </div>
                 <div class="glass-card p-3 flex justify-between items-center">
                     <div><div class="font-bold">5 Rakip Yok Et</div><div class="text-[10px] text-purple-300">Durum: 0/5 Rakip</div></div>
-                    <button class="btn-play px-3 py-1 text-xs font-black opacity-50 cursor-not-allowed" disabled onclick="alert('Önce maç oynayıp görevi tamamlamalısın!')">ÖDÜLÜ AL</button>
+                    <button class="btn-play px-3 py-1 text-xs font-black opacity-50 cursor-not-allowed" disabled>ÖDÜLÜ AL</button>
                 </div>
             </div>
             <button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button>
@@ -316,8 +355,10 @@
         </div>
     </div>
 
+    <!-- JAVASCRIPT: LOBİ, 3D SHOWCASE VE OYUN MOTORU -->
     <script>
         let playerCoins = 350;
+        let activeSkinIndex = 0;
         let activeCosmeticType = 'crown';
         let activeCosmeticIcon = '👑';
         let dailyClaimed = false;
@@ -425,20 +466,19 @@
                 }
                 document.querySelectorAll('.skin-option').forEach(o => o.classList.remove('active'));
                 opt.classList.add('active');
+                activeSkinIndex = parseInt(opt.getAttribute('data-id'));
             });
         });
 
-        // ÇEŞİTLENDİRİLMİŞ ÖZEL SKIN TEXTURE ÜRETİCİSİ (Kareli, Benekli, Zebra, Spiral)
+        // SKIN TEXTURE GENERATOR
         function createSkinTexture(index) {
             const canvas = document.createElement('canvas');
             canvas.width = 256; canvas.height = 128;
             const ctx = canvas.getContext('2d');
             
             if (index === 0) { 
-                // Siyan Mecha: Düz & Sade Kaplama (Desen Yok)
                 ctx.fillStyle = '#00f0ff'; ctx.fillRect(0, 0, 256, 128);
             } else if (index === 1) { 
-                // Kırmızı Öfke: Zebra Çizgileri
                 ctx.fillStyle = '#ff0055'; ctx.fillRect(0, 0, 256, 128);
                 ctx.fillStyle = '#111111';
                 for(let i=0; i<256; i+=28) { 
@@ -446,7 +486,6 @@
                     ctx.lineTo(i+28, 128); ctx.lineTo(i+14, 0); ctx.fill(); 
                 }
             } else if (index === 2) { 
-                // Zümrüt Savaşçı: Geometrik Kareli / Damalı Tahta Desen
                 ctx.fillStyle = '#10b981'; ctx.fillRect(0, 0, 256, 128);
                 ctx.fillStyle = '#042f2e';
                 for(let x=0; x<256; x+=32) {
@@ -455,7 +494,6 @@
                     }
                 }
             } else if (index === 3) { 
-                // Altın Kral: Benekli / Puantiye Desen
                 ctx.fillStyle = '#eab308'; ctx.fillRect(0, 0, 256, 128);
                 ctx.fillStyle = '#78350f';
                 for(let x=16; x<256; x+=32) {
@@ -464,7 +502,6 @@
                     }
                 }
             } else if (index === 4) { 
-                // Karanlık Hayalet: Spiral / Halka Desen
                 ctx.fillStyle = '#9333ea'; ctx.fillRect(0, 0, 256, 128);
                 ctx.fillStyle = '#2e1065';
                 for(let i=10; i<128; i+=20) { 
@@ -472,7 +509,6 @@
                     ctx.lineWidth = 6; ctx.stroke(); 
                 }
             } else if (index === 5) { 
-                // Magma Fırtınası: Yıldız & Lav Desen
                 ctx.fillStyle = '#f97316'; ctx.fillRect(0, 0, 256, 128);
                 ctx.fillStyle = '#7c2d12';
                 for(let x=20; x<256; x+=40) {
@@ -481,14 +517,13 @@
                     }
                 }
             }
-            
             const texture = new THREE.CanvasTexture(canvas);
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
             return texture;
         }
 
-        // 3D Karakter Vitrini
+        // Lobi 3D Showcase
         const skinConfigs = [
             { id: 'cs-0', index: 0, color: 0x00f0ff },
             { id: 'cs-1', index: 1, color: 0xff0055 },
@@ -566,11 +601,8 @@
 
             const skinTexture = createSkinTexture(cfg.index);
             const bodyMat = new THREE.MeshStandardMaterial({ 
-                map: skinTexture,
-                roughness: 0.2, 
-                metalness: 0.5,
-                emissive: cfg.color,
-                emissiveIntensity: 0.2
+                map: skinTexture, roughness: 0.2, metalness: 0.5,
+                emissive: cfg.color, emissiveIntensity: 0.2
             });
             const body = new THREE.Mesh(new THREE.SphereGeometry(0.7, 32, 32), bodyMat);
             characterGroup.add(body);
@@ -588,9 +620,8 @@
             const bladesGroup = new THREE.Group();
             scene.add(bladesGroup);
 
-            const bladeCount = 4;
-            for(let i = 0; i < bladeCount; i++) {
-                let angle = (i / bladeCount) * Math.PI * 2;
+            for(let i = 0; i < 4; i++) {
+                let angle = (i / 4) * Math.PI * 2;
                 let bladeMesh = new THREE.Mesh(
                     new THREE.ConeGeometry(0.14, 0.9, 12),
                     new THREE.MeshStandardMaterial({ color: 0xf3f4f6, metalness: 0.95, roughness: 0.05 })
@@ -622,6 +653,239 @@
             });
         }
         renderShowcases();
+
+
+        // ==========================================
+        // OYUN MOTORU & SAVAŞ SİSTEMİ (GAME ENGINE)
+        // ==========================================
+        let gameScene, gameCamera, gameRenderer;
+        let isGameRunning = false;
+        let playerGroup, playerBladesGroup;
+        let playerPos = { x: 0, z: 0 };
+        let targetPos = { x: 0, z: 0 };
+        let crystals = [];
+        let bots = [];
+        let playerScore = 0;
+        let crystalCollectedCount = 0;
+
+        function startGame() {
+            document.getElementById('lobby-container').style.display = 'none';
+            document.getElementById('lobby-header').style.display = 'none';
+            document.getElementById('main-bg').style.display = 'none';
+            document.getElementById('game-hud').style.display = 'block';
+
+            initGameEngine();
+            isGameRunning = true;
+            gameLoop();
+        }
+
+        function returnToLobby() {
+            isGameRunning = false;
+            if(gameRenderer && gameRenderer.domElement) {
+                gameRenderer.domElement.remove();
+            }
+            document.getElementById('lobby-container').style.display = 'flex';
+            document.getElementById('lobby-header').style.display = 'block';
+            document.getElementById('main-bg').style.display = 'block';
+            document.getElementById('game-hud').style.display = 'none';
+        }
+
+        function initGameEngine() {
+            gameScene = new THREE.Scene();
+            gameScene.background = new THREE.Color(0x060212);
+            gameScene.fog = new THREE.FogExp2(0x060212, 0.015);
+
+            gameCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+            gameCamera.position.set(0, 18, 14);
+            gameCamera.lookAt(0, 0, 0);
+
+            gameRenderer = new THREE.WebGLRenderer({ antialias: true });
+            gameRenderer.setSize(window.innerWidth, window.innerHeight);
+            gameRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.body.appendChild(gameRenderer.domElement);
+
+            // Işıklandırma
+            gameScene.add(new THREE.AmbientLight(0xffffff, 0.8));
+            let dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
+            dirLight.position.set(20, 40, 20);
+            gameScene.add(dirLight);
+
+            // Arena Zemi (Büyük Grid / Neon Grid)
+            let floorGeo = new THREE.PlaneGeometry(150, 150);
+            let floorMat = new THREE.MeshStandardMaterial({ color: 0x0c0620, roughness: 0.9, metalness: 0.1 });
+            let floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            gameScene.add(floor);
+
+            let gridHelper = new THREE.GridHelper(150, 50, 0x9333ea, 0x1e1b4b);
+            gridHelper.position.y = 0.05;
+            gameScene.add(gridHelper);
+
+            // Oyuncu Oluşturma
+            playerGroup = new THREE.Group();
+            let pColor = skinConfigs[activeSkinIndex].color;
+            let pTex = createSkinTexture(activeSkinIndex);
+            
+            let pBodyMat = new THREE.MeshStandardMaterial({ map: pTex, roughness: 0.2, metalness: 0.5, emissive: pColor, emissiveIntensity: 0.25 });
+            let pBody = new THREE.Mesh(new THREE.SphereGeometry(0.8, 32, 32), pBodyMat);
+            playerGroup.add(pBody);
+
+            let pLeftEye = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), new THREE.MeshBasicMaterial({color: 0xffffff}));
+            pLeftEye.position.set(-0.25, 0.18, 0.7);
+            let pRightEye = pLeftEye.clone();
+            pRightEye.position.x = 0.25;
+            playerGroup.add(pLeftEye); playerGroup.add(pRightEye);
+
+            playerGroup.add(createCosmeticMesh(activeCosmeticType));
+
+            playerBladesGroup = new THREE.Group();
+            for(let i = 0; i < 4; i++) {
+                let angle = (i / 4) * Math.PI * 2;
+                let blade = new THREE.Mesh(
+                    new THREE.ConeGeometry(0.18, 1.2, 12),
+                    new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.95, roughness: 0.05 })
+                );
+                blade.rotation.z = -Math.PI / 2;
+                blade.position.set(Math.cos(angle) * 1.8, 0, Math.sin(angle) * 1.8);
+                blade.rotation.y = -angle;
+                playerBladesGroup.add(blade);
+            }
+            playerGroup.add(playerBladesGroup);
+            gameScene.add(playerGroup);
+
+            // Kristalleri Üret
+            crystals = [];
+            for(let i = 0; i < 35; i++) {
+                spawnCrystal();
+            }
+
+            // Bot Rakipleri Üret
+            bots = [];
+            for(let i = 0; i < 5; i++) {
+                spawnBot();
+            }
+
+            // Fare Takibi
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('touchmove', onTouchMove);
+        }
+
+        function onMouseMove(e) {
+            if(!isGameRunning) return;
+            targetPos.x = (e.clientX / window.innerWidth) * 60 - 30;
+            targetPos.z = (e.clientY / window.innerHeight) * 60 - 30;
+        }
+
+        function onTouchMove(e) {
+            if(!isGameRunning || !e.touches[0]) return;
+            let t = e.touches[0];
+            targetPos.x = (t.clientX / window.innerWidth) * 60 - 30;
+            targetPos.z = (t.clientY / window.innerHeight) * 60 - 30;
+        }
+
+        function spawnCrystal() {
+            let geo = new THREE.OctahedronGeometry(0.35);
+            let mat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.8, roughness: 0.1 });
+            let crystal = new THREE.Mesh(geo, mat);
+            crystal.position.set((Math.random() - 0.5) * 100, 0.4, (Math.random() - 0.5) * 100);
+            gameScene.add(crystal);
+            crystals.push(crystal);
+        }
+
+        function spawnBot() {
+            let botGroup = new THREE.Group();
+            let bColor = Math.random() > 0.5 ? 0xff0055 : 0xf97316;
+            let bMat = new THREE.MeshStandardMaterial({ color: bColor, roughness: 0.2, metalness: 0.6, emissive: bColor, emissiveIntensity: 0.3 });
+            let body = new THREE.Mesh(new THREE.SphereGeometry(0.8, 16, 16), bMat);
+            botGroup.add(body);
+
+            let bBlades = new THREE.Group();
+            for(let i=0; i<4; i++) {
+                let angle = (i/4)*Math.PI*2;
+                let bm = new THREE.Mesh(new THREE.ConeGeometry(0.15, 1.0, 8), new THREE.MeshStandardMaterial({color: 0xcccccc}));
+                bm.rotation.z = -Math.PI/2;
+                bm.position.set(Math.cos(angle)*1.6, 0, Math.sin(angle)*1.6);
+                bm.rotation.y = -angle;
+                bBlades.add(bm);
+            }
+            botGroup.add(bBlades);
+
+            botGroup.position.set((Math.random() - 0.5) * 100, 0, (Math.random() - 0.5) * 100);
+            gameScene.add(botGroup);
+
+            bots.push({
+                mesh: botGroup,
+                blades: bBlades,
+                velX: (Math.random() - 0.5) * 0.15,
+                velZ: (Math.random() - 0.5) * 0.15
+            });
+        }
+
+        function gameLoop() {
+            if(!isGameRunning) return;
+            requestAnimationFrame(gameLoop);
+
+            // Oyuncu Hareketi (Yumuşak Takip)
+            playerPos.x += (targetPos.x - playerPos.x) * 0.08;
+            playerPos.z += (targetPos.z - playerPos.z) * 0.08;
+            playerGroup.position.x = playerPos.x;
+            playerGroup.position.z = playerPos.z;
+
+            // Kamera Takibi
+            gameCamera.position.x += (playerPos.x - gameCamera.position.x) * 0.08;
+            gameCamera.position.z += (playerPos.z + 14 - gameCamera.position.z) * 0.08;
+            gameCamera.lookAt(playerPos.x, 0, playerPos.z);
+
+            // Bıçak Dönüşü
+            playerBladesGroup.rotation.y += 0.08;
+
+            // Kristal Toplama Kontrolü
+            crystals.forEach((c, idx) => {
+                c.rotation.y += 0.03;
+                let dist = Math.hypot(playerPos.x - c.position.x, playerPos.z - c.position.z);
+                if(dist < 1.5) {
+                    gameScene.remove(c);
+                    crystals.splice(idx, 1);
+                    crystalCollectedCount++;
+                    playerScore += 25;
+                    document.getElementById('crystal-count').innerText = crystalCollectedCount;
+                    document.getElementById('player-score').innerText = "Skor: " + playerScore;
+                    document.getElementById('lb-p1').innerText = playerScore;
+                    spawnCrystal();
+                }
+            });
+
+            // Bot Hareketleri ve Çarpışmalar
+            bots.forEach(b => {
+                b.mesh.position.x += b.velX;
+                b.mesh.position.z += b.velZ;
+                b.blades.rotation.y += 0.06;
+
+                // Kenar Sınırı
+                if(Math.abs(b.mesh.position.x) > 65) b.velX *= -1;
+                if(Math.abs(b.mesh.position.z) > 65) b.velZ *= -1;
+
+                // Oyuncu ile Çarpışma Kontrolü
+                let pDist = Math.hypot(playerPos.x - b.mesh.position.x, playerPos.z - b.mesh.position.z);
+                if(pDist < 2.0) {
+                    // Botu yok et / respawn et
+                    b.mesh.position.x = (Math.random() - 0.5) * 80;
+                    b.mesh.position.z = (Math.random() - 0.5) * 80;
+                    playerScore += 100;
+                    document.getElementById('player-score').innerText = "Skor: " + playerScore;
+                    document.getElementById('lb-p1').innerText = playerScore;
+                }
+            });
+
+            gameRenderer.render(gameScene, gameCamera);
+        }
+
+        window.addEventListener('resize', () => {
+            if(!isGameRunning) return;
+            gameCamera.aspect = window.innerWidth / window.innerHeight;
+            gameCamera.updateProjectionMatrix();
+            gameRenderer.setSize(window.innerWidth, window.innerHeight);
+        });
     </script>
 </body>
 </html>
