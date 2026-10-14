@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BladeStorm.io - Dynamic Cosmetics Edition</title>
+    <title>BladeStorm.io - Fixed Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -45,6 +45,7 @@
             box-shadow: 0 8px 25px rgba(34, 197, 94, 0.55); 
             border-radius: 18px; cursor: pointer;
         }
+        .btn-play:active { transform: scale(0.96); }
 
         .btn-action { 
             background: linear-gradient(180deg, #a855f7 0%, #6b21a8 100%); 
@@ -52,6 +53,7 @@
             box-shadow: 0 6px 18px rgba(168, 85, 247, 0.45); 
             border-radius: 16px; cursor: pointer;
         }
+        .btn-action:active { transform: scale(0.95); }
 
         .btn-ok {
             background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
@@ -67,22 +69,22 @@
             display: none; align-items: center; justify-content: center; padding: 16px; 
         }
 
-        .skin-card-container {
-            width: 100%; height: 115px;
+        .skin-card-container, .cosmetic-card-container {
+            width: 100%; height: 105px;
             background: rgba(18, 20, 36, 0.75);
             border: 1.5px solid rgba(255, 255, 255, 0.12);
-            border-radius: 22px;
+            border-radius: 20px;
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 16px; cursor: pointer; transition: all 0.25s ease;
+            padding: 0 16px; cursor: pointer; transition: all 0.2s ease;
             position: relative; overflow: hidden;
         }
-        .skin-card-container.active {
+        .skin-card-container.active, .cosmetic-card-container.active {
             border-color: #00f0ff;
-            box-shadow: 0 0 25px rgba(0, 240, 255, 0.45);
-            background: rgba(0, 240, 255, 0.09);
+            box-shadow: 0 0 22px rgba(0, 240, 255, 0.4);
+            background: rgba(0, 240, 255, 0.08);
         }
         
-        .skin-canvas-box { width: 110px; height: 110px; pointer-events: none; }
+        .skin-canvas-box { width: 95px; height: 95px; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -120,7 +122,7 @@
         </div>
     </main>
 
-    <!-- SKİN SEÇİM EKRANI -->
+    <!-- SKİN SEÇİMİ EKRANI -->
     <div id="skins-modal" class="modal-overlay flex-col">
         <div class="hexagon-bg"></div>
 
@@ -135,7 +137,6 @@
         </div>
 
         <div class="z-10 w-full max-w-sm px-4 flex flex-col gap-3.5 max-h-[72vh] overflow-y-auto pt-16 pb-20">
-            
             <div class="skin-card-container active skin-option" data-color="0x00f0ff" data-price="0">
                 <div class="flex flex-col text-left">
                     <span class="font-black text-sm text-cyan-400">Siyan Mecha</span>
@@ -144,7 +145,6 @@
                 </div>
                 <div class="skin-canvas-box" id="cs-1"></div>
             </div>
-
             <div class="skin-card-container skin-option" data-color="0xff0055" data-price="500">
                 <div class="flex flex-col text-left">
                     <span class="font-black text-sm text-rose-500">Kırmızı Öfke</span>
@@ -153,16 +153,14 @@
                 </div>
                 <div class="skin-canvas-box" id="cs-2"></div>
             </div>
-
             <div class="skin-card-container skin-option" data-color="0x10b981" data-price="800">
                 <div class="flex flex-col text-left">
                     <span class="font-black text-sm text-emerald-400">Zümrüt Savaşçı</span>
-                    <span class="text-[10px] text-gray-400">4 Bio Blades & Ring Effect</span>
+                    <span class="text-[10px] text-gray-400">4 Bio Blades</span>
                     <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 800 Altın</span>
                 </div>
                 <div class="skin-canvas-box" id="cs-3"></div>
             </div>
-
             <div class="skin-card-container skin-option" data-color="0xeab308" data-price="1200">
                 <div class="flex flex-col text-left">
                     <span class="font-black text-sm text-yellow-400">Altın Kral (VIP)</span>
@@ -171,37 +169,56 @@
                 </div>
                 <div class="skin-canvas-box" id="cs-4"></div>
             </div>
-
-            <div class="skin-card-container skin-option" data-color="0x9333ea" data-price="1500">
-                <div class="flex flex-col text-left">
-                    <span class="font-black text-sm text-purple-400">Karanlık Hayalet</span>
-                    <span class="text-[10px] text-gray-400">4 Shadow Daggers</span>
-                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 1500 Altın</span>
-                </div>
-                <div class="skin-canvas-box" id="cs-5"></div>
-            </div>
-
-            <div class="skin-card-container skin-option" data-color="0xf97316" data-price="2000">
-                <div class="flex flex-col text-left">
-                    <span class="font-black text-sm text-orange-400">Magma Fırtınası</span>
-                    <span class="text-[10px] text-gray-400">4 Flame Energy Blades</span>
-                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 2000 Altın</span>
-                </div>
-                <div class="skin-canvas-box" id="cs-6"></div>
-            </div>
-
         </div>
 
         <div class="fixed bottom-6 left-6 z-20">
-            <button class="btn-ok px-8 py-3" id="close-skins">OK</button>
+            <button class="btn-ok px-8 py-3 close-skins-btn">OK</button>
         </div>
     </div>
 
-    <!-- DİĞER MODALLAR -->
+    <!-- KOZMETİK SEÇİM MODALI (DÜZELTİLDİ VE ZENGİNLEŞTİRİLDİ) -->
+    <div id="cosmetics-modal" class="modal-overlay flex-col">
+        <div class="hexagon-bg"></div>
+        <div class="z-10 w-full max-w-sm px-4 flex flex-col gap-3.5 max-h-[75vh] overflow-y-auto pt-8 pb-20">
+            <h2 class="text-2xl font-black text-center text-cyan-400 mb-2">👑 KOZMETİK MAĞAZASI</h2>
+            
+            <div class="cosmetic-card-container active cosmetic-option" data-type="crown" data-price="0">
+                <div class="text-3xl">👑</div>
+                <div class="flex flex-col text-left flex-1 ml-3">
+                    <span class="font-black text-sm text-yellow-300">Altın Taç</span>
+                    <span class="text-[10px] text-gray-400">Kraliyet Görünümü</span>
+                    <span class="text-[10px] text-emerald-400 font-bold mt-1">✓ KULLANIMDA</span>
+                </div>
+            </div>
+
+            <div class="cosmetic-card-container cosmetic-option" data-type="halo" data-price="300">
+                <div class="text-3xl">🌟</div>
+                <div class="flex flex-col text-left flex-1 ml-3">
+                    <span class="font-black text-sm text-yellow-400">Melek Aurası</span>
+                    <span class="text-[10px] text-gray-400">Kutsal Işık Halkası</span>
+                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 300 Altın</span>
+                </div>
+            </div>
+
+            <div class="cosmetic-card-container cosmetic-option" data-type="visor" data-price="500">
+                <div class="text-3xl">🕶️</div>
+                <div class="flex flex-col text-left flex-1 ml-3">
+                    <span class="font-black text-sm text-cyan-300">Siber Gözlük</span>
+                    <span class="text-[10px] text-gray-400">Futuristik Vizör</span>
+                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 500 Altın</span>
+                </div>
+            </div>
+        </div>
+        <div class="fixed bottom-6 left-6 z-20">
+            <button class="btn-ok px-8 py-3" id="close-cosmetics">OK</button>
+        </div>
+    </div>
+
+    <!-- MAĞAZA MODALI (DÜZELTİLDİ) -->
     <div id="market-modal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-sm w-full text-white">
             <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-                <h3 class="font-black text-lg text-yellow-400">🛒 MAĞAZA</h3>
+                <h3 class="font-black text-lg text-yellow-400">🛒 ALTIN VE VIP MAĞAZASI</h3>
                 <button class="close-modal text-purple-300 font-bold text-lg">✕</button>
             </div>
             <div class="space-y-3 mb-4">
@@ -209,109 +226,160 @@
                     <div><div class="font-bold text-sm">1,000 Altın</div><div class="text-xs text-green-400">$0.49 USD</div></div>
                     <button class="btn-play px-4 py-1.5 text-xs font-black" onclick="addCoins(1000)">SATIN AL</button>
                 </div>
+                <div class="glass-card p-3 flex justify-between items-center">
+                    <div><div class="font-bold text-sm">5,000 Altın + VIP</div><div class="text-xs text-green-400">$1.99 USD</div></div>
+                    <button class="btn-play px-4 py-1.5 text-xs font-black" onclick="addCoins(5000)">SATIN AL</button>
+                </div>
             </div>
             <button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button>
         </div>
     </div>
 
+    <!-- GÖREVLER MODALI (DÜZELTİLDİ) -->
     <div id="quests-modal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-sm w-full text-white">
             <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
                 <h3 class="font-black text-lg text-yellow-400">📜 GÜNLÜK GÖREVLER</h3>
                 <button class="close-modal text-purple-300 font-bold text-lg">✕</button>
             </div>
+            <div class="space-y-3 mb-4 text-xs">
+                <div class="glass-card p-3 flex justify-between items-center">
+                    <div><div class="font-bold">2 Maç Tamamla</div><div class="text-[10px] text-purple-300">Ödül: 200 🪙</div></div>
+                    <button class="btn-play px-3 py-1 text-xs font-black" onclick="claimQuest(this, 200)">AL</button>
+                </div>
+                <div class="glass-card p-3 flex justify-between items-center">
+                    <div><div class="font-bold">5 Rakip Yok Et</div><div class="text-[10px] text-purple-300">Ödül: 500 🪙</div></div>
+                    <button class="btn-play px-3 py-1 text-xs font-black" onclick="claimQuest(this, 500)">AL</button>
+                </div>
+            </div>
             <button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button>
         </div>
     </div>
 
+    <!-- GÜNLÜK ÖDÜL MODALI (SINIRSIZ ALIM BUG'I KESİN OLARAK DÜZELTİLDİ) -->
     <div id="daily-modal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-sm w-full text-white text-center">
             <div class="text-5xl mb-2">🎁</div>
             <h3 class="font-black text-xl text-yellow-400 mb-2">GÜNLÜK ÖDÜL</h3>
-            <button class="btn-play w-full py-3 font-black text-sm mb-2" onclick="claimDaily()">300 ALTINI AL</button>
+            <p class="text-xs text-purple-200 mb-4">Bugünkü ücretsiz 300 altınını al!</p>
+            <button class="btn-play w-full py-3 font-black text-sm mb-2" id="claim-daily-btn" onclick="claimDaily()">300 ALTINI AL</button>
             <button class="btn-action w-full py-2 font-bold text-xs close-modal">KAPAT</button>
         </div>
     </div>
 
-    <!-- KOZMETİK SEÇİM MODALI -->
-    <div id="cosmetics-modal" class="modal-overlay">
-        <div class="glass-panel p-6 max-w-sm w-full text-white text-center">
-            <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-                <h3 class="font-black text-lg text-cyan-400">👑 KOZMETİK SEÇİMİ</h3>
-                <button class="close-modal text-purple-300 font-bold text-lg">✕</button>
-            </div>
-            <div class="grid grid-cols-3 gap-3 mb-4">
-                <div class="glass-card p-3 cursor-pointer cosmetic-item active-cos" data-type="crown" data-icon="👑">
-                    <div class="text-3xl mb-1">👑</div>
-                    <span class="text-[10px] font-bold">Taç</span>
-                </div>
-                <div class="glass-card p-3 cursor-pointer cosmetic-item" data-type="halo" data-icon="🌟">
-                    <div class="text-3xl mb-1">🌟</div>
-                    <span class="text-[10px] font-bold">Melek</span>
-                </div>
-                <div class="glass-card p-3 cursor-pointer cosmetic-item" data-type="visor" data-icon="🕶️">
-                    <div class="text-3xl mb-1">🕶️</div>
-                    <span class="text-[10px] font-bold">Gözlük</span>
-                </div>
-            </div>
-            <button class="btn-ok w-full py-2.5 text-xs" id="apply-cosmetic">SEÇ VE UYGULA</button>
-        </div>
-    </div>
-
-    <!-- 3D ENGINE & DYNAMIC COSMETICS LOGIC -->
     <script>
         let playerCoins = 350;
-        let activeCosmeticType = 'crown'; // 'crown', 'halo', 'visor'
+        let activeCosmeticType = 'crown';
         let activeCosmeticIcon = '👑';
+        let dailyClaimed = false;
 
         function updateCoins(amount) {
             playerCoins += amount;
             document.getElementById('coin-amount').innerText = playerCoins;
         }
 
-        function addCoins(amt) { updateCoins(amt); alert(amt + " Altın eklendi!"); }
-        function claimDaily() { updateCoins(300); alert("300 Günlük Altın Alındı!"); }
+        function addCoins(amt) {
+            updateCoins(amt);
+            alert(amt + " Altın başarıyla yüklendi!");
+            document.getElementById('market-modal').style.display = 'none';
+        }
 
+        function claimQuest(btn, reward) {
+            updateCoins(reward);
+            btn.innerText = "ALINDI";
+            btn.disabled = true;
+            btn.classList.add('opacity-50');
+            alert(reward + " Altın ödülü eklendi!");
+        }
+
+        // Günlük Ödül Kesin Çözüm: Sınırsız Alımı Engelleme
+        function claimDaily() {
+            if(dailyClaimed) {
+                alert("Bugünkü ödülü zaten aldın! Yarın tekrar bekleriz.");
+                return;
+            }
+            dailyClaimed = true;
+            updateCoins(300);
+            let btn = document.getElementById('claim-daily-btn');
+            btn.innerText = "BUGÜN ALINDI (YARIN GEL)";
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+            btn.style.cursor = "not-allowed";
+            alert("300 Günlük Altın Başarıyla Alındı!");
+            document.getElementById('daily-modal').style.display = 'none';
+        }
+
+        // Modal Geçişleri
         document.getElementById('open-skins').addEventListener('click', () => document.getElementById('skins-modal').style.display = 'flex');
-        document.getElementById('close-skins').addEventListener('click', () => document.getElementById('skins-modal').style.display = 'none');
+        document.querySelectorAll('.close-skins-btn').forEach(b => b.addEventListener('click', () => document.getElementById('skins-modal').style.display = 'none'));
+
         document.getElementById('open-market').addEventListener('click', () => document.getElementById('market-modal').style.display = 'flex');
         document.getElementById('open-quests').addEventListener('click', () => document.getElementById('quests-modal').style.display = 'flex');
         document.getElementById('open-daily').addEventListener('click', () => document.getElementById('daily-modal').style.display = 'flex');
+        
         document.getElementById('open-cosmetics').addEventListener('click', () => document.getElementById('cosmetics-modal').style.display = 'flex');
+        document.getElementById('close-cosmetics').addEventListener('click', () => document.getElementById('cosmetics-modal').style.display = 'none');
 
         document.querySelectorAll('.close-modal').forEach(b => {
             b.addEventListener('click', () => {
                 document.querySelectorAll('.modal-overlay').forEach(m => {
-                    if(m.id !== 'skins-modal') m.style.display = 'none';
+                    if(m.id !== 'skins-modal' && m.id !== 'cosmetics-modal') m.style.display = 'none';
                 });
             });
         });
 
-        // Kozmetik Seçimi İşaretleme
-        document.querySelectorAll('.cosmetic-item').forEach(item => {
-            item.addEventListener('click', () => {
-                document.querySelectorAll('.cosmetic-item').forEach(i => i.classList.remove('border-2', 'border-cyan-400'));
-                item.classList.add('border-2', 'border-cyan-400');
-                activeCosmeticType = item.getAttribute('data-type');
-                activeCosmeticIcon = item.getAttribute('data-icon');
+        // Kozmetik Seçimi İşlemi
+        document.querySelectorAll('.cosmetic-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                let price = parseInt(opt.getAttribute('data-price'));
+                if(price > 0 && playerCoins < price) {
+                    alert("Yeterli altının yok!");
+                    return;
+                }
+                if(price > 0) {
+                    updateCoins(-price);
+                    opt.setAttribute('data-price', '0');
+                    let tag = opt.querySelector('.font-bold.mt-1');
+                    if(tag) { tag.innerText = "✓ KULLANIMDA"; tag.className = "text-[10px] text-emerald-400 font-bold mt-1"; }
+                }
+                document.querySelectorAll('.cosmetic-option').forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                activeCosmeticType = opt.getAttribute('data-type');
+                
+                if(activeCosmeticType === 'crown') activeCosmeticIcon = '👑';
+                else if(activeCosmeticType === 'halo') activeCosmeticIcon = '🌟';
+                else if(activeCosmeticType === 'visor') activeCosmeticIcon = '🕶️';
+
+                document.getElementById('cosmetic-icon').innerText = activeCosmeticIcon;
+                updateAllCharacterCosmetics();
             });
         });
 
-        document.getElementById('apply-cosmetic').addEventListener('click', () => {
-            document.getElementById('cosmetic-icon').innerText = activeCosmeticIcon;
-            document.getElementById('cosmetics-modal').style.display = 'none';
-            // Tüm karakterlerin üzerindeki kozmetikleri güncelle
-            updateAllCharacterCosmetics();
+        // Skin Seçimi
+        document.querySelectorAll('.skin-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                let price = parseInt(opt.getAttribute('data-price'));
+                if(price > 0 && playerCoins < price) {
+                    alert("Yeterli altının yok!");
+                    return;
+                }
+                if(price > 0) {
+                    updateCoins(-price);
+                    opt.setAttribute('data-price', '0');
+                    let tag = opt.querySelector('.font-bold.mt-1');
+                    if(tag) { tag.innerText = "✓ KULLANIMDA"; tag.className = "text-[10px] text-emerald-400 font-bold mt-1"; }
+                }
+                document.querySelectorAll('.skin-option').forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+            });
         });
 
-        // SKIN CONFIGURATIONS
+        // 3D Karakter Vitrini ve Kozmetik Oluşturucu
         const skinConfigs = [
             { id: 'cs-1', color: 0x00f0ff },
             { id: 'cs-2', color: 0xff0055 },
             { id: 'cs-3', color: 0x10b981 },
-            { id: 'cs-4', color: 0xeab308 },
-            { id: 'cs-5', color: 0x9333ea },
-            { id: 'cs-6', color: 0xf97316 }
+            { id: 'cs-4', color: 0xeab308 }
         ];
 
         const renderersList = [];
@@ -319,14 +387,11 @@
         function createCosmeticMesh(type) {
             const group = new THREE.Group();
             if(type === 'crown') {
-                // Altın Taç
                 const baseGeo = new THREE.CylinderGeometry(0.35, 0.4, 0.2, 16);
                 const mat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.1 });
                 const base = new THREE.Mesh(baseGeo, mat);
                 base.position.y = 0.75;
                 group.add(base);
-
-                // Taç Sivri Uçları
                 for(let i = 0; i < 4; i++) {
                     let angle = (i / 4) * Math.PI * 2;
                     let spike = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.25, 4), mat);
@@ -334,7 +399,6 @@
                     group.add(spike);
                 }
             } else if(type === 'halo') {
-                // Melek Aurası (Yüzen Halka)
                 const haloGeo = new THREE.TorusGeometry(0.35, 0.05, 16, 32);
                 const haloMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
                 const halo = new THREE.Mesh(haloGeo, haloMat);
@@ -342,7 +406,6 @@
                 halo.position.y = 1.05;
                 group.add(halo);
             } else if(type === 'visor') {
-                // Siber Gözlük / Visor
                 const visorGeo = new THREE.BoxGeometry(0.65, 0.18, 0.3);
                 const visorMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.6, metalness: 0.8 });
                 const visor = new THREE.Mesh(visorGeo, visorMat);
@@ -362,12 +425,11 @@
             camera.lookAt(0, 0, 0);
 
             const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-            renderer.setSize(110, 110);
+            renderer.setSize(95, 95);
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             box.appendChild(renderer.domElement);
 
             scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-            
             const mainLight = new THREE.DirectionalLight(0xffffff, 2.0);
             mainLight.position.set(3, 8, 5);
             scene.add(mainLight);
@@ -376,7 +438,6 @@
             backLight.position.set(-2, -1, -2);
             scene.add(backLight);
 
-            // Zemin Aurası
             const ringGeo = new THREE.RingGeometry(1.0, 1.18, 32);
             const ringMat = new THREE.MeshBasicMaterial({ color: cfg.color, side: THREE.DoubleSide, transparent: true, opacity: 0.85 });
             const auraRing = new THREE.Mesh(ringGeo, ringMat);
@@ -384,11 +445,9 @@
             auraRing.position.y = -0.7;
             scene.add(auraRing);
 
-            // Karakter Grubu
             const characterGroup = new THREE.Group();
             scene.add(characterGroup);
 
-            // Gövde Küre
             const bodyMat = new THREE.MeshStandardMaterial({ 
                 color: cfg.color, roughness: 0.1, metalness: 0.9,
                 emissive: cfg.color, emissiveIntensity: 0.35
@@ -396,22 +455,16 @@
             const body = new THREE.Mesh(new THREE.SphereGeometry(0.7, 32, 32), bodyMat);
             characterGroup.add(body);
 
-            // Gözler
             const eyeGeo = new THREE.SphereGeometry(0.12, 12, 12);
             const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-            leftEye.position.set(-0.22, 0.15, 0.62);
-            characterGroup.add(leftEye);
-            const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-            rightEye.position.set(0.22, 0.15, 0.62);
-            characterGroup.add(rightEye);
+            const leftEye = new THREE.Mesh(eyeGeo, eyeMat); leftEye.position.set(-0.22, 0.15, 0.62);
+            const rightEye = new THREE.Mesh(eyeGeo, eyeMat); rightEye.position.set(0.22, 0.15, 0.62);
+            characterGroup.add(leftEye); characterGroup.add(rightEye);
 
-            // Kozmetik Yuvası
             let cosmeticContainer = new THREE.Group();
             characterGroup.add(cosmeticContainer);
             cosmeticContainer.add(createCosmeticMesh(activeCosmeticType));
 
-            // Bıçaklar
             const bladesGroup = new THREE.Group();
             scene.add(bladesGroup);
 
@@ -440,7 +493,6 @@
             });
         }
 
-        // 60 FPS HD RENDER LOOP
         function renderShowcases() {
             requestAnimationFrame(renderShowcases);
             renderersList.forEach(r => {
