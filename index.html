@@ -9,20 +9,32 @@
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; margin: 0; padding: 0; }
         body { 
-            margin: 0; overflow-x: hidden; background: #060212; 
+            margin: 0; overflow-x: hidden; background: #04010a; 
             font-family: 'Segoe UI', Roboto, system-ui, sans-serif; color: #fff;
-            min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;
+            min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center;
         }
 
-        /* Slither.io Petek Arka Plan */
+        /* Atmosferik Petek Arka Plan ve Dinamik Neon Işıklar */
         .hexagon-bg {
             position: fixed; inset: 0; z-index: 0;
-            background-color: #0d0e15;
+            background-color: #05020c;
             background-image: 
-                radial-gradient(circle at 50% 50%, rgba(30, 35, 55, 0.4) 0%, rgba(10, 11, 18, 0.95) 100%),
-                repeating-linear-gradient(60deg, rgba(255, 255, 255, 0.025) 0, rgba(255, 255, 255, 0.025) 1px, transparent 0, transparent 32px),
-                repeating-linear-gradient(120deg, rgba(255, 255, 255, 0.025) 0, rgba(255, 255, 255, 0.025) 1px, transparent 0, transparent 32px);
+                radial-gradient(circle at 50% 30%, rgba(147, 51, 234, 0.15) 0%, rgba(5, 2, 12, 0.98) 70%),
+                repeating-linear-gradient(60deg, rgba(255, 255, 255, 0.02) 0, rgba(255, 255, 255, 0.02) 1px, transparent 0, transparent 32px),
+                repeating-linear-gradient(120deg, rgba(255, 255, 255, 0.02) 0, rgba(255, 255, 255, 0.02) 1px, transparent 0, transparent 32px);
             pointer-events: none;
+        }
+
+        /* Arka Plan Hareketli Parlama Efektleri */
+        .bg-glow-orb {
+            position: fixed; width: 300px; height: 300px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, rgba(0,0,0,0) 70%);
+            z-index: 0; pointer-events: none; filter: blur(40px);
+            animation: floatOrb 8s ease-in-out infinite alternate;
+        }
+        @keyframes floatOrb {
+            0% { transform: translate(-50px, -50px); }
+            100% { transform: translate(50px, 50px); }
         }
 
         /* Glassmorphism Paneller */
@@ -38,7 +50,7 @@
             background: linear-gradient(135deg, rgba(147, 51, 234, 0.25), rgba(35, 10, 75, 0.55)); 
             border: 1px solid rgba(216, 180, 254, 0.3); 
             backdrop-filter: blur(10px); 
-            border-radius: 18px; 
+            border-radius: 16px; 
             transition: all 0.2s;
         }
 
@@ -47,7 +59,7 @@
             background: linear-gradient(180deg, #22c55e 0%, #15803d 100%); 
             border: 2.5px solid #86efac; 
             box-shadow: 0 8px 25px rgba(34, 197, 94, 0.55); 
-            border-radius: 20px; 
+            border-radius: 18px; 
             transition: transform 0.1s; 
             cursor: pointer;
         }
@@ -77,7 +89,7 @@
             display: none; align-items: center; justify-content: center; padding: 16px; 
         }
 
-        /* Skin Card Showcase Container (Optimize edilmiş şık tasarım) */
+        /* Skin Card Showcase Container */
         .skin-card-container {
             width: 100%; height: 105px;
             background: rgba(18, 20, 36, 0.7);
@@ -98,26 +110,27 @@
 <body>
 
     <div class="hexagon-bg"></div>
+    <div class="bg-glow-orb" style="top: 10%; left: 10%;"></div>
+    <div class="bg-glow-orb" style="bottom: 10%; right: 10%; background: radial-gradient(circle, rgba(0, 240, 255, 0.15) 0%, rgba(0,0,0,0) 70%);"></div>
 
-    <!-- ÜST BAR: Altın ve Skor Bilgisi -->
-    <header class="w-full p-5 flex justify-between items-center z-10 max-w-md mx-auto">
-        <div class="glass-panel px-4 py-2 flex items-center gap-2">
-            <span class="text-lg">🏆</span>
-            <span class="text-xs font-mono font-bold text-purple-200">Arena #4490</span>
-        </div>
-        <div class="glass-panel px-5 py-2.5 flex items-center gap-2 shadow-lg">
+    <!-- ÜST BAR: Sadece Altın Bakiyesi (Arena Etiketi Kaldırıldı) -->
+    <header class="absolute top-5 right-5 z-10">
+        <div class="glass-panel px-5 py-2.5 flex items-center gap-2 shadow-xl">
             <span class="text-xl">🪙</span>
             <span id="coin-amount" class="text-yellow-400 font-black text-base font-mono">350</span>
         </div>
     </header>
 
-    <!-- ANA LOBİ -->
-    <main class="w-full px-5 flex flex-col items-center justify-center z-10 max-w-md mx-auto my-auto">
-        <h1 class="text-5xl sm:text-6xl font-black mb-6 tracking-tighter text-center">
+    <!-- ANA LOBİ KARTI VE YENİ DÜZENLİ BUTONLAR -->
+    <main class="w-full px-5 flex flex-col items-center justify-center z-10 max-w-sm mx-auto my-auto">
+        
+        <!-- Logo -->
+        <h1 class="text-5xl font-black mb-6 tracking-tighter text-center">
             <span class="text-cyan-400">B</span><span class="text-rose-400">l</span><span class="text-emerald-400">a</span><span class="text-yellow-400">d</span><span class="text-cyan-400">e</span><span class="text-rose-400">S</span><span class="text-emerald-400">t</span><span class="text-yellow-400">o</span><span class="text-cyan-400">r</span><span class="text-rose-400">m</span><span class="text-emerald-400">.</span><span class="text-yellow-400">i</span><span class="text-cyan-400">o</span>
         </h1>
 
-        <div class="glass-panel p-6 w-full flex flex-col gap-4 text-center shadow-2xl">
+        <!-- Ana Menü Paneli -->
+        <div class="glass-panel p-6 w-full flex flex-col gap-3.5 shadow-2xl">
             <input type="text" id="nickname-input" value="Shedx" class="w-full p-3.5 rounded-xl bg-black/50 border border-purple-400/60 text-white outline-none font-bold text-center">
 
             <button class="btn-play w-full py-4 text-white font-black text-xl tracking-wider flex items-center justify-center gap-3 shadow-xl" onclick="alert('Oyun motoru sonraki adımda başlatılacak!')">
@@ -127,23 +140,20 @@
             <button class="btn-action w-full py-3.5 text-white font-black text-sm shadow-lg" id="open-skins">
                 🗡️ SKIN SEÇİMİ (3D SHOWCASE)
             </button>
+
+            <!-- Mağaza, Görevler ve Günlük Ödül Butonları (Yukarı Taşındı ve Entegre Edildi) -->
+            <div class="grid grid-cols-3 gap-2.5 pt-1">
+                <button class="btn-action py-2.5 text-xs font-bold flex items-center justify-center gap-1 shadow-md" id="open-market">🛒 Mağaza</button>
+                <button class="btn-action py-2.5 text-xs font-bold flex items-center justify-center gap-1 shadow-md" id="open-quests">📜 Görev</button>
+                <button class="btn-action py-2.5 text-xs font-bold flex items-center justify-center gap-1 shadow-md" id="open-daily">🎁 Günlük</button>
+            </div>
         </div>
     </main>
 
-    <!-- ALT MENÜ BUTONLARI (Market, Görevler, Günlük Ödül) -->
-    <footer class="w-full p-5 z-10 max-w-md mx-auto">
-        <div class="grid grid-cols-3 gap-3">
-            <button class="btn-action py-3.5 text-xl flex items-center justify-center shadow-xl" id="open-market">🛒 Mağaza</button>
-            <button class="btn-action py-3.5 text-xl flex items-center justify-center shadow-xl" id="open-quests">📜 Görevler</button>
-            <button class="btn-action py-3.5 text-xl flex items-center justify-center shadow-xl" id="open-daily">🎁 Günlük</button>
-        </div>
-    </footer>
-
-    <!-- SKİN SEÇİMİ EKRANI (2. Fotoğraftaki Gibi Fullscreen Vitrin) -->
+    <!-- SKİN SEÇİMİ EKRANI (Full Vitrin) -->
     <div id="skins-modal" class="modal-overlay flex-col">
         <div class="hexagon-bg"></div>
 
-        <!-- Üst Butonlar -->
         <div class="fixed top-6 left-6 z-20 flex flex-col items-center gap-1 cursor-pointer" onclick="alert('Arena değiştirme yakında!')">
             <div class="w-12 h-12 glass-panel flex items-center justify-center text-xl border border-purple-400/50">🧊</div>
             <span class="text-[10px] font-bold text-gray-300">Arena</span>
@@ -154,7 +164,6 @@
             <span class="text-[10px] font-bold text-gray-300">Cosmetic</span>
         </div>
 
-        <!-- Optimize Edilmiş 3D Skin Listesi -->
         <div class="z-10 w-full max-w-sm px-4 flex flex-col gap-3.5 max-h-[72vh] overflow-y-auto pt-16 pb-20">
             
             <div class="skin-card-container active skin-option" data-color="0x00f0ff" data-price="0">
@@ -213,7 +222,6 @@
 
         </div>
 
-        <!-- Sol Alt OK Butonu -->
         <div class="fixed bottom-6 left-6 z-20">
             <button class="btn-ok px-8 py-3" id="close-skins">OK</button>
         </div>
@@ -272,7 +280,7 @@
         </div>
     </div>
 
-    <!-- KOZMETİK SEÇİM MODALI (Çalışır durumda) -->
+    <!-- KOZMETİK SEÇİM MODALI -->
     <div id="cosmetics-modal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-sm w-full text-white text-center">
             <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
@@ -297,7 +305,7 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT & 3D OPTIMIZED RENDERER ENGINE -->
+    <!-- JAVASCRIPT & 3D RENDERER -->
     <script>
         let playerCoins = 350;
 
@@ -334,7 +342,6 @@
             }
         }
 
-        // Modal Kontrolleri
         document.getElementById('open-skins').addEventListener('click', () => document.getElementById('skins-modal').style.display = 'flex');
         document.getElementById('close-skins').addEventListener('click', () => document.getElementById('skins-modal').style.display = 'none');
 
@@ -351,7 +358,6 @@
             });
         });
 
-        // Kozmetik Seçimi
         document.querySelectorAll('.cosmetic-item').forEach(item => {
             item.addEventListener('click', () => {
                 document.querySelectorAll('.cosmetic-item').forEach(i => i.classList.remove('border-2', 'border-cyan-400'));
@@ -360,7 +366,6 @@
             });
         });
 
-        // Skin Satın Alma / Seçme Mantığı
         document.querySelectorAll('.skin-option').forEach(opt => {
             opt.addEventListener('click', () => {
                 let price = parseInt(opt.getAttribute('data-price'));
@@ -379,7 +384,6 @@
             });
         });
 
-        // Optimize Edilmiş 3D Karakter Vitrin Motoru (Yüksek Kalite Render)
         const skinConfigs = [
             { id: 'cs-1', color: 0x00f0ff },
             { id: 'cs-2', color: 0xff0055 },
@@ -405,13 +409,11 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             box.appendChild(renderer.domElement);
 
-            // Gelişmiş Optimize Aydınlatma
             scene.add(new THREE.AmbientLight(0xffffff, 0.8));
             const pointLight = new THREE.PointLight(0xffffff, 1.5, 10);
             pointLight.position.set(2, 4, 3);
             scene.add(pointLight);
 
-            // Merkez Küre (Optimize edilmiş parlak materyal)
             const bodyMat = new THREE.MeshStandardMaterial({ 
                 color: cfg.color, 
                 roughness: 0.15, 
@@ -422,7 +424,6 @@
             const body = new THREE.Mesh(new THREE.SphereGeometry(0.75, 24, 24), bodyMat);
             scene.add(body);
 
-            // Etrafında Dönen 3 Bıçak
             const bladesGroup = new THREE.Group();
             scene.add(bladesGroup);
 
@@ -440,7 +441,6 @@
             renderersList.push({ renderer, scene, camera, bladesGroup });
         });
 
-        // 60 FPS Optimize Animasyon Döngüsü
         function renderShowcases() {
             requestAnimationFrame(renderShowcases);
             renderersList.forEach(r => {
