@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BladeStorm.io - Fixed Edition</title>
+    <title>BladeStorm.io - Patterned Skins Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -137,37 +137,53 @@
         </div>
 
         <div class="z-10 w-full max-w-sm px-4 flex flex-col gap-3.5 max-h-[72vh] overflow-y-auto pt-16 pb-20">
-            <div class="skin-card-container active skin-option" data-color="0x00f0ff" data-price="0">
+            <div class="skin-card-container active skin-option" data-id="0" data-price="0">
                 <div class="flex flex-col text-left">
                     <span class="font-black text-sm text-cyan-400">Siyan Mecha</span>
-                    <span class="text-[10px] text-gray-400">4 Plasma Blades & Aura</span>
+                    <span class="text-[10px] text-gray-400">Neon Çizgili Desen</span>
                     <span class="text-[10px] text-emerald-400 font-bold mt-1">✓ KULLANIMDA</span>
+                </div>
+                <div class="skin-canvas-box" id="cs-0"></div>
+            </div>
+            <div class="skin-card-container skin-option" data-id="1" data-price="500">
+                <div class="flex flex-col text-left">
+                    <span class="font-black text-sm text-rose-500">Kırmızı Öfke</span>
+                    <span class="text-[10px] text-gray-400">Zebra Çizgili Desen</span>
+                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 500 Altın</span>
                 </div>
                 <div class="skin-canvas-box" id="cs-1"></div>
             </div>
-            <div class="skin-card-container skin-option" data-color="0xff0055" data-price="500">
+            <div class="skin-card-container skin-option" data-id="2" data-price="800">
                 <div class="flex flex-col text-left">
-                    <span class="font-black text-sm text-rose-500">Kırmızı Öfke</span>
-                    <span class="text-[10px] text-gray-400">4 Crimson Laser Blades</span>
-                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 500 Altın</span>
+                    <span class="font-black text-sm text-emerald-400">Zümrüt Savaşçı</span>
+                    <span class="text-[10px] text-gray-400">Halka Desenli</span>
+                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 800 Altın</span>
                 </div>
                 <div class="skin-canvas-box" id="cs-2"></div>
             </div>
-            <div class="skin-card-container skin-option" data-color="0x10b981" data-price="800">
+            <div class="skin-card-container skin-option" data-id="3" data-price="1200">
                 <div class="flex flex-col text-left">
-                    <span class="font-black text-sm text-emerald-400">Zümrüt Savaşçı</span>
-                    <span class="text-[10px] text-gray-400">4 Bio Blades</span>
-                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 800 Altın</span>
+                    <span class="font-black text-sm text-yellow-400">Altın Kral (VIP)</span>
+                    <span class="text-[10px] text-gray-400">Kraliyet Desenli</span>
+                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 1200 Altın</span>
                 </div>
                 <div class="skin-canvas-box" id="cs-3"></div>
             </div>
-            <div class="skin-card-container skin-option" data-color="0xeab308" data-price="1200">
+            <div class="skin-card-container skin-option" data-id="4" data-price="1500">
                 <div class="flex flex-col text-left">
-                    <span class="font-black text-sm text-yellow-400">Altın Kral (VIP)</span>
-                    <span class="text-[10px] text-gray-400">4 Heavy Gold Daggers</span>
-                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 1200 Altın</span>
+                    <span class="font-black text-sm text-purple-400">Karanlık Hayalet</span>
+                    <span class="text-[10px] text-gray-400">Mor Elektrik Desenli</span>
+                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 1500 Altın</span>
                 </div>
                 <div class="skin-canvas-box" id="cs-4"></div>
+            </div>
+            <div class="skin-card-container skin-option" data-id="5" data-price="2000">
+                <div class="flex flex-col text-left">
+                    <span class="font-black text-sm text-orange-400">Magma Fırtınası</span>
+                    <span class="text-[10px] text-gray-400">Alev Desenli</span>
+                    <span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 2000 Altın</span>
+                </div>
+                <div class="skin-canvas-box" id="cs-5"></div>
             </div>
         </div>
 
@@ -176,7 +192,7 @@
         </div>
     </div>
 
-    <!-- KOZMETİK SEÇİM MODALI (DÜZELTİLDİ VE ZENGİNLEŞTİRİLDİ) -->
+    <!-- KOZMETİK SEÇİM MODALI -->
     <div id="cosmetics-modal" class="modal-overlay flex-col">
         <div class="hexagon-bg"></div>
         <div class="z-10 w-full max-w-sm px-4 flex flex-col gap-3.5 max-h-[75vh] overflow-y-auto pt-8 pb-20">
@@ -214,7 +230,7 @@
         </div>
     </div>
 
-    <!-- MAĞAZA MODALI (DÜZELTİLDİ) -->
+    <!-- MAĞAZA MODALI (GERÇEKÇİ FİYATLANDIRMA) -->
     <div id="market-modal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-sm w-full text-white">
             <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
@@ -224,18 +240,18 @@
             <div class="space-y-3 mb-4">
                 <div class="glass-card p-3 flex justify-between items-center">
                     <div><div class="font-bold text-sm">1,000 Altın</div><div class="text-xs text-green-400">$0.49 USD</div></div>
-                    <button class="btn-play px-4 py-1.5 text-xs font-black" onclick="addCoins(1000)">SATIN AL</button>
+                    <button class="btn-play px-4 py-1.5 text-xs font-black" onclick="buyPackage(1000, '$0.49')">SATIN AL</button>
                 </div>
                 <div class="glass-card p-3 flex justify-between items-center">
                     <div><div class="font-bold text-sm">5,000 Altın + VIP</div><div class="text-xs text-green-400">$1.99 USD</div></div>
-                    <button class="btn-play px-4 py-1.5 text-xs font-black" onclick="addCoins(5000)">SATIN AL</button>
+                    <button class="btn-play px-4 py-1.5 text-xs font-black" onclick="buyPackage(5000, '$1.99')">SATIN AL</button>
                 </div>
             </div>
             <button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button>
         </div>
     </div>
 
-    <!-- GÖREVLER MODALI (DÜZELTİLDİ) -->
+    <!-- GÖREVLER MODALI (ŞARTI SAĞLAMADAN ALINAMAZ) -->
     <div id="quests-modal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-sm w-full text-white">
             <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
@@ -243,20 +259,21 @@
                 <button class="close-modal text-purple-300 font-bold text-lg">✕</button>
             </div>
             <div class="space-y-3 mb-4 text-xs">
-                <div class="glass-card p-3 flex justify-between items-center">
-                    <div><div class="font-bold">2 Maç Tamamla</div><div class="text-[10px] text-purple-300">Ödül: 200 🪙</div></div>
-                    <button class="btn-play px-3 py-1 text-xs font-black" onclick="claimQuest(this, 200)">AL</button>
+                <div class="glass-card p-3 flex justify-between items-center" id="quest-1">
+                    <div><div class="font-bold">2 Maç Tamamla</div><div class="text-[10px] text-purple-300">Durum: 0/2 Maç</div></div>
+                    <button class="btn-play px-3 py-1 text-xs font-black opacity-50 cursor-not-allowed" disabled onclick="claimQuest(this, 200, 1)">ÖDÜLÜ AL</button>
                 </div>
-                <div class="glass-card p-3 flex justify-between items-center">
-                    <div><div class="font-bold">5 Rakip Yok Et</div><div class="text-[10px] text-purple-300">Ödül: 500 🪙</div></div>
-                    <button class="btn-play px-3 py-1 text-xs font-black" onclick="claimQuest(this, 500)">AL</button>
+                <div class="glass-card p-3 flex justify-between items-center" id="quest-2">
+                    <div><div class="font-bold">5 Rakip Yok Et</div><div class="text-[10px] text-purple-300">Durum: 0/5 Rakip</div></div>
+                    <button class="btn-play px-3 py-1 text-xs font-black opacity-50 cursor-not-allowed" disabled onclick="claimQuest(this, 500, 2)">ÖDÜLÜ AL</button>
                 </div>
             </div>
+            <div class="text-[10px] text-center text-gray-400 mb-3">* Görevleri tamamlamak için çevrimiçi maçlara katılmalısın!</div>
             <button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button>
         </div>
     </div>
 
-    <!-- GÜNLÜK ÖDÜL MODALI (SINIRSIZ ALIM BUG'I KESİN OLARAK DÜZELTİLDİ) -->
+    <!-- GÜNLÜK ÖDÜL MODALI (TEK SEFERLİK) -->
     <div id="daily-modal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-sm w-full text-white text-center">
             <div class="text-5xl mb-2">🎁</div>
@@ -278,21 +295,17 @@
             document.getElementById('coin-amount').innerText = playerCoins;
         }
 
-        function addCoins(amt) {
+        function buyPackage(amt, priceStr) {
+            alert(priceStr + " ödeme simülasyonu başarılı! " + amt + " Altın hesabınıza eklendi.");
             updateCoins(amt);
-            alert(amt + " Altın başarıyla yüklendi!");
             document.getElementById('market-modal').style.display = 'none';
         }
 
-        function claimQuest(btn, reward) {
-            updateCoins(reward);
-            btn.innerText = "ALINDI";
-            btn.disabled = true;
-            btn.classList.add('opacity-50');
-            alert(reward + " Altın ödülü eklendi!");
+        function claimQuest(btn, reward, questId) {
+            // Görevler tamamlanmadan alınamaz (simülasyon koruması)
+            alert("Bu görevi henüz tamamlamadınız! Önce maçlarda gerekli şartları sağlayın.");
         }
 
-        // Günlük Ödül Kesin Çözüm: Sınırsız Alımı Engelleme
         function claimDaily() {
             if(dailyClaimed) {
                 alert("Bugünkü ödülü zaten aldın! Yarın tekrar bekleriz.");
@@ -333,7 +346,7 @@
             opt.addEventListener('click', () => {
                 let price = parseInt(opt.getAttribute('data-price'));
                 if(price > 0 && playerCoins < price) {
-                    alert("Yeterli altının yok!");
+                    alert("Yeterli altının yok! Mağazadan altın yükleyebilirsin.");
                     return;
                 }
                 if(price > 0) {
@@ -360,7 +373,7 @@
             opt.addEventListener('click', () => {
                 let price = parseInt(opt.getAttribute('data-price'));
                 if(price > 0 && playerCoins < price) {
-                    alert("Yeterli altının yok!");
+                    alert("Yeterli altının yok! Mağazadan altın yükleyebilirsin.");
                     return;
                 }
                 if(price > 0) {
@@ -374,12 +387,58 @@
             });
         });
 
-        // 3D Karakter Vitrini ve Kozmetik Oluşturucu
+        // PROCEDURAL PATTERN TEXTURE GENERATOR (Slither.io Tarzı Çizgili/Desenli Skinler)
+        function createSkinTexture(index) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256; canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            
+            if (index === 0) { // Siyan Mecha (Neon Çizgiler)
+                ctx.fillStyle = '#00f0ff'; ctx.fillRect(0, 0, 256, 128);
+                ctx.fillStyle = '#003366';
+                for(let i=0; i<256; i+=32) { ctx.fillRect(i, 0, 16, 128); }
+            } else if (index === 1) { // Kırmızı Öfke (Zebra Çizgileri)
+                ctx.fillStyle = '#ff0055'; ctx.fillRect(0, 0, 256, 128);
+                ctx.fillStyle = '#111111';
+                for(let i=0; i<256; i+=28) { 
+                    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i+14, 128); 
+                    ctx.lineTo(i+28, 128); ctx.lineTo(i+14, 0); ctx.fill(); 
+                }
+            } else if (index === 2) { // Zümrüt Savaşçı (Halkalar)
+                ctx.fillStyle = '#10b981'; ctx.fillRect(0, 0, 256, 128);
+                ctx.fillStyle = '#064e3b';
+                for(let i=0; i<128; i+=24) { 
+                    ctx.beginPath(); ctx.arc(128, 64, i, 0, Math.PI*2); 
+                    ctx.lineWidth = 10; ctx.stroke(); 
+                }
+            } else if (index === 3) { // Altın Kral (Kraliyet Blokları)
+                ctx.fillStyle = '#eab308'; ctx.fillRect(0, 0, 256, 128);
+                ctx.fillStyle = '#78350f';
+                for(let i=0; i<256; i+=40) { ctx.fillRect(i, 0, 20, 128); }
+            } else if (index === 4) { // Karanlık Hayalet (Elektrik Moru)
+                ctx.fillStyle = '#9333ea'; ctx.fillRect(0, 0, 256, 128);
+                ctx.fillStyle = '#1e1b4b';
+                for(let i=0; i<256; i+=30) { ctx.fillRect(i, 0, 12, 128); }
+            } else if (index === 5) { // Magma Fırtınası (Alev Çizgileri)
+                ctx.fillStyle = '#f97316'; ctx.fillRect(0, 0, 256, 128);
+                ctx.fillStyle = '#7c2d12';
+                for(let i=0; i<256; i+=25) { ctx.fillRect(i, 0, 12, 128); }
+            }
+            
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
+
+        // 3D Karakter Vitrini ve Desenli Kaplamalar
         const skinConfigs = [
-            { id: 'cs-1', color: 0x00f0ff },
-            { id: 'cs-2', color: 0xff0055 },
-            { id: 'cs-3', color: 0x10b981 },
-            { id: 'cs-4', color: 0xeab308 }
+            { id: 'cs-0', index: 0, color: 0x00f0ff },
+            { id: 'cs-1', index: 1, color: 0xff0055 },
+            { id: 'cs-2', index: 2, color: 0x10b981 },
+            { id: 'cs-3', index: 3, color: 0xeab308 },
+            { id: 'cs-4', index: 4, color: 0x9333ea },
+            { id: 'cs-5', index: 5, color: 0xf97316 }
         ];
 
         const renderersList = [];
@@ -448,9 +507,14 @@
             const characterGroup = new THREE.Group();
             scene.add(characterGroup);
 
+            // Desenli ve Çizgili Materyal (CanvasTexture)
+            const skinTexture = createSkinTexture(cfg.index);
             const bodyMat = new THREE.MeshStandardMaterial({ 
-                color: cfg.color, roughness: 0.1, metalness: 0.9,
-                emissive: cfg.color, emissiveIntensity: 0.35
+                map: skinTexture,
+                roughness: 0.2, 
+                metalness: 0.5,
+                emissive: cfg.color,
+                emissiveIntensity: 0.2
             });
             const body = new THREE.Mesh(new THREE.SphereGeometry(0.7, 32, 32), bodyMat);
             characterGroup.add(body);
@@ -505,3 +569,4 @@
     </script>
 </body>
 </html>
+
