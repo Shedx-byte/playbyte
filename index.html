@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BladeStorm.io - Character Polish Edition</title>
+    <title>BladeStorm.io - Dynamic Cosmetics Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -67,7 +67,6 @@
             display: none; align-items: center; justify-content: center; padding: 16px; 
         }
 
-        /* YENİLENMİŞ ULTRA DETAYLI KARAKTER KARTI */
         .skin-card-container {
             width: 100%; height: 115px;
             background: rgba(18, 20, 36, 0.75);
@@ -83,12 +82,7 @@
             background: rgba(0, 240, 255, 0.09);
         }
         
-        /* BÜYÜTÜLMÜŞ HIGH-DEF 3D CANVASES */
-        .skin-canvas-box { 
-            width: 110px; 
-            height: 110px; 
-            pointer-events: none; 
-        }
+        .skin-canvas-box { width: 110px; height: 110px; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -126,7 +120,7 @@
         </div>
     </main>
 
-    <!-- KUSURSUZ YENİLENMİŞ SKİN VITRINI -->
+    <!-- SKİN SEÇİM EKRANI -->
     <div id="skins-modal" class="modal-overlay flex-col">
         <div class="hexagon-bg"></div>
 
@@ -145,7 +139,7 @@
             <div class="skin-card-container active skin-option" data-color="0x00f0ff" data-price="0">
                 <div class="flex flex-col text-left">
                     <span class="font-black text-sm text-cyan-400">Siyan Mecha</span>
-                    <span class="text-[10px] text-gray-400">4 Plasma Blades & Neon Aura</span>
+                    <span class="text-[10px] text-gray-400">4 Plasma Blades & Aura</span>
                     <span class="text-[10px] text-emerald-400 font-bold mt-1">✓ KULLANIMDA</span>
                 </div>
                 <div class="skin-canvas-box" id="cs-1"></div>
@@ -203,7 +197,7 @@
         </div>
     </div>
 
-    <!-- MODALLAR -->
+    <!-- DİĞER MODALLAR -->
     <div id="market-modal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-sm w-full text-white">
             <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
@@ -239,19 +233,36 @@
         </div>
     </div>
 
+    <!-- KOZMETİK SEÇİM MODALI -->
     <div id="cosmetics-modal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-sm w-full text-white text-center">
             <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
                 <h3 class="font-black text-lg text-cyan-400">👑 KOZMETİK SEÇİMİ</h3>
                 <button class="close-modal text-purple-300 font-bold text-lg">✕</button>
             </div>
-            <button class="btn-ok w-full py-2.5 text-xs close-modal">SEÇ VE UYGULA</button>
+            <div class="grid grid-cols-3 gap-3 mb-4">
+                <div class="glass-card p-3 cursor-pointer cosmetic-item active-cos" data-type="crown" data-icon="👑">
+                    <div class="text-3xl mb-1">👑</div>
+                    <span class="text-[10px] font-bold">Taç</span>
+                </div>
+                <div class="glass-card p-3 cursor-pointer cosmetic-item" data-type="halo" data-icon="🌟">
+                    <div class="text-3xl mb-1">🌟</div>
+                    <span class="text-[10px] font-bold">Melek</span>
+                </div>
+                <div class="glass-card p-3 cursor-pointer cosmetic-item" data-type="visor" data-icon="🕶️">
+                    <div class="text-3xl mb-1">🕶️</div>
+                    <span class="text-[10px] font-bold">Gözlük</span>
+                </div>
+            </div>
+            <button class="btn-ok w-full py-2.5 text-xs" id="apply-cosmetic">SEÇ VE UYGULA</button>
         </div>
     </div>
 
-    <!-- HIGH-DEF 3D CHARACTER RENDERER ENGINE -->
+    <!-- 3D ENGINE & DYNAMIC COSMETICS LOGIC -->
     <script>
         let playerCoins = 350;
+        let activeCosmeticType = 'crown'; // 'crown', 'halo', 'visor'
+        let activeCosmeticIcon = '👑';
 
         function updateCoins(amount) {
             playerCoins += amount;
@@ -276,6 +287,23 @@
             });
         });
 
+        // Kozmetik Seçimi İşaretleme
+        document.querySelectorAll('.cosmetic-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.cosmetic-item').forEach(i => i.classList.remove('border-2', 'border-cyan-400'));
+                item.classList.add('border-2', 'border-cyan-400');
+                activeCosmeticType = item.getAttribute('data-type');
+                activeCosmeticIcon = item.getAttribute('data-icon');
+            });
+        });
+
+        document.getElementById('apply-cosmetic').addEventListener('click', () => {
+            document.getElementById('cosmetic-icon').innerText = activeCosmeticIcon;
+            document.getElementById('cosmetics-modal').style.display = 'none';
+            // Tüm karakterlerin üzerindeki kozmetikleri güncelle
+            updateAllCharacterCosmetics();
+        });
+
         // SKIN CONFIGURATIONS
         const skinConfigs = [
             { id: 'cs-1', color: 0x00f0ff },
@@ -288,13 +316,47 @@
 
         const renderersList = [];
 
+        function createCosmeticMesh(type) {
+            const group = new THREE.Group();
+            if(type === 'crown') {
+                // Altın Taç
+                const baseGeo = new THREE.CylinderGeometry(0.35, 0.4, 0.2, 16);
+                const mat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.9, roughness: 0.1 });
+                const base = new THREE.Mesh(baseGeo, mat);
+                base.position.y = 0.75;
+                group.add(base);
+
+                // Taç Sivri Uçları
+                for(let i = 0; i < 4; i++) {
+                    let angle = (i / 4) * Math.PI * 2;
+                    let spike = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.25, 4), mat);
+                    spike.position.set(Math.cos(angle) * 0.28, 0.9, Math.sin(angle) * 0.28);
+                    group.add(spike);
+                }
+            } else if(type === 'halo') {
+                // Melek Aurası (Yüzen Halka)
+                const haloGeo = new THREE.TorusGeometry(0.35, 0.05, 16, 32);
+                const haloMat = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+                const halo = new THREE.Mesh(haloGeo, haloMat);
+                halo.rotation.x = Math.PI / 2;
+                halo.position.y = 1.05;
+                group.add(halo);
+            } else if(type === 'visor') {
+                // Siber Gözlük / Visor
+                const visorGeo = new THREE.BoxGeometry(0.65, 0.18, 0.3);
+                const visorMat = new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.6, metalness: 0.8 });
+                const visor = new THREE.Mesh(visorGeo, visorMat);
+                visor.position.set(0, 0.15, 0.62);
+                group.add(visor);
+            }
+            return group;
+        }
+
         skinConfigs.forEach(cfg => {
             const box = document.getElementById(cfg.id);
             if(!box) return;
 
             const scene = new THREE.Scene();
-            
-            // Kamera Açıları: Yakınlaştırılmış & Yukarı Kaldırılmış
             const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 50);
             camera.position.set(0, 3.2, 3.8);
             camera.lookAt(0, 0, 0);
@@ -304,7 +366,6 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             box.appendChild(renderer.domElement);
 
-            // Gelişmiş Çift Yönlü Stüdyo Işıklandırması
             scene.add(new THREE.AmbientLight(0xffffff, 0.9));
             
             const mainLight = new THREE.DirectionalLight(0xffffff, 2.0);
@@ -315,69 +376,69 @@
             backLight.position.set(-2, -1, -2);
             scene.add(backLight);
 
-            // 1. NEON AURA HALKASI (Zemin Parlaması)
+            // Zemin Aurası
             const ringGeo = new THREE.RingGeometry(1.0, 1.18, 32);
-            const ringMat = new THREE.MeshBasicMaterial({ 
-                color: cfg.color, 
-                side: THREE.DoubleSide, 
-                transparent: true, 
-                opacity: 0.85 
-            });
+            const ringMat = new THREE.MeshBasicMaterial({ color: cfg.color, side: THREE.DoubleSide, transparent: true, opacity: 0.85 });
             const auraRing = new THREE.Mesh(ringGeo, ringMat);
             auraRing.rotation.x = Math.PI / 2;
             auraRing.position.y = -0.7;
             scene.add(auraRing);
 
-            // 2. PARLAK MERKEZ KÜRE (Karakter Gövdesi)
+            // Karakter Grubu
+            const characterGroup = new THREE.Group();
+            scene.add(characterGroup);
+
+            // Gövde Küre
             const bodyMat = new THREE.MeshStandardMaterial({ 
-                color: cfg.color, 
-                roughness: 0.1, 
-                metalness: 0.9,
-                emissive: cfg.color,
-                emissiveIntensity: 0.35
+                color: cfg.color, roughness: 0.1, metalness: 0.9,
+                emissive: cfg.color, emissiveIntensity: 0.35
             });
             const body = new THREE.Mesh(new THREE.SphereGeometry(0.7, 32, 32), bodyMat);
-            scene.add(body);
+            characterGroup.add(body);
 
-            // 3. SEVİMLİ/SİBER GÖZLER (İki Beyaz Nokta)
+            // Gözler
             const eyeGeo = new THREE.SphereGeometry(0.12, 12, 12);
             const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            
             const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
             leftEye.position.set(-0.22, 0.15, 0.62);
-            scene.add(leftEye);
-
+            characterGroup.add(leftEye);
             const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
             rightEye.position.set(0.22, 0.15, 0.62);
-            scene.add(rightEye);
+            characterGroup.add(rightEye);
 
-            // 4. GERÇEK SİVRİ 3D BIÇAKLAR / KILIÇLAR (ConeGeometry)
+            // Kozmetik Yuvası
+            let cosmeticContainer = new THREE.Group();
+            characterGroup.add(cosmeticContainer);
+            cosmeticContainer.add(createCosmeticMesh(activeCosmeticType));
+
+            // Bıçaklar
             const bladesGroup = new THREE.Group();
             scene.add(bladesGroup);
 
             const bladeCount = 4;
             for(let i = 0; i < bladeCount; i++) {
                 let angle = (i / bladeCount) * Math.PI * 2;
-                
                 let bladeMesh = new THREE.Mesh(
                     new THREE.ConeGeometry(0.14, 0.9, 12),
-                    new THREE.MeshStandardMaterial({ 
-                        color: 0xf3f4f6, 
-                        metalness: 0.95, 
-                        roughness: 0.05 
-                    })
+                    new THREE.MeshStandardMaterial({ color: 0xf3f4f6, metalness: 0.95, roughness: 0.05 })
                 );
-                
-                // Bıçağın ucu dışarı bakacak şekilde döndürme
                 bladeMesh.rotation.z = -Math.PI / 2;
                 bladeMesh.position.set(Math.cos(angle) * 1.35, 0, Math.sin(angle) * 1.35);
                 bladeMesh.rotation.y = -angle;
-
                 bladesGroup.add(bladeMesh);
             }
 
-            renderersList.push({ renderer, scene, camera, bladesGroup, auraRing });
+            renderersList.push({ renderer, scene, camera, bladesGroup, auraRing, cosmeticContainer });
         });
+
+        function updateAllCharacterCosmetics() {
+            renderersList.forEach(r => {
+                while(r.cosmeticContainer.children.length > 0) {
+                    r.cosmeticContainer.remove(r.cosmeticContainer.children[0]);
+                }
+                r.cosmeticContainer.add(createCosmeticMesh(activeCosmeticType));
+            });
+        }
 
         // 60 FPS HD RENDER LOOP
         function renderShowcases() {
