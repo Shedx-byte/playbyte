@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BladeStorm.io - Lobby</title>
+    <title>BladeStorm.io - Ultimate Skin Showcase</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; margin: 0; padding: 0; }
         body { 
@@ -13,12 +14,14 @@
             min-height: 100vh; display: flex; flex-direction: column; justify-content: space-between;
         }
 
-        /* Arka Plan Neon Izgara Efekti */
-        .bg-grid {
+        /* Slither.io Petek Arka Plan (2. Fotoğraftaki Birebir Desen) */
+        .hexagon-bg {
             position: fixed; inset: 0; z-index: 0;
-            background-image: linear-gradient(to right, rgba(168, 85, 247, 0.05) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(168, 85, 247, 0.05) 1px, transparent 1px);
-            background-size: 30px 30px;
+            background-color: #0d0e15;
+            background-image: 
+                radial-gradient(circle at 50% 50%, rgba(30, 35, 55, 0.4) 0%, rgba(10, 11, 18, 0.95) 100%),
+                repeating-linear-gradient(60deg, rgba(255, 255, 255, 0.03) 0, rgba(255, 255, 255, 0.03) 1px, transparent 0, transparent 30px),
+                repeating-linear-gradient(120deg, rgba(255, 255, 255, 0.03) 0, rgba(255, 255, 255, 0.03) 1px, transparent 0, transparent 30px);
             pointer-events: none;
         }
 
@@ -38,18 +41,28 @@
             border-radius: 18px; 
             transition: all 0.2s;
         }
-        .glass-card:hover { border-color: rgba(216, 180, 254, 0.7); transform: translateY(-2px); }
 
-        /* Butonlar */
+        /* Slither Tarzı OK Butonu (Sol Alt Corner) */
+        .btn-ok {
+            background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+            border: 2.5px solid #93c5fd;
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
+            border-radius: 14px;
+            color: #fff;
+            font-weight: 900;
+            font-size: 20px;
+            letter-spacing: 1px;
+            transition: transform 0.1s;
+        }
+        .btn-ok:active { transform: scale(0.95); }
+
         .btn-play { 
             background: linear-gradient(180deg, #22c55e 0%, #15803d 100%); 
             border: 2.5px solid #86efac; 
             box-shadow: 0 8px 25px rgba(34, 197, 94, 0.5); 
             border-radius: 20px; 
             transition: transform 0.1s; 
-            cursor: pointer;
         }
-        .btn-play:active { transform: scale(0.96); }
 
         .btn-action { 
             background: linear-gradient(180deg, #a855f7 0%, #6b21a8 100%); 
@@ -57,169 +70,215 @@
             box-shadow: 0 6px 18px rgba(168, 85, 247, 0.4); 
             border-radius: 16px; 
             transition: transform 0.1s; 
-            cursor: pointer;
         }
-        .btn-action:active { transform: scale(0.95); }
 
         .modal-overlay { 
             position: fixed; inset: 0; z-index: 1000; 
-            background: rgba(3, 1, 8, 0.92); backdrop-filter: blur(16px); 
-            display: none; align-items: center; justify-content: center; padding: 20px; 
+            display: none; align-items: center; justify-content: center;
         }
 
-        /* Üst Menü Radar / Daire Alanı */
-        .top-radar-badge {
-            width: 90px; height: 90px; border-radius: 50%;
-            background: rgba(14, 8, 32, 0.9);
-            border: 2px solid rgba(168, 85, 247, 0.5);
-            box-shadow: 0 0 15px rgba(168, 85, 247, 0.3);
-            display: flex; align-items: center; justify-content: center;
-            position: relative; overflow: hidden;
+        /* 3D Skin Showcase Container */
+        .skin-card-container {
+            width: 100%;
+            height: 110px;
+            background: rgba(18, 20, 32, 0.6);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
         }
-        .radar-dot { width: 6px; height: 6px; background: #00f0ff; border-radius: 50%; box-shadow: 0 0 8px #00f0ff; position: absolute; }
+
+        .skin-card-container.active {
+            border-color: #00f0ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
+            background: rgba(0, 240, 255, 0.08);
+        }
+
+        .skin-canvas-box {
+            width: 90px;
+            height: 90px;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
 
-    <div class="bg-grid"></div>
+    <div class="hexagon-bg"></div>
 
-    <!-- ÜST KISIM: Radar ve Altın Bakiyesi -->
-    <header class="w-full p-5 flex justify-between items-center z-10 max-w-md mx-auto">
-        <div class="top-radar-badge">
-            <div class="radar-dot" style="top: 40px; left: 45px;"></div>
-            <div class="radar-dot" style="top: 30px; left: 60px; background: #fff; width: 4px; height: 4px;"></div>
-            <div class="radar-dot" style="top: 60px; left: 30px; background: #fff; width: 4px; height: 4px;"></div>
-        </div>
-
-        <div class="glass-panel px-5 py-2.5 flex items-center gap-2 shadow-lg">
-            <span class="text-xl">🪙</span>
-            <span id="coin-amount" class="text-yellow-400 font-black text-base font-mono">150</span>
-        </div>
-    </header>
-
-    <!-- ORTA KISIM: Logo ve Ana Menü Paneli -->
-    <main class="w-full px-5 flex flex-col items-center justify-center z-10 max-w-md mx-auto my-auto">
-        <!-- Logo -->
-        <h1 class="text-5xl sm:text-6xl font-black mb-6 tracking-tighter text-center" style="font-family: 'Secular One', sans-serif;">
+    <!-- MAIN LOBBY UI -->
+    <main class="w-full px-5 flex flex-col items-center justify-center z-10 max-w-md mx-auto my-auto min-h-screen">
+        <h1 class="text-5xl font-black mb-6 tracking-tighter text-center">
             <span class="text-cyan-400">B</span><span class="text-rose-400">l</span><span class="text-emerald-400">a</span><span class="text-yellow-400">d</span><span class="text-cyan-400">e</span><span class="text-rose-400">S</span><span class="text-emerald-400">t</span><span class="text-yellow-400">o</span><span class="text-cyan-400">r</span><span class="text-rose-400">m</span><span class="text-emerald-400">.</span><span class="text-yellow-400">i</span><span class="text-cyan-400">o</span>
         </h1>
 
-        <!-- Ana Kontrol Kartı -->
         <div class="glass-panel p-6 w-full flex flex-col gap-4 text-center shadow-2xl">
-            <!-- Nickname -->
-            <div class="glass-card p-3.5 flex items-center justify-center text-white font-bold text-base tracking-wide border border-purple-400/40">
-                <span id="player-nickname">Shedx</span>
-            </div>
-
-            <!-- Server Seçici -->
-            <div class="glass-card p-3.5 flex items-center justify-between text-purple-200 font-semibold text-xs border border-purple-500/30 cursor-pointer">
-                <span>🌍 Europe Server (#4490)</span>
-                <span class="text-purple-400">▼</span>
-            </div>
-
-            <!-- Play Online Butonu -->
-            <button class="btn-play w-full py-4 text-white font-black text-xl tracking-wider flex items-center justify-center gap-3 shadow-xl" onclick="alert('Oyun motoru sonra eklenecek! Şu an kusursuz arayüz testindeyiz.')">
-                <span>PLAY ONLINE!</span>
-                <span class="text-2xl">▶</span>
+            <div class="glass-card p-3.5 text-white font-bold text-base">Shedx</div>
+            <button class="btn-play w-full py-4 text-white font-black text-xl flex items-center justify-center gap-2">
+                <span>PLAY ONLINE!</span> <span>▶</span>
             </button>
-            
-            <!-- Play vs AI Butonu -->
-            <button class="btn-action w-full py-3.5 text-white font-black text-sm shadow-lg" onclick="alert('Yapay zeka modu hazırlanıyor!')">
-                PLAY VS A.I.
+            <button class="btn-action w-full py-3.5 text-white font-black text-sm" id="open-skins">
+                🗡️ SKIN SEÇİMİ (3D SHOWCASE)
             </button>
         </div>
     </main>
 
-    <!-- ALT KISIM: 4 Temel Menü İkonu -->
-    <footer class="w-full p-5 z-10 max-w-md mx-auto">
-        <div class="grid grid-cols-4 gap-3">
-            <button class="btn-action py-4 text-2xl flex items-center justify-center shadow-xl hover:scale-105 transition" id="open-skins">🗡️</button>
-            <button class="btn-action py-4 text-2xl flex items-center justify-center shadow-xl hover:scale-105 transition" id="open-market">🛒</button>
-            <button class="btn-action py-4 text-2xl flex items-center justify-center shadow-xl hover:scale-105 transition" id="open-quests">📜</button>
-            <button class="btn-action py-4 text-2xl flex items-center justify-center shadow-xl hover:scale-105 transition" id="daily-reward-btn">🎁</button>
-        </div>
-    </footer>
+    <!-- FULLSCREEN SLITHER-STYLE 3D SKIN SELECTION SCREEN (2. Fotoğraf Birebir) -->
+    <div id="skins-modal" class="modal-overlay flex-col">
+        <div class="hexagon-bg"></div>
 
-    <!-- MODALLAR (Açılır Pencereler) -->
-    <!-- Skin Seçim Modalı -->
-    <div id="skins-modal" class="modal-overlay">
-        <div class="glass-panel p-6 max-w-sm w-full text-white">
-            <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-                <h3 class="font-black text-lg text-cyan-400">🗡️ KARAKTER SKİNLERİ</h3>
-                <button class="close-modal text-purple-300 hover:text-white font-bold text-lg">✕</button>
+        <!-- Üst İkonlar (Fotoğraftaki Arka Plan Değiştirme ve Aksesuar Butonları) -->
+        <div class="fixed top-6 left-6 z-20 flex flex-col items-center gap-1 cursor-pointer">
+            <div class="w-12 h-12 glass-panel flex items-center justify-center text-xl border border-purple-400/50">🧊</div>
+            <span class="text-[10px] font-bold text-gray-300 tracking-wider">Change Arena</span>
+        </div>
+
+        <div class="fixed top-6 right-6 z-20 flex flex-col items-center gap-1 cursor-pointer">
+            <div class="w-12 h-12 glass-panel flex items-center justify-center text-xl border border-purple-400/50">👑</div>
+            <span class="text-[10px] font-bold text-gray-300 tracking-wider">Select Cosmetic</span>
+        </div>
+
+        <!-- Orta Liste: 3D Dönen Karakterlerimiz -->
+        <div class="z-10 w-full max-w-sm px-4 flex flex-col gap-4 max-h-[75vh] overflow-y-auto pt-16 pb-20">
+            
+            <!-- Skin 1: Cyan Neon Blade -->
+            <div class="skin-card-container active skin-option" data-color="0x00f0ff" data-name="Siyan Mecha">
+                <div class="flex flex-col text-left">
+                    <span class="font-black text-sm text-cyan-400">Siyan Mecha</span>
+                    <span class="text-[10px] text-gray-400">3 Orbiting Plasma Blades</span>
+                </div>
+                <div class="skin-canvas-box" id="canvas-skin-1"></div>
             </div>
-            <div class="grid grid-cols-3 gap-3 mb-5">
-                <div class="glass-card p-3 text-center cursor-pointer border-2 border-cyan-400 skin-item">
-                    <div class="w-10 h-10 mx-auto rounded-full bg-cyan-400 mb-2 shadow-[0_0_10px_#00f0ff]"></div>
-                    <span class="text-xs font-bold">Siyan</span>
+
+            <!-- Skin 2: Crimson Rage -->
+            <div class="skin-card-container skin-option" data-color="0xff0055" data-name="Kırmızı Öfke">
+                <div class="flex flex-col text-left">
+                    <span class="font-black text-sm text-rose-500">Kırmızı Öfke</span>
+                    <span class="text-[10px] text-gray-400">3 Orbiting Laser Blades</span>
                 </div>
-                <div class="glass-card p-3 text-center cursor-pointer skin-item">
-                    <div class="w-10 h-10 mx-auto rounded-full bg-rose-500 mb-2 shadow-[0_0_10px_#ff0055]"></div>
-                    <span class="text-xs font-bold">Kırmızı</span>
-                </div>
-                <div class="glass-card p-3 text-center cursor-pointer skin-item">
-                    <div class="w-10 h-10 mx-auto rounded-full bg-emerald-500 mb-2 shadow-[0_0_10px_#10b981]"></div>
-                    <span class="text-xs font-bold">Yeşil</span>
-                </div>
+                <div class="skin-canvas-box" id="canvas-skin-2"></div>
             </div>
-            <button class="btn-play w-full py-3 font-black text-sm close-modal">KAYDET</button>
+
+            <!-- Skin 3: Emerald Warrior -->
+            <div class="skin-card-container skin-option" data-color="0x10b981" data-name="Zümrüt Savaşçı">
+                <div class="flex flex-col text-left">
+                    <span class="font-black text-sm text-emerald-400">Zümrüt Savaşçı</span>
+                    <span class="text-[10px] text-gray-400">3 Orbiting Bio Blades</span>
+                </div>
+                <div class="skin-canvas-box" id="canvas-skin-3"></div>
+            </div>
+
+            <!-- Skin 4: Gold VIP -->
+            <div class="skin-card-container skin-option" data-color="0xeab308" data-name="Altın Kral">
+                <div class="flex flex-col text-left">
+                    <span class="font-black text-sm text-yellow-400">Altın Kral (VIP)</span>
+                    <span class="text-[10px] text-gray-400">3 Orbiting Gold Blades</span>
+                </div>
+                <div class="skin-canvas-box" id="canvas-skin-4"></div>
+            </div>
+
+        </div>
+
+        <!-- Sol Alt Corner: Fotoğraftaki Birebir OK (KAYDET) Butonu -->
+        <div class="fixed bottom-6 left-6 z-20">
+            <button class="btn-ok px-8 py-3 close-modal">OK</button>
+        </div>
+
+        <!-- Sağ Alt Corner: Build Custom Blade -->
+        <div class="fixed bottom-6 right-6 z-20 flex flex-col items-center gap-1 cursor-pointer">
+            <div class="text-2xl">🌀</div>
+            <span class="text-[10px] font-bold text-cyan-300">Build a Blade</span>
         </div>
     </div>
 
-    <!-- Mağaza Modalı -->
-    <div id="market-modal" class="modal-overlay">
-        <div class="glass-panel p-6 max-w-sm w-full text-white">
-            <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-                <h3 class="font-black text-lg text-yellow-400">🛒 MAĞAZA</h3>
-                <button class="close-modal text-purple-300 hover:text-white font-bold text-lg">✕</button>
-            </div>
-            <div class="space-y-3 mb-4">
-                <div class="glass-card p-3 flex justify-between items-center">
-                    <div><div class="font-bold text-sm">1,000 Altın</div><div class="text-xs text-green-400">$0.49 USD</div></div>
-                    <button class="btn-play px-4 py-1.5 text-xs font-black">SATIN AL</button>
-                </div>
-            </div>
-            <button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button>
-        </div>
-    </div>
-
-    <!-- Görevler Modalı -->
-    <div id="quests-modal" class="modal-overlay">
-        <div class="glass-panel p-6 max-w-sm w-full text-white">
-            <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-                <h3 class="font-black text-lg text-yellow-400">📜 GÖREVLER</h3>
-                <button class="close-modal text-purple-300 hover:text-white font-bold text-lg">✕</button>
-            </div>
-            <div class="space-y-2 mb-4 text-xs font-mono">
-                <div class="glass-card p-3 flex justify-between"><span>2 Oyun Oyna</span><span class="text-yellow-400">200 🪙</span></div>
-            </div>
-            <button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button>
-        </div>
-    </div>
-
-    <!-- Günlük Ödül Modalı -->
-    <div id="daily-modal" class="modal-overlay">
-        <div class="glass-panel p-6 max-w-sm w-full text-white text-center">
-            <div class="text-5xl mb-2">🎁</div>
-            <h3 class="font-black text-xl text-yellow-400 mb-2">GÜNLÜK ÖDÜL</h3>
-            <p class="text-xs text-purple-200 mb-4">Ücretsiz 300 altınını al!</p>
-            <button class="btn-play w-full py-3 font-black text-sm mb-2" onclick="alert('Altın eklendi!'); document.getElementById('daily-modal').style.display='none';">300 ALTINI AL</button>
-            <button class="btn-action w-full py-2 font-bold text-xs close-modal">KAPAT</button>
-        </div>
-    </div>
-
-    <!-- JavaScript: Modalları Çalıştırma -->
+    <!-- 3D SHOWCASE ENGINE (Three.js Mini Renderers) -->
     <script>
-        document.getElementById('open-skins').addEventListener('click', () => document.getElementById('skins-modal').style.display = 'flex');
-        document.getElementById('open-market').addEventListener('click', () => document.getElementById('market-modal').style.display = 'flex');
-        document.getElementById('open-quests').addEventListener('click', () => document.getElementById('quests-modal').style.display = 'flex');
-        document.getElementById('daily-reward-btn').addEventListener('click', () => document.getElementById('daily-modal').style.display = 'flex');
+        document.getElementById('open-skins').addEventListener('click', () => {
+            document.getElementById('skins-modal').style.display = 'flex';
+        });
 
         document.querySelectorAll('.close-modal').forEach(b => {
             b.addEventListener('click', () => {
-                document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+                document.getElementById('skins-modal').style.display = 'none';
             });
         });
+
+        // Skin seçimi tıklamaları
+        document.querySelectorAll('.skin-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('.skin-option').forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+            });
+        });
+
+        // 3D Mini Character Renderer Engine
+        const skinsData = [
+            { id: 'canvas-skin-1', color: 0x00f0ff },
+            { id: 'canvas-skin-2', color: 0xff0055 },
+            { id: 'canvas-skin-3', color: 0x10b981 },
+            { id: 'canvas-skin-4', color: 0xeab308 }
+        ];
+
+        const miniScenes = [];
+
+        skinsData.forEach(data => {
+            const container = document.getElementById(data.id);
+            if(!container) return;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+            camera.position.set(0, 4, 5);
+            camera.lookAt(0, 0, 0);
+
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(90, 90);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            // Light
+            const light = new THREE.DirectionalLight(0xffffff, 1.2);
+            light.position.set(5, 10, 5);
+            scene.add(light);
+            scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+
+            // Hero Body
+            const bodyGeo = new THREE.SphereGeometry(0.8, 16, 16);
+            const bodyMat = new THREE.MeshStandardMaterial({ color: data.color, roughness: 0.2, metalness: 0.8 });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            scene.add(body);
+
+            // Orbiting Blades
+            const bladesGroup = new THREE.Group();
+            scene.add(bladesGroup);
+
+            for(let i = 0; i < 3; i++) {
+                let angle = (i / 3) * Math.PI * 2;
+                let blade = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.25, 0.1, 0.9),
+                    new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.9, roughness: 0.1 })
+                );
+                blade.position.set(Math.cos(angle) * 1.5, 0, Math.sin(angle) * 1.5);
+                blade.rotation.y = angle;
+                bladesGroup.add(blade);
+            }
+
+            miniScenes.push({ renderer, scene, camera, bladesGroup });
+        });
+
+        // 60 FPS Mini Render Loop
+        function animateMiniScenes() {
+            requestAnimationFrame(animateMiniScenes);
+            miniScenes.forEach(m => {
+                m.bladesGroup.rotation.y += 0.04;
+                m.renderer.render(m.scene, m.camera);
+            });
+        }
+        animateMiniScenes();
     </script>
 </body>
 </html>
