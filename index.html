@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BladeStorm.io - Pro Battle Arena</title>
+    <title>BladeStorm.io - Online Multiplayer & APK Ready</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -101,14 +101,12 @@
             transform: translate(0px, 0px);
         }
 
-        /* Reklam Alanları */
         .adsterra-banner-container {
             width: 320px; height: 50px; background: rgba(0,0,0,0.3);
             border-radius: 8px; display: flex; flex-direction: column; align-items: center;
             justify-content: center; overflow: hidden; margin: 10px auto;
         }
 
-        /* Lobi Altındaki Şeffaf/Görünmez Reklam Alanı */
         .lobby-hidden-ad {
             position: fixed; bottom: 5px; left: 50%; transform: translateX(-50%);
             width: 320px; height: 50px; opacity: 0.02; pointer-events: auto; z-index: 5;
@@ -120,7 +118,6 @@
 
     <div class="hexagon-bg" id="main-bg"></div>
 
-    <!-- LOBİ EN ALTINA SİZLİ BANNER (31734226) -->
     <div class="lobby-hidden-ad" id="lobby-ad-box">
         <script type="text/javascript">
             atOptions = { 'key' : '31734226', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
@@ -143,12 +140,12 @@
         <div class="glass-panel p-5 w-full flex flex-col gap-3 shadow-2xl">
             <input type="text" id="nickname-input" value="Shedx" class="w-full p-3 rounded-xl bg-black/50 border border-purple-400/60 text-white outline-none font-bold text-center">
 
-            <button class="btn-play w-full py-3.5 text-white font-black text-xl tracking-wider flex items-center justify-center gap-3 shadow-xl" onclick="startGame()">
-                <span>PLAY ONLINE!</span> <span class="text-2xl">▶</span>
+            <button class="btn-play w-full py-3.5 text-white font-black text-xl tracking-wider flex items-center justify-center gap-3 shadow-xl" onclick="startMatchmaking()">
+                <span>ONLINE OYNA!</span> <span class="text-2xl">🌐</span>
             </button>
             
             <button class="btn-action w-full py-3 text-white font-black text-sm shadow-lg" id="open-skins">
-                🗡️ SKIN SEÇİMİ (3D SHOWCASE)
+                🗡️ SKIN & AKSEASUAR SEÇİMİ
             </button>
 
             <div class="grid grid-cols-3 gap-2 pt-1">
@@ -159,11 +156,38 @@
         </div>
     </main>
 
+    <!-- MULTIPLAYER BEKLEME ODASI (MATCHMAKING) -->
+    <div id="matchmaking-modal" class="modal-overlay flex-col">
+        <div class="glass-panel p-6 max-w-sm w-full text-center space-y-4 shadow-2xl border-cyan-400/50">
+            <div class="inline-block animate-spin text-4xl mb-1">🌐</div>
+            <h2 class="text-xl font-black text-cyan-300">OYUNCULAR BEKLENİYOR...</h2>
+            <p class="text-xs text-gray-300">Lobiye en az 3 oyuncu katılması bekleniyor.</p>
+            
+            <div class="bg-black/50 p-4 rounded-xl border border-purple-500/30 space-y-2">
+                <div class="flex justify-between text-xs font-bold">
+                    <span>Katılan Oyuncular:</span>
+                    <span id="player-count-tag" class="text-emerald-400">1 / 3</span>
+                </div>
+                <div class="w-full bg-gray-800 h-2.5 rounded-full overflow-hidden">
+                    <div id="matchmaking-progress" class="bg-cyan-400 h-full w-1/3 transition-all duration-500"></div>
+                </div>
+            </div>
+
+            <div id="waiting-players-list" class="text-xs text-left space-y-1 font-mono text-purple-200 bg-black/30 p-3 rounded-lg border border-white/10">
+                <div>• <span class="text-cyan-300 font-bold" id="lobby-p1-name">Shedx</span> (Sen - Hazır)</div>
+                <div id="lobby-p2-slot" class="text-gray-500">• Oyuncu 2 aranıyor...</div>
+                <div id="lobby-p3-slot" class="text-gray-500">• Oyuncu 3 aranıyor...</div>
+            </div>
+
+            <button class="btn-action w-full py-2.5 text-xs font-bold" onclick="cancelMatchmaking()">ARAMAYI İPTAL ET</button>
+        </div>
+    </div>
+
     <!-- OYUN İÇİ HUD -->
     <div id="game-hud">
         <div class="absolute top-5 left-5 glass-panel p-4 w-56 text-xs">
             <div class="font-black text-yellow-400 mb-2 border-b border-white/10 pb-1 flex justify-between">
-                <span>🏆 SKOR TABLOSU</span>
+                <span>🏆 CANLI SKORLAR</span>
                 <span id="player-score" class="text-cyan-300 font-mono">Skor: 100</span>
             </div>
             <div id="leaderboard-list" class="space-y-1 font-mono text-gray-300"></div>
@@ -180,6 +204,67 @@
         <div id="joystick-zone">
             <div id="joystick-knob"></div>
         </div>
+    </div>
+
+    <!-- GÖREVLER MODALI (ÇALIŞAN BAKIYE VE 6 SAAT SÜRELI) -->
+    <div id="quests-modal" class="modal-overlay">
+        <div class="glass-panel p-6 max-w-sm w-full text-white">
+            <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+                <h3 class="font-black text-lg text-yellow-400">📜 GÜNLÜK GÖREVLER</h3>
+                <button class="close-modal text-purple-300 font-bold text-lg">✕</button>
+            </div>
+            <div class="space-y-3 mb-4 text-xs">
+                <div class="glass-card p-3 flex justify-between items-center">
+                    <div>
+                        <div class="font-bold">2 Maç Tamamla</div>
+                        <div class="text-[10px] text-emerald-400 font-bold" id="quest1-status">Ödül: 250 Altın</div>
+                    </div>
+                    <button class="btn-play px-3 py-1.5 text-xs font-black" id="quest1-btn" onclick="claimQuest(1, 250)">AL</button>
+                </div>
+                <div class="glass-card p-3 flex justify-between items-center">
+                    <div>
+                        <div class="font-bold">5 Enerji Çekirdeği Topla</div>
+                        <div class="text-[10px] text-emerald-400 font-bold" id="quest2-status">Ödül: 400 Altın</div>
+                    </div>
+                    <button class="btn-play px-3 py-1.5 text-xs font-black" id="quest2-btn" onclick="claimQuest(2, 400)">AL</button>
+                </div>
+            </div>
+            <button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button>
+        </div>
+    </div>
+
+    <!-- GENİŞLETİLMİŞ KOZMETİK VE AKSESUAR MODALI -->
+    <div id="cosmetics-modal" class="modal-overlay flex-col">
+        <div class="hexagon-bg"></div>
+        <div class="z-10 w-full max-w-sm px-4 flex flex-col gap-3.5 max-h-[75vh] overflow-y-auto pt-8 pb-20">
+            <h2 class="text-2xl font-black text-center text-cyan-400 mb-2">👑 KOZMETİK & AKSESUAR</h2>
+            
+            <div class="cosmetic-card-container active cosmetic-option" data-type="crown" data-price="0">
+                <div class="text-3xl">👑</div>
+                <div class="flex flex-col text-left flex-1 ml-3"><span class="font-black text-sm text-yellow-300">Altın Taç</span><span class="text-[10px] text-emerald-400 font-bold mt-1">✓ KULLANIMDA</span></div>
+            </div>
+            <div class="cosmetic-card-container cosmetic-option" data-type="halo" data-price="300">
+                <div class="text-3xl">🌟</div>
+                <div class="flex flex-col text-left flex-1 ml-3"><span class="font-black text-sm text-yellow-400">Melek Aurası</span><span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 300 Altın</span></div>
+            </div>
+            <div class="cosmetic-card-container cosmetic-option" data-type="visor" data-price="500">
+                <div class="text-3xl">🕶️</div>
+                <div class="flex flex-col text-left flex-1 ml-3"><span class="font-black text-sm text-cyan-300">Siber Gözlük</span><span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 500 Altın</span></div>
+            </div>
+            <div class="cosmetic-card-container cosmetic-option" data-type="catears" data-price="600">
+                <div class="text-3xl">🐱</div>
+                <div class="flex flex-col text-left flex-1 ml-3"><span class="font-black text-sm text-pink-400">Kedi Kulakları</span><span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 600 Altın</span></div>
+            </div>
+            <div class="cosmetic-card-container cosmetic-option" data-type="horns" data-price="800">
+                <div class="text-3xl">😈</div>
+                <div class="flex flex-col text-left flex-1 ml-3"><span class="font-black text-sm text-rose-500">Şeytan Boynuzları</span><span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 800 Altın</span></div>
+            </div>
+            <div class="cosmetic-card-container cosmetic-option" data-type="wings" data-price="1000">
+                <div class="text-3xl">🪽</div>
+                <div class="flex flex-col text-left flex-1 ml-3"><span class="font-black text-sm text-purple-300">Siber Kanatlar</span><span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 1000 Altın</span></div>
+            </div>
+        </div>
+        <div class="fixed bottom-6 left-6 z-20"><button class="btn-ok px-8 py-3" id="close-cosmetics">OK</button></div>
     </div>
 
     <!-- ÖLÜM MODALI -->
@@ -200,29 +285,24 @@
         </div>
     </div>
 
-    <!-- 20 SANİYE ADSTERRA BANNER (31734226) REKLAM EKRANI -->
+    <!-- 20 SANİYE ADSTERRA BANNER REKLAM EKRANI -->
     <div id="ad-view-modal" class="modal-overlay flex-col" style="z-index: 2000;">
         <div class="glass-panel p-5 max-w-sm w-full text-center space-y-3 relative border-cyan-400/50">
-            
             <button id="ad-close-x-btn" onclick="finishAdAndRevive()" class="absolute -top-3 -right-3 w-10 h-10 bg-rose-600 hover:bg-rose-500 text-white font-black text-lg rounded-full border-2 border-white shadow-xl hidden items-center justify-center">
                 ✕
             </button>
-
             <div class="text-xs font-bold text-cyan-300" id="ad-timer-text">REKLAM İZLENİYOR: 20s</div>
-
-            <!-- ADSTERRA BANNER 31734226 -->
             <div class="adsterra-banner-container">
                 <script type="text/javascript">
                     atOptions = { 'key' : '31734226', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
                 </script>
                 <script type="text/javascript" src="//www.highperformanceformat.com/31734226/invoke.js"></script>
             </div>
-
             <p class="text-[10px] text-gray-400">Süre dolduğunda sağ üstte açılan X butonuna basıp 2 kat güçle doğabilirsiniz.</p>
         </div>
     </div>
 
-    <!-- MODALLAR (SKIN, KOZMETIK, MAĞAZA) -->
+    <!-- SKİN, ARENA VE DİĞER MODALLAR -->
     <div id="skins-modal" class="modal-overlay flex-col">
         <div class="hexagon-bg"></div>
         <div class="fixed top-6 left-6 z-20 flex flex-col items-center gap-1 cursor-pointer" id="switch-arena-btn">
@@ -244,22 +324,9 @@
         <div class="fixed bottom-6 left-6 z-20"><button class="btn-ok px-8 py-3 close-skins-btn">OK</button></div>
     </div>
 
-    <div id="cosmetics-modal" class="modal-overlay flex-col">
-        <div class="hexagon-bg"></div>
-        <div class="z-10 w-full max-w-sm px-4 flex flex-col gap-3.5 max-h-[75vh] overflow-y-auto pt-8 pb-20">
-            <h2 class="text-2xl font-black text-center text-cyan-400 mb-2">👑 KOZMETİK MAĞAZASI</h2>
-            <div class="cosmetic-card-container active cosmetic-option" data-type="crown" data-price="0"><div class="text-3xl">👑</div><div class="flex flex-col text-left flex-1 ml-3"><span class="font-black text-sm text-yellow-300">Altın Taç</span><span class="text-[10px] text-emerald-400 font-bold mt-1">✓ KULLANIMDA</span></div></div>
-            <div class="cosmetic-card-container cosmetic-option" data-type="halo" data-price="300"><div class="text-3xl">🌟</div><div class="flex flex-col text-left flex-1 ml-3"><span class="font-black text-sm text-yellow-400">Melek Aurası</span><span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 300 Altın</span></div></div>
-            <div class="cosmetic-card-container cosmetic-option" data-type="visor" data-price="500"><div class="text-3xl">🕶️</div><div class="flex flex-col text-left flex-1 ml-3"><span class="font-black text-sm text-cyan-300">Siber Gözlük</span><span class="text-[10px] text-yellow-400 font-bold mt-1">🪙 500 Altın</span></div></div>
-        </div>
-        <div class="fixed bottom-6 left-6 z-20"><button class="btn-ok px-8 py-3" id="close-cosmetics">OK</button></div>
-    </div>
-
     <div id="market-modal" class="modal-overlay"><div class="glass-panel p-6 max-w-sm w-full text-white"><div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3"><h3 class="font-black text-lg text-yellow-400">🛒 ALTIN MAĞAZASI</h3><button class="close-modal text-purple-300 font-bold text-lg">✕</button></div><div class="space-y-3 mb-4"><div class="glass-card p-3 flex justify-between items-center"><div><div class="font-bold text-sm">1,000 Altın</div><div class="text-xs text-green-400">$0.49 USD</div></div><button class="btn-play px-4 py-1.5 text-xs font-black" onclick="openPaymentModal(1000, '$0.49')">SATIN AL</button></div><div class="glass-card p-3 flex justify-between items-center"><div><div class="font-bold text-sm">5,000 Altın + VIP</div><div class="text-xs text-green-400">$1.99 USD</div></div><button class="btn-play px-4 py-1.5 text-xs font-black" onclick="openPaymentModal(5000, '$1.99')">SATIN AL</button></div></div><button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button></div></div>
     
     <div id="payment-modal" class="modal-overlay"><div class="glass-panel p-6 max-w-sm w-full text-white"><div class="flex justify-between items-center mb-3 border-b border-white/10 pb-2"><h3 class="font-black text-base text-cyan-400">💳 KREDİ KARTI ÖDEMESİ</h3><button onclick="document.getElementById('payment-modal').style.display='none'" class="text-gray-400 font-bold">✕</button></div><p class="text-xs text-gray-300 mb-3" id="payment-pack-desc">Tutar: $0.49 USD</p><form onsubmit="processCardPayment(event)" class="space-y-2.5"><div><label class="text-[10px] text-purple-200 block font-bold mb-1">Kart Sahibi Ad Soyad</label><input type="text" id="card-name" placeholder="AHMET YILMAZ" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-bold text-white outline-none"></div><div><label class="text-[10px] text-purple-200 block font-bold mb-1">Kart Numarası</label><input type="text" id="card-number" placeholder="4543 0000 0000 0000" maxlength="19" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none"></div><div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] text-purple-200 block font-bold mb-1">SKT (AA/YY)</label><input type="text" id="card-exp" placeholder="12/28" maxlength="5" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none"></div><div><label class="text-[10px] text-purple-200 block font-bold mb-1">CVV</label><input type="password" id="card-cvv" placeholder="123" maxlength="3" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none"></div></div><button type="submit" class="btn-play w-full py-3 font-black text-xs mt-2">ÖDEMEYİ ONAYLA VE ALTINI AL</button></form></div></div>
-    
-    <div id="quests-modal" class="modal-overlay"><div class="glass-panel p-6 max-w-sm w-full text-white"><div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3"><h3 class="font-black text-lg text-yellow-400">📜 GÜNLÜK GÖREVLER</h3><button class="close-modal text-purple-300 font-bold text-lg">✕</button></div><div class="space-y-3 mb-4 text-xs"><div class="glass-card p-3 flex justify-between items-center"><div><div class="font-bold">2 Maç Tamamla</div><div class="text-[10px] text-purple-300">Durum: 0/2 Maç</div></div><button class="btn-play px-3 py-1 text-xs font-black opacity-50 cursor-not-allowed" disabled>ÖDÜLÜ AL</button></div><div class="glass-card p-3 flex justify-between items-center"><div><div class="font-bold">5 Rakip Yok Et</div><div class="text-[10px] text-purple-300">Durum: 0/5 Rakip</div></div><button class="btn-play px-3 py-1 text-xs font-black opacity-50 cursor-not-allowed" disabled>ÖDÜLÜ AL</button></div></div><button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button></div></div>
     
     <div id="daily-modal" class="modal-overlay"><div class="glass-panel p-6 max-w-sm w-full text-white text-center"><div class="text-5xl mb-2">🎁</div><h3 class="font-black text-xl text-yellow-400 mb-2">GÜNLÜK ÖDÜL</h3><p class="text-xs text-purple-200 mb-4">Bugünkü ücretsiz 300 altınını al!</p><button class="btn-play w-full py-3 font-black text-sm mb-2" id="claim-daily-btn" onclick="claimDaily()">300 ALTINI AL</button><button class="btn-action w-full py-2 font-bold text-xs close-modal">KAPAT</button></div></div>
     <script>
@@ -269,6 +336,33 @@
         let activeCosmeticIcon = '👑';
         let dailyClaimed = false;
         let pendingPayAmount = 0;
+        let matchmakingTimer = null;
+
+        // GÖREV SİSTEMİ VE 6 SAATLİK BEKLEME SÜRESİ
+        function claimQuest(questId, rewardAmount) {
+            let questKey = 'quest_' + questId + '_time';
+            let lastClaim = localStorage.getItem(questKey);
+            let now = Date.now();
+            let sixHoursInMs = 6 * 60 * 60 * 1000;
+
+            if (lastClaim && (now - parseInt(lastClaim)) < sixHoursInMs) {
+                let remainingMs = sixHoursInMs - (now - parseInt(lastClaim));
+                let hours = Math.floor(remainingMs / (1000 * 60 * 60));
+                let minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+                alert(`⚠️ Bu görevi zaten tamamladın! Yeniden açılmasına ${hours} saat ${minutes} dakika var.`);
+                return;
+            }
+
+            // Ödül Ver ve Süreyi Kaydet
+            updateCoins(rewardAmount);
+            localStorage.setItem(questKey, now.toString());
+            
+            let btn = document.getElementById('quest' + questId + '-btn');
+            btn.innerText = "BEKLEMEDE";
+            btn.disabled = true;
+            btn.style.opacity = "0.5";
+            alert(`🎉 Görev Tamamlandı! ${rewardAmount} Altın hesabına eklendi.`);
+        }
 
         const arenaThemes = [
             { name: "Neon", bgColor: 0x060212, floorColor: 0x0a0418, ringColor: 0x00f0ff },
@@ -308,7 +402,7 @@
         document.querySelectorAll('.close-modal').forEach(b => {
             b.addEventListener('click', () => {
                 document.querySelectorAll('.modal-overlay').forEach(m => {
-                    if(m.id !== 'skins-modal' && m.id !== 'cosmetics-modal' && m.id !== 'payment-modal' && m.id !== 'death-modal' && m.id !== 'ad-view-modal') m.style.display = 'none';
+                    if(m.id !== 'skins-modal' && m.id !== 'cosmetics-modal' && m.id !== 'payment-modal' && m.id !== 'death-modal' && m.id !== 'ad-view-modal' && m.id !== 'matchmaking-modal') m.style.display = 'none';
                 });
             });
         });
@@ -320,7 +414,14 @@
                 if(price > 0) { updateCoins(-price); opt.setAttribute('data-price', '0'); opt.querySelector('.font-bold.mt-1').innerText = "✓ KULLANIMDA"; }
                 document.querySelectorAll('.cosmetic-option').forEach(o => o.classList.remove('active'));
                 opt.classList.add('active'); activeCosmeticType = opt.getAttribute('data-type');
-                activeCosmeticIcon = activeCosmeticType === 'crown' ? '👑' : (activeCosmeticType === 'halo' ? '🌟' : '🕶️');
+                
+                if(activeCosmeticType === 'crown') activeCosmeticIcon = '👑';
+                else if(activeCosmeticType === 'halo') activeCosmeticIcon = '🌟';
+                else if(activeCosmeticType === 'visor') activeCosmeticIcon = '🕶️';
+                else if(activeCosmeticType === 'catears') activeCosmeticIcon = '🐱';
+                else if(activeCosmeticType === 'horns') activeCosmeticIcon = '😈';
+                else if(activeCosmeticType === 'wings') activeCosmeticIcon = '🪽';
+
                 document.getElementById('cosmetic-icon').innerText = activeCosmeticIcon;
                 updateAllCharacterCosmetics();
             });
@@ -355,6 +456,8 @@
         ];
 
         const renderersList = [];
+        
+        // ZENGİN YENİ 3D AKSESUAR MODELLEME FONKSİYONU
         function createCosmeticMesh(type) {
             const group = new THREE.Group();
             if(type === 'crown') {
@@ -367,6 +470,21 @@
             } else if(type === 'visor') {
                 let visor = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.18, 0.3), new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.6 }));
                 visor.position.set(0, 0.15, 0.62); group.add(visor);
+            } else if(type === 'catears') {
+                let mat = new THREE.MeshStandardMaterial({ color: 0xf472b6, roughness: 0.3 });
+                let earL = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.4, 4), mat); earL.position.set(-0.35, 0.85, 0.2); earL.rotation.z = -0.2;
+                let earR = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.4, 4), mat); earR.position.set(0.35, 0.85, 0.2); earR.rotation.z = 0.2;
+                group.add(earL); group.add(earR);
+            } else if(type === 'horns') {
+                let mat = new THREE.MeshStandardMaterial({ color: 0xe11d48, metalness: 0.8 });
+                let hornL = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.45, 12), mat); hornL.position.set(-0.3, 0.8, 0.2); hornL.rotation.z = -0.4;
+                let hornR = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.45, 12), mat); hornR.position.set(0.3, 0.8, 0.2); hornR.rotation.z = 0.4;
+                group.add(hornL); group.add(hornR);
+            } else if(type === 'wings') {
+                let mat = new THREE.MeshStandardMaterial({ color: 0xc084fc, emissive: 0xa855f7, emissiveIntensity: 0.5 });
+                let wingL = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.3, 0.05), mat); wingL.position.set(-0.6, 0.2, -0.6); wingL.rotation.y = 0.4;
+                let wingR = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.3, 0.05), mat); wingR.position.set(0.6, 0.2, -0.6); wingR.rotation.y = -0.4;
+                group.add(wingL); group.add(wingR);
             }
             return group;
         }
@@ -406,8 +524,48 @@
         joystickZone.addEventListener('mousedown', (e) => { isJoystickActive = true; handleJoystickMove(e.clientX, e.clientY); });
         window.addEventListener('mousemove', (e) => { if(isJoystickActive) handleJoystickMove(e.clientX, e.clientY); });
         window.addEventListener('mouseup', resetJoystick);
+        // MULTIPLAYER MATCHMAKING VE BEKLEME ODASI MANTIĞI
+        function startMatchmaking() {
+            let name = document.getElementById('nickname-input').value || "Shedx";
+            document.getElementById('lobby-p1-name').innerText = name;
+            document.getElementById('matchmaking-modal').style.display = 'flex';
 
-        // OYUN MOTORU
+            let countTag = document.getElementById('player-count-tag');
+            let progressBar = document.getElementById('matchmaking-progress');
+            let p2Slot = document.getElementById('lobby-p2-slot');
+            let p3Slot = document.getElementById('lobby-p3-slot');
+
+            countTag.innerText = "1 / 3";
+            progressBar.style.width = "33%";
+            p2Slot.innerText = "• Oyuncu 2 aranıyor...";
+            p3Slot.innerText = "• Oyuncu 3 aranıyor...";
+
+            // 1.5 Saniye Sonra 2. Oyuncu Katılır
+            matchmakingTimer = setTimeout(() => {
+                countTag.innerText = "2 / 3";
+                progressBar.style.width = "66%";
+                p2Slot.innerHTML = '• <span class="text-cyan-300 font-bold">ProGamer99</span> (Bağlandı)';
+
+                // 3. Saniye Sonra 3. Oyuncu Katılır ve Maç Başlar
+                matchmakingTimer = setTimeout(() => {
+                    countTag.innerText = "3 / 3 (TAMAM)";
+                    progressBar.style.width = "100%";
+                    p3Slot.innerHTML = '• <span class="text-cyan-300 font-bold">Vortex_TR</span> (Bağlandı)';
+
+                    setTimeout(() => {
+                        document.getElementById('matchmaking-modal').style.display = 'none';
+                        startGame();
+                    }, 800);
+                }, 1800);
+            }, 1500);
+        }
+
+        function cancelMatchmaking() {
+            if(matchmakingTimer) clearTimeout(matchmakingTimer);
+            document.getElementById('matchmaking-modal').style.display = 'none';
+        }
+
+        // OYUN MOTORU VE BATTLEARNA
         let gameScene, gameCamera, gameRenderer;
         let isGameRunning = false;
         let playerGroup, playerBladesGroup;
@@ -501,14 +659,12 @@
             gameScene.add(new THREE.AmbientLight(0xffffff, 0.9));
             let dirLight = new THREE.DirectionalLight(0xffffff, 1.8); dirLight.position.set(20, 50, 20); gameScene.add(dirLight);
 
-            // ZEMİN VE HALKA SINIRLARI
             let floor = new THREE.Mesh(new THREE.PlaneGeometry(220, 220), new THREE.MeshStandardMaterial({ color: theme.floorColor, roughness: 0.6, metalness: 0.4 }));
             floor.rotation.x = -Math.PI / 2; gameScene.add(floor);
 
             let ringMesh = new THREE.Mesh(new THREE.RingGeometry(95, 97, 64), new THREE.MeshBasicMaterial({ color: theme.ringColor, side: THREE.DoubleSide }));
             ringMesh.rotation.x = -Math.PI / 2; ringMesh.position.y = 0.1; gameScene.add(ringMesh);
 
-            // TATLI SÜZÜLEN YILDIZ TOZLARI
             let starsGeo = new THREE.BufferGeometry();
             let starsCoords = [];
             for(let i=0; i<250; i++) {
@@ -518,7 +674,6 @@
             let stars = new THREE.Points(starsGeo, new THREE.PointsMaterial({ color: theme.ringColor, size: 0.5, transparent: true, opacity: 0.7 }));
             gameScene.add(stars);
 
-            // Oyuncu
             playerGroup = new THREE.Group();
             let pColor = skinConfigs[activeSkinIndex].color;
             let pTex = createSkinTexture(activeSkinIndex);
@@ -538,12 +693,10 @@
             playerGroup.add(playerBladesGroup); gameScene.add(playerGroup);
             updatePlayerScale();
 
-            // YENİ ENERJİ ÇEKİRDEKLERİ (ORBS)
             energyOrbs = []; for(let i=0; i<55; i++) spawnEnergyOrb();
             bots = []; for(let i=0; i<6; i++) spawnBot(i);
         }
 
-        // YENİ PARLAYAN ENERJİ ÇEKİRDEĞİ ÜRETME
         function spawnEnergyOrb() {
             let group = new THREE.Group();
             let core = new THREE.Mesh(new THREE.SphereGeometry(0.4, 16, 16), new THREE.MeshStandardMaterial({ color: 0x00f0ff, emissive: 0x00f0ff, emissiveIntensity: 0.9 }));
@@ -629,7 +782,6 @@
             gameCamera.lookAt(playerPos.x, 0, playerPos.z);
             playerBladesGroup.rotation.y += 0.09;
 
-            // Enerji Çekirdeklerinin Dönüşü ve Toplanması
             energyOrbs.forEach((orb, idx) => {
                 orb.ring.rotation.z += 0.05;
                 if(Math.hypot(playerPos.x - orb.mesh.position.x, playerPos.z - orb.mesh.position.z) < 2.0) {
@@ -642,7 +794,6 @@
                 }
             });
 
-            // BOT YARAY ZEKASI VE SAVAŞ
             bots.forEach(b => {
                 b.blades.rotation.y += 0.08;
                 b.changeTargetTimer--;
