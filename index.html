@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BladeStorm.io - Full Game Engine Edition</title>
+    <title>BladeStorm.io - Touch Joystick Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -11,7 +11,7 @@
         body { 
             margin: 0; overflow: hidden; background: #04010a; 
             font-family: 'Segoe UI', Roboto, system-ui, sans-serif; color: #fff;
-            width: 100vw; height: 100vh;
+            width: 100vw; height: 100vh; touch-action: none;
         }
 
         .hexagon-bg {
@@ -91,6 +91,23 @@
             position: fixed; inset: 0; pointer-events: none; z-index: 10; display: none;
         }
         .hud-element { pointer-events: auto; }
+
+        /* VIRTUAL JOYSTICK STYLES */
+        #joystick-zone {
+            position: fixed; bottom: 40px; left: 40px; width: 120px; height: 120px;
+            background: rgba(168, 85, 247, 0.15); border: 2px solid rgba(168, 85, 247, 0.5);
+            border-radius: 50%; backdrop-filter: blur(8px);
+            display: flex; align-items: center; justify-content: center;
+            pointer-events: auto; touch-action: none;
+        }
+        #joystick-knob {
+            width: 50px; height: 50px;
+            background: radial-gradient(circle, #00f0ff 0%, #0088cc 100%);
+            border: 2px solid #ffffff; border-radius: 50%;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.8);
+            position: absolute; pointer-events: none;
+            transform: translate(0px, 0px);
+        }
     </style>
 </head>
 <body>
@@ -130,7 +147,7 @@
         </div>
     </main>
 
-    <!-- OYUN İÇİ HUD (SKOR & LEADERBOARD) -->
+    <!-- OYUN İÇİ HUD (SKOR, LEADERBOARD & JOYSTICK) -->
     <div id="game-hud">
         <!-- Skor Tablosu Sol Üst -->
         <div class="absolute top-5 left-5 glass-panel p-4 w-52 text-xs">
@@ -155,9 +172,9 @@
             <button onclick="returnToLobby()" class="glass-panel px-4 py-2 font-bold text-xs text-rose-400 hover:bg-rose-500/20 hud-element">ÇIKIŞ</button>
         </div>
 
-        <!-- Alt Orta Kontrol Bilgisi -->
-        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 glass-panel px-6 py-2 text-center text-xs text-purple-200">
-            🖱️ Fareyi hareket ettirerek karakterini yönlendir, rakiplerin etrafındaki bıçaklarla onları yok et!
+        <!-- SANAL JOYSTICK (SOL ALT) -->
+        <div id="joystick-zone">
+            <div id="joystick-knob"></div>
         </div>
     </div>
 
@@ -355,7 +372,7 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT: LOBİ, 3D SHOWCASE VE OYUN MOTORU -->
+    <!-- JAVASCRIPT: LOBİ, SHOWCASE, JOYSTICK VE OYUN MOTORU -->
     <script>
         let playerCoins = 350;
         let activeSkinIndex = 0;
@@ -656,13 +673,74 @@
 
 
         // ==========================================
+        // SANAL JOYSTICK KONTROL SİSTEMİ
+        // ==========================================
+        let joystickInput = { x: 0, z: 0 };
+        let isJoystickActive = false;
+        const joystickZone = document.getElementById('joystick-zone');
+        const joystickKnob = document.getElementById('joystick-knob');
+
+        function handleJoystickMove(clientX, clientY) {
+            const rect = joystickZone.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+
+            let deltaX = clientX - centerX;
+            let deltaY = clientY - centerY;
+            let distance = Math.hypot(deltaX, deltaY);
+            let maxRadius = rect.width / 2;
+
+            if (distance > maxRadius) {
+                deltaX = (deltaX / distance) * maxRadius;
+                deltaY = (deltaY / distance) * maxRadius;
+            }
+
+            joystickKnob.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            
+            // Normalize edilmiş hareket yönleri (-1 ile 1 arası)
+            joystickInput.x = deltaX / maxRadius;
+            joystickInput.z = deltaY / maxRadius;
+        }
+
+        function resetJoystick() {
+            isJoystickActive = false;
+            joystickKnob.style.transform = `translate(0px, 0px)`;
+            joystickInput.x = 0;
+            joystickInput.z = 0;
+        }
+
+        // Touch Events
+        joystickZone.addEventListener('touchstart', (e) => {
+            isJoystickActive = true;
+            handleJoystickMove(e.touches[0].clientX, e.touches[0].clientY);
+        });
+        window.addEventListener('touchmove', (e) => {
+            if (isJoystickActive && e.touches[0]) {
+                handleJoystickMove(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        });
+        window.addEventListener('touchend', resetJoystick);
+
+        // Mouse Events (Masaüstü Testleri İçin)
+        joystickZone.addEventListener('mousedown', (e) => {
+            isJoystickActive = true;
+            handleJoystickMove(e.clientX, e.clientY);
+        });
+        window.addEventListener('mousemove', (e) => {
+            if (isJoystickActive) {
+                handleJoystickMove(e.clientX, e.clientY);
+            }
+        });
+        window.addEventListener('mouseup', resetJoystick);
+
+
+        // ==========================================
         // OYUN MOTORU & SAVAŞ SİSTEMİ (GAME ENGINE)
         // ==========================================
         let gameScene, gameCamera, gameRenderer;
         let isGameRunning = false;
         let playerGroup, playerBladesGroup;
         let playerPos = { x: 0, z: 0 };
-        let targetPos = { x: 0, z: 0 };
         let crystals = [];
         let bots = [];
         let playerScore = 0;
@@ -691,6 +769,10 @@
         }
 
         function initGameEngine() {
+            playerPos = { x: 0, z: 0 };
+            playerScore = 0;
+            crystalCollectedCount = 0;
+
             gameScene = new THREE.Scene();
             gameScene.background = new THREE.Color(0x060212);
             gameScene.fog = new THREE.FogExp2(0x060212, 0.015);
@@ -710,7 +792,7 @@
             dirLight.position.set(20, 40, 20);
             gameScene.add(dirLight);
 
-            // Arena Zemi (Büyük Grid / Neon Grid)
+            // Arena Zemi
             let floorGeo = new THREE.PlaneGeometry(150, 150);
             let floorMat = new THREE.MeshStandardMaterial({ color: 0x0c0620, roughness: 0.9, metalness: 0.1 });
             let floor = new THREE.Mesh(floorGeo, floorMat);
@@ -755,32 +837,11 @@
 
             // Kristalleri Üret
             crystals = [];
-            for(let i = 0; i < 35; i++) {
-                spawnCrystal();
-            }
+            for(let i = 0; i < 35; i++) { spawnCrystal(); }
 
             // Bot Rakipleri Üret
             bots = [];
-            for(let i = 0; i < 5; i++) {
-                spawnBot();
-            }
-
-            // Fare Takibi
-            window.addEventListener('mousemove', onMouseMove);
-            window.addEventListener('touchmove', onTouchMove);
-        }
-
-        function onMouseMove(e) {
-            if(!isGameRunning) return;
-            targetPos.x = (e.clientX / window.innerWidth) * 60 - 30;
-            targetPos.z = (e.clientY / window.innerHeight) * 60 - 30;
-        }
-
-        function onTouchMove(e) {
-            if(!isGameRunning || !e.touches[0]) return;
-            let t = e.touches[0];
-            targetPos.x = (t.clientX / window.innerWidth) * 60 - 30;
-            targetPos.z = (t.clientY / window.innerHeight) * 60 - 30;
+            for(let i = 0; i < 5; i++) { spawnBot(); }
         }
 
         function spawnCrystal() {
@@ -825,15 +886,27 @@
             if(!isGameRunning) return;
             requestAnimationFrame(gameLoop);
 
-            // Oyuncu Hareketi (Yumuşak Takip)
-            playerPos.x += (targetPos.x - playerPos.x) * 0.08;
-            playerPos.z += (targetPos.z - playerPos.z) * 0.08;
+            // JOYSTICK İLE KARAKTER HAREKETİ (HIZ: 0.22)
+            const speed = 0.22;
+            playerPos.x += joystickInput.x * speed;
+            playerPos.z += joystickInput.z * speed;
+
+            // Arena Sınırları Koruması
+            playerPos.x = Math.max(-70, Math.min(70, playerPos.x));
+            playerPos.z = Math.max(-70, Math.min(70, playerPos.z));
+
             playerGroup.position.x = playerPos.x;
             playerGroup.position.z = playerPos.z;
 
+            // Karakter Dönüş Yönü (Hareket Ettiği Yöne Doğru Yumuşak Bakış)
+            if (joystickInput.x !== 0 || joystickInput.z !== 0) {
+                let angle = Math.atan2(joystickInput.x, joystickInput.z);
+                playerGroup.rotation.y = angle;
+            }
+
             // Kamera Takibi
-            gameCamera.position.x += (playerPos.x - gameCamera.position.x) * 0.08;
-            gameCamera.position.z += (playerPos.z + 14 - gameCamera.position.z) * 0.08;
+            gameCamera.position.x += (playerPos.x - gameCamera.position.x) * 0.1;
+            gameCamera.position.z += (playerPos.z + 14 - gameCamera.position.z) * 0.1;
             gameCamera.lookAt(playerPos.x, 0, playerPos.z);
 
             // Bıçak Dönüşü
@@ -861,14 +934,11 @@
                 b.mesh.position.z += b.velZ;
                 b.blades.rotation.y += 0.06;
 
-                // Kenar Sınırı
                 if(Math.abs(b.mesh.position.x) > 65) b.velX *= -1;
                 if(Math.abs(b.mesh.position.z) > 65) b.velZ *= -1;
 
-                // Oyuncu ile Çarpışma Kontrolü
                 let pDist = Math.hypot(playerPos.x - b.mesh.position.x, playerPos.z - b.mesh.position.z);
                 if(pDist < 2.0) {
-                    // Botu yok et / respawn et
                     b.mesh.position.x = (Math.random() - 0.5) * 80;
                     b.mesh.position.z = (Math.random() - 0.5) * 80;
                     playerScore += 100;
