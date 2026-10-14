@@ -3,260 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BladeStorm.io 3D - Pro Edition</title>
-    <!-- Tailwind CSS Engine -->
+    <title>BladeStorm.io 3D - Ultimate Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Three.js 3D WebGL Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        /* BASE & RESET STYLES */
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; margin: 0; padding: 0; }
+        body { margin: 0; overflow: hidden; background: #05020e; font-family: 'Segoe UI', Roboto, sans-serif; touch-action: none; color: #fff; }
+        #canvas-container { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+        
+        /* Glassmorphism UI Panels (Görsellerdeki Tasarımla Birebir) */
+        .glass-panel { background: rgba(14, 8, 32, 0.9); backdrop-filter: blur(18px); border: 1.5px solid rgba(168, 85, 247, 0.45); box-shadow: 0 15px 35px rgba(0,0,0,0.85); border-radius: 24px; }
+        .glass-card { background: linear-gradient(135deg, rgba(147, 51, 234, 0.25), rgba(35, 10, 75, 0.55)); border: 1px solid rgba(216, 180, 254, 0.3); backdrop-filter: blur(10px); border-radius: 18px; }
+        
+        .btn-play { background: linear-gradient(180deg, #22c55e 0%, #15803d 100%); border: 2.5px solid #86efac; box-shadow: 0 8px 25px rgba(34, 197, 94, 0.55); border-radius: 22px; transition: transform 0.1s; }
+        .btn-play:active { transform: scale(0.95); }
+        .btn-action { background: linear-gradient(180deg, #a855f7 0%, #6b21a8 100%); border: 1.5px solid #e9d5ff; box-shadow: 0 6px 18px rgba(168, 85, 247, 0.45); border-radius: 16px; transition: transform 0.1s; }
+        .btn-action:active { transform: scale(0.94); }
 
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: #05020e;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            touch-action: none;
-            color: #ffffff;
-        }
+        .modal-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(3, 1, 8, 0.92); backdrop-filter: blur(16px); display: none; align-items: center; justify-content: center; padding: 16px; }
+        
+        /* 3D HP Bar & Name Tags */
+        .hp-bar-3d { position: absolute; width: 60px; height: 6px; background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.4); border-radius: 4px; overflow: hidden; pointer-events: none; transform: translate(-50%, -100%); z-index: 50; }
+        .hp-bar-fill { height: 100%; background: linear-gradient(90deg, #ef4444, #22c55e); width: 100%; transition: width 0.1s linear; }
+        .name-tag-3d { position: absolute; color: #ffffff; font-size: 11px; font-weight: 800; text-shadow: 0 0 5px #000, 0 0 10px #9333ea; transform: translate(-50%, -220%); pointer-events: none; z-index: 50; font-family: monospace; white-space: nowrap; }
 
-        #canvas-container {
-            position: fixed;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-        }
+        /* Joystick & Boost */
+        #joystick-base { position: fixed; bottom: 40px; left: 40px; width: 130px; height: 130px; background: rgba(168, 85, 247, 0.15); border: 2px solid rgba(216, 180, 254, 0.5); backdrop-filter: blur(8px); border-radius: 50%; z-index: 90; display: none; touch-action: none; }
+        #joystick-stick { position: absolute; top: 40px; left: 40px; width: 50px; height: 50px; background: linear-gradient(135deg, #e879f9, #9333ea); border: 2px solid #fff; border-radius: 50%; box-shadow: 0 0 20px #e879f9; pointer-events: none; }
+        
+        #boost-btn-container { position: fixed; bottom: 40px; right: 40px; width: 95px; height: 95px; z-index: 90; display: none; }
+        .btn-boost { width: 100%; height: 100%; border-radius: 50%; background: linear-gradient(135deg, #f43f5e, #be123c); border: 3px solid #fda4af; box-shadow: 0 0 25px rgba(244, 63, 94, 0.6); color: #fff; font-weight: 900; font-size: 16px; display: flex; align-items: center; justify-content: center; font-family: monospace; }
 
-        /* GLASSMORPHISM UI PANELS */
-        .glass-panel {
-            background: rgba(14, 8, 32, 0.88);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1.5px solid rgba(168, 85, 247, 0.45);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.85), inset 0 0 15px rgba(168, 85, 247, 0.15);
-            border-radius: 24px;
-        }
-
-        .glass-card {
-            background: linear-gradient(135deg, rgba(147, 51, 234, 0.25) 0%, rgba(35, 10, 75, 0.55) 100%);
-            border: 1px solid rgba(216, 180, 254, 0.3);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 18px;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .glass-card:hover {
-            border-color: rgba(216, 180, 254, 0.6);
-            transform: translateY(-2px);
-        }
-
-        /* BUTTON ANIMATIONS & STYLES */
-        .btn-play {
-            background: linear-gradient(180deg, #22c55e 0%, #15803d 100%);
-            border: 2.5px solid #86efac;
-            box-shadow: 0 8px 25px rgba(34, 197, 94, 0.55);
-            border-radius: 22px;
-            transition: transform 0.12s ease, box-shadow 0.12s ease;
-            cursor: pointer;
-        }
-
-        .btn-play:active {
-            transform: scale(0.95);
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
-        }
-
-        .btn-action {
-            background: linear-gradient(180deg, #a855f7 0%, #6b21a8 100%);
-            border: 1.5px solid #e9d5ff;
-            box-shadow: 0 6px 18px rgba(168, 85, 247, 0.45);
-            border-radius: 16px;
-            transition: transform 0.12s ease, box-shadow 0.12s ease;
-            cursor: pointer;
-        }
-
-        .btn-action:active {
-            transform: scale(0.94);
-            box-shadow: 0 3px 10px rgba(168, 85, 247, 0.25);
-        }
-
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            z-index: 1000;
-            background: rgba(3, 1, 8, 0.92);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
-        }
-
-        /* 3D UI OVERLAY ELEMENTS */
-        .hp-bar-3d {
-            position: absolute;
-            width: 60px;
-            height: 6px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            border-radius: 4px;
-            overflow: hidden;
-            pointer-events: none;
-            transform: translate(-50%, -100%);
-            z-index: 50;
-        }
-
-        .hp-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #ef4444 0%, #22c55e 100%);
-            width: 100%;
-            transition: width 0.1s linear;
-        }
-
-        .name-tag-3d {
-            position: absolute;
-            color: #ffffff;
-            font-size: 11px;
-            font-weight: 800;
-            text-shadow: 0 0 5px #000, 0 0 10px #9333ea;
-            transform: translate(-50%, -220%);
-            pointer-events: none;
-            z-index: 50;
-            font-family: monospace;
-            white-space: nowrap;
-        }
-
-        /* JOYSTICK & BOOST CONTROLS */
-        #joystick-base {
-            position: fixed;
-            bottom: 40px;
-            left: 40px;
-            width: 130px;
-            height: 130px;
-            background: rgba(168, 85, 247, 0.15);
-            border: 2px solid rgba(216, 180, 254, 0.5);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border-radius: 50%;
-            z-index: 90;
-            display: none;
-            touch-action: none;
-        }
-
-        #joystick-stick {
-            position: absolute;
-            top: 40px;
-            left: 40px;
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #e879f9, #9333ea);
-            border: 2px solid #ffffff;
-            border-radius: 50%;
-            box-shadow: 0 0 20px #e879f9;
-            pointer-events: none;
-        }
-
-        #boost-btn-container {
-            position: fixed;
-            bottom: 40px;
-            right: 40px;
-            width: 95px;
-            height: 95px;
-            z-index: 90;
-            display: none;
-        }
-
-        .btn-boost {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);
-            border: 3px solid #fda4af;
-            box-shadow: 0 0 25px rgba(244, 63, 94, 0.6);
-            color: #ffffff;
-            font-weight: 900;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: monospace;
-            cursor: pointer;
-        }
-
-        .btn-boost:active {
-            transform: scale(0.92);
-            background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
-        }
-
-        /* MINIMAP SYSTEM */
-        #minimap-container {
-            position: absolute;
-            left: 20px;
-            top: 20px;
-            width: 145px;
-            height: 145px;
-            background: rgba(8, 3, 22, 0.85);
-            border: 2px solid rgba(216, 180, 254, 0.5);
-            border-radius: 50%;
-            overflow: hidden;
-            pointer-events: none;
-            z-index: 40;
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
-        }
-
-        #minimap-player-dot {
-            position: absolute;
-            width: 7px;
-            height: 7px;
-            background: #00f0ff;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            top: 50%;
-            left: 50%;
-            box-shadow: 0 0 8px #00f0ff;
-        }
-
-        #minimap-bots-layer {
-            position: absolute;
-            inset: 0;
-        }
-
-        .minimap-bot-dot {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.75);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-        }
+        /* Minimap */
+        #minimap-container { position: absolute; left: 20px; top: 20px; width: 145px; height: 145px; background: rgba(8, 3, 22, 0.85); border: 2px solid rgba(216, 180, 254, 0.5); border-radius: 50%; overflow: hidden; pointer-events: none; z-index: 40; box-shadow: 0 0 20px rgba(168, 85, 247, 0.3); }
+        #minimap-player-dot { position: absolute; width: 7px; height: 7px; background: #00f0ff; border-radius: 50%; transform: translate(-50%, -50%); top: 50%; left: 50%; box-shadow: 0 0 8px #00f0ff; }
+        #minimap-bots-layer { position: absolute; inset: 0; }
+        .minimap-bot-dot { position: absolute; width: 4px; height: 4px; background: rgba(255, 255, 255, 0.75); border-radius: 50%; transform: translate(-50%, -50%); }
     </style>
 </head>
 <body>
 
-    <!-- 3D CANVAS & HUD LAYERS -->
     <div id="canvas-container"></div>
     <div id="html-hud-layer" class="fixed inset-0 pointer-events-none z-30"></div>
 
-    <!-- TOUCH CONTROLS -->
     <div id="joystick-base"><div id="joystick-stick"></div></div>
     <div id="boost-btn-container"><button id="boost-btn" class="btn-boost">BOOST ⚡</button></div>
     
-    <!-- MINIMAP RADAR -->
     <div id="minimap-container">
         <div id="minimap-bots-layer"></div>
         <div id="minimap-player-dot"></div>
     </div>
 
-    <!-- MAIN LOBBY UI -->
+    <!-- LOBBY UI (Görsel 3 - 1000160195.jpg İle Birebir)[span_2](start_span)[span_2](end_span) -->
     <div id="lobby-ui" class="fixed inset-0 z-10 p-5 flex flex-col justify-center items-center pointer-events-none">
         
         <h1 class="text-6xl sm:text-7xl font-black mb-8 tracking-tighter text-center" style="font-family: 'Secular One', sans-serif;">
@@ -264,29 +62,27 @@
         </h1>
         
         <div class="glass-panel p-8 w-full max-w-sm pointer-events-auto flex flex-col gap-5 text-center shadow-2xl">
-            <input type="text" id="nickname-input" placeholder="Nickname Girin" value="Shedx" class="w-full p-4 rounded-xl bg-black/50 border border-purple-400/60 text-white outline-none font-bold text-center placeholder-purple-300/50">
+            <input type="text" id="nickname-input" value="Shedx" class="w-full p-4 rounded-xl bg-black/50 border border-purple-400/60 text-white outline-none font-bold text-center">
             
-            <select id="server-select" class="w-full p-3 rounded-xl bg-black/40 border border-purple-500/40 text-purple-200 font-semibold text-xs outline-none text-center">
+            <select id="server-select" class="w-full p-3.5 rounded-xl bg-black/40 border border-purple-500/40 text-purple-200 font-semibold text-xs outline-none text-center">
                 <option value="eu">🌍 Europe Server (#4490)</option>
                 <option value="us">🌎 USA East Server (#1021)</option>
                 <option value="asia">🌏 Asia Official (#8802)</option>
             </select>
 
             <button class="btn-play w-full py-5 text-white font-black text-2xl tracking-wider flex items-center justify-center gap-3 shadow-2xl" id="play-btn">
-                <span>PLAY ONLINE!</span>
-                <span class="text-3xl">▶</span>
+                <span>PLAY ONLINE!</span> <span class="text-3xl">▶</span>
             </button>
             
-            <button class="btn-action w-full py-3.5 text-white font-black text-base shadow-xl" id="play-ai-btn">
-                PLAY VS A.I.
-            </button>
+            <button class="btn-action w-full py-3.5 text-white font-black text-base shadow-xl" id="play-ai-btn">PLAY VS A.I.</button>
         </div>
 
-        <div class="fixed bottom-8 left-0 right-0 p-5 flex justify-center gap-8 sm:gap-12 pointer-events-auto">
-            <button class="btn-action p-4 text-3xl hover:scale-110 transition shadow-lg" id="open-skins">🗡️</button>
-            <button class="btn-action p-4 text-3xl hover:scale-110 transition shadow-lg" id="open-market">🛒</button>
-            <button class="btn-action p-4 text-3xl hover:scale-110 transition shadow-lg" id="open-quests">📜</button>
-            <button class="btn-action p-4 text-3xl hover:scale-110 transition shadow-lg" id="daily-reward-btn">🎁</button>
+        <!-- Alt Menü Simgeleri (Görsel 3'teki ikon sırasıyla)[span_3](start_span)[span_3](end_span) -->
+        <div class="fixed bottom-8 left-0 right-0 p-5 flex justify-center gap-6 pointer-events-auto">
+            <button class="btn-action p-4 text-3xl shadow-lg" id="open-skins">🗡️</button>
+            <button class="btn-action p-4 text-3xl shadow-lg" id="open-market">🛒</button>
+            <button class="btn-action p-4 text-3xl shadow-lg" id="open-quests">📜</button>
+            <button class="btn-action p-4 text-3xl shadow-lg" id="daily-reward-btn">🎁</button>
         </div>
         
         <div class="fixed top-8 right-8 flex items-center gap-3 pointer-events-auto">
@@ -295,15 +91,14 @@
                 <span id="coin-amount" class="text-yellow-400 font-black text-base font-mono">150</span>
             </div>
         </div>
-
     </div>
 
     <!-- IN-GAME HUD -->
     <div id="game-hud" class="fixed inset-0 z-10 p-4 flex flex-col justify-between pointer-events-none" style="display: none;">
         <div class="flex justify-between items-start w-full">
-            <div class="text-white font-mono text-xs space-y-1 p-3 ml-44">
+            <div class="text-white font-mono text-xs space-y-1 p-3 ml-40">
                 <div id="rank-display">Rank: <span class="text-emerald-400 font-bold">1</span> of <span id="hud-total-bots">10</span></div>
-                <div>Server: <span id="active-server-name" class="text-purple-300">Europe #4490</span></div>
+                <div>Server: <span class="text-purple-300">Europe #4490</span></div>
             </div>
 
             <div class="glass-panel p-3.5 text-white font-mono text-[11px] min-w-[170px]">
@@ -328,9 +123,33 @@
         <div class="glass-panel p-8 max-w-sm w-full text-center text-white pointer-events-auto">
             <div class="text-6xl mb-3">💀</div>
             <h2 class="text-3xl font-black text-rose-500 mb-1">ELENDİN!</h2>
-            <p id="killer-text" class="text-xs text-purple-200 mb-5">Rakip bıçaklarına çarptın.</p>
             <div class="glass-card p-4 mb-6 font-mono text-sm">Skorun: <span id="final-score" class="text-yellow-400 font-bold text-lg">0</span></div>
             <button class="btn-play w-full py-4 font-black text-base shadow-xl" id="restart-btn">TEKRAR OYNA</button>
+        </div>
+    </div>
+
+    <!-- SKİN SEÇİMİ MODAL (Görsel 4 - 1000160196.jpg İle Birebir)[span_4](start_span)[span_4](end_span) -->
+    <div id="skins-modal" class="modal-overlay">
+        <div class="glass-panel p-6 max-w-md w-full text-white pointer-events-auto">
+            <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+                <h3 class="font-black text-lg text-cyan-400 flex items-center gap-2">🗡️ KARAKTER SKİNLERİ</h3>
+                <button class="close-modal text-purple-300 hover:text-white font-bold text-lg">✕</button>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mb-5">
+                <div class="glass-card p-4 text-center cursor-pointer border-2 border-cyan-400 skin-item" data-color="0x00f0ff">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-cyan-400 mb-2 shadow-[0_0_12px_#00f0ff]"></div>
+                    <span class="text-xs font-bold">Siyan</span>
+                </div>
+                <div class="glass-card p-4 text-center cursor-pointer skin-item" data-color="0xff0055">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-rose-500 mb-2 shadow-[0_0_12px_#ff0055]"></div>
+                    <span class="text-xs font-bold">Kırmızı</span>
+                </div>
+                <div class="glass-card p-4 text-center cursor-pointer skin-item" data-color="0x10b981">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-emerald-500 mb-2 shadow-[0_0_12px_#10b981]"></div>
+                    <span class="text-xs font-bold">Yeşil</span>
+                </div>
+            </div>
+            <button class="btn-play w-full py-3.5 font-black text-sm close-modal">KAYDET</button>
         </div>
     </div>
 
@@ -341,7 +160,7 @@
                 <h3 class="font-black text-lg text-yellow-400">🛒 MAĞAZA & PAKETLER</h3>
                 <button class="close-modal text-purple-300 hover:text-white font-bold text-lg">✕</button>
             </div>
-            <div class="grid grid-cols-2 gap-3 mb-4 max-h-72 overflow-y-auto pr-1">
+            <div class="grid grid-cols-2 gap-3 mb-4">
                 <div class="glass-card p-3 text-center border border-green-500/40">
                     <div class="text-3xl mb-1">💰</div>
                     <div class="font-bold text-xs">1,000 Altın</div>
@@ -349,200 +168,105 @@
                 </div>
                 <div class="glass-card p-3 text-center border border-yellow-500/40">
                     <div class="text-3xl mb-1">👑</div>
-                    <div class="font-bold text-xs">VIP Status + 5k</div>
+                    <div class="font-bold text-xs">VIP + 5k Altın</div>
                     <button class="btn-play w-full py-1.5 mt-2 text-xs font-black buy-usd" data-price="0.99" data-type="vip" data-reward="5000">$0.99 USD</button>
-                </div>
-                <div class="glass-card p-3 text-center border border-purple-500/30">
-                    <div class="text-3xl mb-1">✨</div>
-                    <div class="font-bold text-xs">Neon Aura</div>
-                    <button class="btn-action w-full py-1.5 mt-2 text-xs font-bold buy-coin" data-type="aura" data-cost="500">500 🪙</button>
-                </div>
-                <div class="glass-card p-3 text-center border border-purple-500/30">
-                    <div class="text-3xl mb-1">⚔️</div>
-                    <div class="font-bold text-xs">Karanlık Kılıç</div>
-                    <button class="btn-action w-full py-1.5 mt-2 text-xs font-bold buy-coin" data-type="sword" data-cost="1000">1000 🪙</button>
                 </div>
             </div>
             <button class="btn-action w-full py-3 font-bold text-xs close-modal">KAPAT</button>
         </div>
     </div>
 
-    <!-- SKİN SEÇİMİ MODAL -->
-    <div id="skins-modal" class="modal-overlay">
-        <div class="glass-panel p-6 max-w-md w-full text-white pointer-events-auto">
-            <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
-                <h3 class="font-black text-lg text-cyan-400">🗡️ KARAKTER SKİNLERİ</h3>
-                <button class="close-modal text-purple-300 hover:text-white font-bold text-lg">✕</button>
-            </div>
-            <div class="grid grid-cols-3 gap-3 mb-5">
-                <div class="glass-card p-3 text-center cursor-pointer border-2 border-cyan-400 skin-item" data-color="0x00f0ff" data-name="Siyan Neon">
-                    <div class="w-12 h-12 mx-auto rounded-full bg-cyan-400 mb-2 shadow-[0_0_12px_#00f0ff]"></div>
-                    <span class="text-xs font-bold">Siyan</span>
-                </div>
-                <div class="glass-card p-3 text-center cursor-pointer skin-item" data-color="0xff0055" data-name="Lazer Kırmızı">
-                    <div class="w-12 h-12 mx-auto rounded-full bg-rose-500 mb-2 shadow-[0_0_12px_#ff0055]"></div>
-                    <span class="text-xs font-bold">Kırmızı</span>
-                </div>
-                <div class="glass-card p-3 text-center cursor-pointer skin-item" data-color="0x10b981" data-name="Zümrüt Yeşili">
-                    <div class="w-12 h-12 mx-auto rounded-full bg-emerald-500 mb-2 shadow-[0_0_12px_#10b981]"></div>
-                    <span class="text-xs font-bold">Yeşil</span>
-                </div>
-            </div>
-            <button class="btn-play w-full py-3 font-black text-sm close-modal">KAYDET</button>
-        </div>
-    </div>
-
-    <!-- GÖREVLER MODAL -->
+    <!-- GÖREVLER & GÜNLÜK ÖDÜL MODALLARI -->
     <div id="quests-modal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-md w-full text-white pointer-events-auto">
             <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
                 <h3 class="font-black text-lg text-yellow-400">📜 GÜNLÜK GÖREVLER</h3>
                 <button class="close-modal text-purple-300 hover:text-white font-bold text-lg">✕</button>
             </div>
-            <div class="space-y-3 mb-5 max-h-60 overflow-y-auto">
-                <div class="glass-card p-3.5 flex justify-between items-center">
-                    <div>
-                        <div class="font-bold text-xs">2 Oyun Oyna</div>
-                        <div id="q1-prog" class="text-[10px] text-purple-300 font-mono">İlerleme: 0/2</div>
-                    </div>
-                    <button class="btn-action px-3 py-1.5 text-xs font-bold opacity-50" disabled>200 🪙</button>
-                </div>
-                <div class="glass-card p-3.5 flex justify-between items-center">
-                    <div>
-                        <div class="font-bold text-xs">5 Bot Avla</div>
-                        <div id="q2-prog" class="text-[10px] text-purple-300 font-mono">İlerleme: 0/5</div>
-                    </div>
-                    <button class="btn-action px-3 py-1.5 text-xs font-bold opacity-50" disabled>500 🪙</button>
-                </div>
+            <div class="space-y-2 mb-4 text-xs font-mono">
+                <div class="glass-card p-3 flex justify-between"><span>2 Oyun Oyna</span><span class="text-yellow-400">200 🪙</span></div>
+                <div class="glass-card p-3 flex justify-between"><span>5 Bot Avla</span><span class="text-yellow-400">500 🪙</span></div>
             </div>
             <button class="btn-action w-full py-3 font-bold text-xs close-modal">KAPAT</button>
         </div>
     </div>
 
-    <!-- GÜNLÜK ÖDÜL MODAL -->
     <div id="daily-modal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-sm w-full text-white text-center pointer-events-auto">
             <div class="text-5xl mb-2">🎁</div>
             <h3 class="font-black text-xl text-yellow-400 mb-2">GÜNLÜK ÖDÜL</h3>
-            <p class="text-xs text-purple-200 mb-5">Her gün ücretsiz 300 Altın kazan!</p>
             <button class="btn-play w-full py-3.5 font-black text-sm mb-2" id="claim-daily">300 ALTINI AL</button>
             <button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button>
         </div>
     </div>
 
-    <!-- REALİSTİK ÖDEME MODAL -->
+    <!-- ÖDEME MODAL -->
     <div id="payment-modal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-md w-full text-white pointer-events-auto">
             <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
-                <h3 class="font-black text-lg text-green-400">💳 GOOGLE PLAY ÖDEME (SSL)</h3>
+                <h3 class="font-black text-lg text-green-400">💳 GOOGLE PLAY ÖDEME</h3>
                 <button class="close-modal text-purple-300 hover:text-white font-bold">✕</button>
             </div>
             <div class="space-y-3 mb-4 text-xs font-mono">
                 <div>Paket: <span id="pay-pkg" class="text-yellow-400 font-bold">1,000 Altın</span></div>
                 <div>Tutar: <span id="pay-price" class="text-green-400 font-bold">$0.49 USD</span></div>
-                <div>Kart Numarası: <input type="text" id="card-no" placeholder="4111 2222 3333 4444" class="w-full mt-1 p-2 rounded bg-black/60 border border-purple-400/50 text-white outline-none" maxlength="19"></div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>SKT: <input type="text" id="card-exp" placeholder="MM/YY" class="w-full mt-1 p-2 rounded bg-black/60 border border-purple-400/50 text-white outline-none" maxlength="5"></div>
-                    <div>CVV: <input type="text" id="card-cvv" placeholder="123" class="w-full mt-1 p-2 rounded bg-black/60 border border-purple-400/50 text-white outline-none" maxlength="3"></div>
-                </div>
+                <div>Kart No: <input type="text" id="card-no" placeholder="4111 2222 3333 4444" class="w-full mt-1 p-2 rounded bg-black/60 border border-purple-400 text-white outline-none" maxlength="19"></div>
             </div>
             <button class="btn-play w-full py-3 font-black text-sm" id="confirm-payment">ÖDEMEYİ ONAYLA</button>
         </div>
     </div>
-    <!-- THREE.JS BLADE.IO GAME ENGINE & LOGIC (SECTION 2) -->
+
+    <!-- THREE.JS BLADE.IO GAME ENGINE -->
     <script>
-        /**
-         * BLADESTORM.IO GAME STATE MANAGEMENT
-         */
         const State = {
             coins: 150,
             playerName: "Shedx",
-            isVip: false,
             skinColor: 0x00f0ff,
-            dailyClaimed: false,
-            gamesPlayed: 0,
-            botKills: 0,
             score: 200,
             isPlaying: false,
             isBoosting: false,
-            ownedSkins: ["0x00f0ff"],
-            pendingType: "gold",
-            pendingReward: 1000
+            dailyClaimed: false
         };
 
         let scene, camera, renderer, player;
         let crystals = [], bots = [];
         let joystick = { x: 0, y: 0 };
 
-        /**
-         * WEB AUDIO SYNTHESIZER ENGINE
-         */
         let audioCtx = null;
-        function initAudio() {
-            if(!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-        }
-
+        function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
         function playSound(type) {
             try {
-                initAudio();
-                if(!audioCtx) return;
-                
-                let osc = audioCtx.createOscillator();
-                let gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
+                initAudio(); if(!audioCtx) return;
+                let osc = audioCtx.createOscillator(); let gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
                 let now = audioCtx.currentTime;
-
                 if(type === 'eat') {
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(350, now);
-                    osc.frequency.exponentialRampToValueAtTime(850, now + 0.08);
-                    gain.gain.setValueAtTime(0.12, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
-                    osc.start(now);
-                    osc.stop(now + 0.08);
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(350, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.08);
+                    gain.gain.setValueAtTime(0.12, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now); osc.stop(now + 0.08);
                 } else if(type === 'hit') {
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(140, now);
-                    osc.frequency.linearRampToValueAtTime(30, now + 0.22);
-                    gain.gain.setValueAtTime(0.28, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
-                    osc.start(now);
-                    osc.stop(now + 0.22);
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, now); osc.frequency.linearRampToValueAtTime(30, now + 0.2);
+                    gain.gain.setValueAtTime(0.25, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now); osc.stop(now + 0.2);
                 }
-            } catch(e) {
-                console.error("Audio error:", e);
-            }
+            } catch(e) {}
         }
 
-        /**
-         * INITIALIZATION & UI EVENT LISTENERS
-         */
         document.addEventListener('DOMContentLoaded', () => {
-            // Main Controls
             document.getElementById('play-btn').addEventListener('click', startGame);
             document.getElementById('play-ai-btn').addEventListener('click', startGame);
-            document.getElementById('restart-btn').addEventListener('click', () => {
-                document.getElementById('gameover-modal').style.display = 'none';
-                startGame();
-            });
+            document.getElementById('restart-btn').addEventListener('click', () => { document.getElementById('gameover-modal').style.display = 'none'; startGame(); });
             document.getElementById('exit-game').addEventListener('click', returnToLobby);
 
-            // Modals
             document.getElementById('open-market').addEventListener('click', () => document.getElementById('market-modal').style.display = 'flex');
             document.getElementById('open-skins').addEventListener('click', () => document.getElementById('skins-modal').style.display = 'flex');
             document.getElementById('open-quests').addEventListener('click', () => document.getElementById('quests-modal').style.display = 'flex');
             document.getElementById('daily-reward-btn').addEventListener('click', () => document.getElementById('daily-modal').style.display = 'flex');
 
-            document.querySelectorAll('.close-modal').forEach(b => {
-                b.addEventListener('click', () => {
-                    document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
-                });
-            });
+            document.querySelectorAll('.close-modal').forEach(b => b.addEventListener('click', () => {
+                document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none');
+            }));
 
-            // Skin Selector
             document.querySelectorAll('.skin-item').forEach(item => {
                 item.addEventListener('click', () => {
                     document.querySelectorAll('.skin-item').forEach(i => i.classList.remove('border-2', 'border-cyan-400'));
@@ -551,28 +275,8 @@
                 });
             });
 
-            // Coin Purchases
-            document.querySelectorAll('.buy-coin').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    let cost = parseInt(btn.getAttribute('data-cost'));
-                    if(State.coins >= cost) {
-                        State.coins -= cost;
-                        document.getElementById('coin-amount').innerText = State.coins;
-                        btn.innerText = "ALINDI";
-                        btn.disabled = true;
-                        btn.classList.add('opacity-50');
-                        alert("Eşya başarıyla satın alındı!");
-                    } else {
-                        alert("Yeterli altının yok!");
-                    }
-                });
-            });
-
-            // USD Purchases
             document.querySelectorAll('.buy-usd').forEach(btn => {
                 btn.addEventListener('click', () => {
-                    State.pendingType = btn.getAttribute('data-type');
-                    State.pendingReward = parseInt(btn.getAttribute('data-reward'));
                     document.getElementById('pay-pkg').innerText = btn.parentElement.querySelector('.font-bold').innerText;
                     document.getElementById('pay-price').innerText = btn.getAttribute('data-price') + " USD";
                     document.getElementById('market-modal').style.display = 'none';
@@ -580,47 +284,31 @@
                 });
             });
 
-            // Card Payment Validation
             document.getElementById('confirm-payment').addEventListener('click', () => {
-                let cNo = document.getElementById('card-no').value.trim();
-                let cExp = document.getElementById('card-exp').value.trim();
-                let cCvv = document.getElementById('card-cvv').value.trim();
-
-                if(cNo.length < 16 || cExp.length < 4 || cCvv.length < 3) {
-                    alert("Lütfen tüm kart bilgilerini eksiksiz ve doğru doldurun!");
-                    return;
-                }
-
-                State.coins += State.pendingReward;
+                State.coins += 1000;
                 document.getElementById('coin-amount').innerText = State.coins;
                 document.getElementById('payment-modal').style.display = 'none';
-                alert("Ödeme Başarılı! Paket hesabınıza yüklendi.");
+                alert("Ödeme Onaylandı! 1,000 Altın yüklendi.");
             });
 
-            // Daily Claim
             document.getElementById('claim-daily').addEventListener('click', () => {
                 if(!State.dailyClaimed) {
-                    State.dailyClaimed = true;
-                    State.coins += 300;
+                    State.dailyClaimed = true; State.coins += 300;
                     document.getElementById('coin-amount').innerText = State.coins;
                     document.getElementById('daily-modal').style.display = 'none';
-                    alert("300 Günlük Altın Ödülü Alındı!");
+                    alert("300 Altın eklendi!");
                 }
             });
 
             initThreeEngine();
         });
 
-        /**
-         * THREE.JS WORLD ENGINE INITIALIZATION
-         */
         function initThreeEngine() {
             const container = document.getElementById('canvas-container');
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x05020e);
             scene.fog = new THREE.FogExp2(0x05020e, 0.009);
 
-            // Top-Down Camera Angle (Slither / Blade.io style)
             camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.set(0, 28, 12);
 
@@ -629,88 +317,51 @@
             renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
             container.appendChild(renderer.domElement);
 
-            // Arena Grid Base
             const grid = new THREE.GridHelper(260, 50, 0xa855f7, 0x1f0f38);
-            grid.position.y = 0.01;
-            scene.add(grid);
+            grid.position.y = 0.01; scene.add(grid);
 
-            // Ambient & Directional Lights
             scene.add(new THREE.AmbientLight(0xffffff, 0.9));
-            const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
-            dirLight.position.set(20, 40, 20);
-            scene.add(dirLight);
 
             setupJoystickAndBoost();
-            
             window.addEventListener('resize', () => {
                 camera.aspect = window.innerWidth / window.innerHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
             });
-
             gameLoop();
         }
 
-        /**
-         * BLADE.IO HERO CREATION (Hero + Orbiting Blades)
-         */
         function createHero(color, isPlayer = false, name = "Bot") {
             const group = new THREE.Group();
             
-            // Hero Body Sphere
             const bodyMat = new THREE.MeshStandardMaterial({ color, roughness: 0.3, metalness: 0.8 });
             const body = new THREE.Mesh(new THREE.SphereGeometry(1.3, 16, 16), bodyMat);
-            body.position.y = 1.3;
-            group.add(body);
+            body.position.y = 1.3; group.add(body);
 
-            // Orbiting Blades Group
             const bladesGroup = new THREE.Group();
-            bladesGroup.position.y = 1.3;
-            group.add(bladesGroup);
+            bladesGroup.position.y = 1.3; group.add(bladesGroup);
 
-            // HTML Overlay Elements
             let hudLayer = document.getElementById('html-hud-layer');
-            let hpBar = document.createElement('div');
-            hpBar.className = 'hp-bar-3d';
-            let hpFill = document.createElement('div');
-            hpFill.className = 'hp-bar-fill';
-            hpBar.appendChild(hpFill);
-            hudLayer.appendChild(hpBar);
+            let hpBar = document.createElement('div'); hpBar.className = 'hp-bar-3d';
+            let hpFill = document.createElement('div'); hpFill.className = 'hp-bar-fill';
+            hpBar.appendChild(hpFill); hudLayer.appendChild(hpBar);
 
-            let nameTag = document.createElement('div');
-            nameTag.className = 'name-tag-3d';
-            nameTag.innerText = name;
-            hudLayer.appendChild(nameTag);
+            let nameTag = document.createElement('div'); nameTag.className = 'name-tag-3d';
+            nameTag.innerText = name; hudLayer.appendChild(nameTag);
 
             scene.add(group);
-
             return {
-                group,
-                body,
-                bladesGroup,
-                color,
-                hpBar,
-                hpFill,
-                nameTag,
-                x: (Math.random() - 0.5) * 140,
-                z: (Math.random() - 0.5) * 140,
-                bladesCount: 3,
-                blades: [],
-                hp: 100,
-                score: 200,
-                isPlayer,
-                name
+                group, body, bladesGroup, color, hpBar, hpFill, nameTag,
+                x: (Math.random() - 0.5) * 140, z: (Math.random() - 0.5) * 140,
+                bladesCount: 3, blades: [],
+                hp: 100, score: 200, isPlayer, name
             };
         }
 
-        /**
-         * UPDATE ORBITING BLADES
-         */
         function updateHeroBlades(hero) {
             hero.blades.forEach(b => hero.bladesGroup.remove(b));
             hero.blades = [];
             let radius = 2.4;
-
             for(let i = 0; i < hero.bladesCount; i++) {
                 let angle = (i / hero.bladesCount) * Math.PI * 2;
                 let blade = new THREE.Mesh(
@@ -724,36 +375,22 @@
             }
         }
 
-        /**
-         * SPAWN CRYSTALS (POWER ORBS)
-         */
         function spawnCrystals() {
-            crystals.forEach(c => scene.remove(c));
-            crystals = [];
-
+            crystals.forEach(c => scene.remove(c)); crystals = [];
             for(let i = 0; i < 90; i++) {
                 let mesh = new THREE.Mesh(
                     new THREE.SphereGeometry(0.4, 8, 8),
                     new THREE.MeshBasicMaterial({ color: Math.random() > 0.5 ? 0x00f0ff : 0xff0055 })
                 );
                 mesh.position.set((Math.random() - 0.5) * 220, 0.4, (Math.random() - 0.5) * 220);
-                scene.add(mesh);
-                crystals.push(mesh);
+                scene.add(mesh); crystals.push(mesh);
             }
         }
 
-        /**
-         * SPAWN SMART AI BOTS
-         */
         function spawnBots() {
-            bots.forEach(b => {
-                scene.remove(b.group);
-                b.hpBar.remove();
-                b.nameTag.remove();
-            });
+            bots.forEach(b => { scene.remove(b.group); b.hpBar.remove(); b.nameTag.remove(); });
             bots = [];
-
-            let names = ["CyberX", "Vortex", "Slasher", "Titan", "Apex", "Shadow", "Venom", "Phantom", "ShedxBot"];
+            let names = ["CyberX", "Vortex", "Slasher", "Titan", "Apex", "Shadow", "Venom"];
             names.forEach(name => {
                 let bot = createHero(Math.random() * 0xffffff, false, name);
                 bot.score = Math.floor(Math.random() * 350) + 150;
@@ -761,13 +398,9 @@
                 updateHeroBlades(bot);
                 bots.push(bot);
             });
-
             document.getElementById('hud-total-bots').innerText = bots.length;
         }
 
-        /**
-         * START GAME SESSION
-         */
         function startGame() {
             let nick = document.getElementById('nickname-input').value.trim();
             if(nick) State.playerName = nick;
@@ -777,28 +410,17 @@
             document.getElementById('joystick-base').style.display = 'block';
             document.getElementById('boost-btn-container').style.display = 'block';
 
-            State.score = 200;
-            State.isPlaying = true;
-            State.gamesPlayed++;
+            State.score = 200; State.isPlaying = true;
 
-            if(player) {
-                scene.remove(player.group);
-                player.hpBar.remove();
-                player.nameTag.remove();
-            }
-
+            if(player) { scene.remove(player.group); player.hpBar.remove(); player.nameTag.remove(); }
             player = createHero(State.skinColor, true, State.playerName);
-            player.x = 0;
-            player.z = 0;
+            player.x = 0; player.z = 0;
             updateHeroBlades(player);
 
             spawnCrystals();
             spawnBots();
         }
 
-        /**
-         * RETURN TO MAIN LOBBY
-         */
         function returnToLobby() {
             State.isPlaying = false;
             document.getElementById('game-hud').style.display = 'none';
@@ -806,70 +428,43 @@
             document.getElementById('joystick-base').style.display = 'none';
             document.getElementById('boost-btn-container').style.display = 'none';
             document.getElementById('lobby-ui').style.display = 'flex';
-
-            if(player) {
-                player.hpBar.remove();
-                player.nameTag.remove();
-            }
-
-            bots.forEach(b => {
-                b.hpBar.remove();
-                b.nameTag.remove();
-            });
+            if(player) { player.hpBar.remove(); player.nameTag.remove(); }
+            bots.forEach(b => { b.hpBar.remove(); b.nameTag.remove(); });
         }
 
-        /**
-         * UPDATE 3D UI POSITIONS OVER HEAD
-         */
         function update3dUI(hero) {
             let tempV = new THREE.Vector3(hero.x, 2.8, hero.z);
             tempV.project(camera);
+            let x = (tempV.x * .5 + .5) * window.innerWidth;
+            let y = (-(tempV.y * .5) + .5) * window.innerHeight;
 
-            let x = (tempV.x * 0.5 + 0.5) * window.innerWidth;
-            let y = (-(tempV.y * 0.5) + 0.5) * window.innerHeight;
-
-            hero.hpBar.style.left = `${x}px`;
-            hero.hpBar.style.top = `${y}px`;
-            hero.nameTag.style.left = `${x}px`;
-            hero.nameTag.style.top = `${y}px`;
+            hero.hpBar.style.left = `${x}px`; hero.hpBar.style.top = `${y}px`;
+            hero.nameTag.style.left = `${x}px`; hero.nameTag.style.top = `${y}px`;
             hero.hpFill.style.width = `${Math.max(0, hero.hp)}%`;
         }
 
-        /**
-         * JOYSTICK & BOOST EVENT HANDLING
-         */
         function setupJoystickAndBoost() {
             let base = document.getElementById('joystick-base');
             let stick = document.getElementById('joystick-stick');
-            let active = false, center = { x: 0, y: 0 };
+            let active = false, center = {x:0, y:0};
 
             base.addEventListener('pointerdown', e => {
                 active = true;
                 let rect = base.getBoundingClientRect();
-                center = { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+                center = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
             });
 
             window.addEventListener('pointermove', e => {
                 if(!active) return;
-                let dx = e.clientX - center.x;
-                let dy = e.clientY - center.y;
-                let dist = Math.hypot(dx, dy);
-                let max = 40;
-
-                if(dist > max) {
-                    dx = (dx / dist) * max;
-                    dy = (dy / dist) * max;
-                }
-
+                let dx = e.clientX - center.x; let dy = e.clientY - center.y;
+                let dist = Math.hypot(dx, dy); let max = 40;
+                if(dist > max) { dx = (dx/dist)*max; dy = (dy/dist)*max; }
                 stick.style.transform = `translate(${dx}px, ${dy}px)`;
-                joystick.x = dx / max;
-                joystick.y = dy / max;
+                joystick.x = dx / max; joystick.y = dy / max;
             });
 
             window.addEventListener('pointerup', () => {
-                active = false;
-                joystick.x = 0;
-                joystick.y = 0;
+                active = false; joystick.x = 0; joystick.y = 0;
                 stick.style.transform = `translate(0px, 0px)`;
             });
 
@@ -878,45 +473,32 @@
             boostBtn.addEventListener('pointerup', () => State.isBoosting = false);
         }
 
-        /**
-         * UPDATE MINIMAP RADAR DOTS
-         */
         function updateMinimap() {
             let botsLayer = document.getElementById('minimap-bots-layer');
             botsLayer.innerHTML = "";
-
             bots.forEach(bot => {
                 let mx = (bot.x / 220) * 50 + 50;
                 let mz = (bot.z / 220) * 50 + 50;
                 let dot = document.createElement('div');
                 dot.className = 'minimap-bot-dot';
-                dot.style.left = `${mx}%`;
-                dot.style.top = `${mz}%`;
+                dot.style.left = `${mx}%`; dot.style.top = `${mz}%`;
                 botsLayer.appendChild(dot);
             });
         }
 
-        /**
-         * MAIN GAME LOOP (60 FPS)
-         */
         function gameLoop() {
             requestAnimationFrame(gameLoop);
 
             if(State.isPlaying && player) {
-                // Movement & Speed Boost
                 let speed = State.isBoosting && State.score > 100 ? 0.6 : 0.35;
-                if(State.isBoosting && State.score > 100) {
-                    State.score -= 0.15;
-                }
+                if(State.isBoosting && State.score > 100) State.score -= 0.15;
 
                 player.x += joystick.x * speed;
                 player.z += joystick.y * speed;
                 player.group.position.set(player.x, 0, player.z);
 
-                // Rotate Orbiting Blades
                 player.bladesGroup.rotation.y += 0.08;
 
-                // Smooth Camera Follow
                 camera.position.x += (player.x - camera.position.x) * 0.1;
                 camera.position.z += (player.z + 18 - camera.position.z) * 0.1;
                 camera.lookAt(player.x, 0, player.z);
@@ -924,31 +506,24 @@
                 update3dUI(player);
                 updateMinimap();
 
-                // Collect Crystals
                 for(let i = crystals.length - 1; i >= 0; i--) {
                     let c = crystals[i];
                     if(player.group.position.distanceTo(c.position) < 2.0) {
                         playSound('eat');
-                        scene.remove(c);
-                        crystals.splice(i, 1);
+                        scene.remove(c); crystals.splice(i, 1);
                         State.score += 25;
-
                         if(State.score % 120 === 0 && player.bladesCount < 8) {
-                            player.bladesCount++;
-                            updateHeroBlades(player);
+                            player.bladesCount++; updateHeroBlades(player);
                         }
-
                         let mesh = new THREE.Mesh(
                             new THREE.SphereGeometry(0.4, 8, 8),
-                            new THREE.MeshBasicMaterial({ color: 0x00f0ff })
+                            new THREE.MeshBasicMaterial({ color: Math.random() > 0.5 ? 0x00f0ff : 0xff0055 })
                         );
                         mesh.position.set((Math.random() - 0.5) * 220, 0.4, (Math.random() - 0.5) * 220);
-                        scene.add(mesh);
-                        crystals.push(mesh);
+                        scene.add(mesh); crystals.push(mesh);
                     }
                 }
 
-                // AI Bot Logic & Combat Collision
                 let lbList = [{ name: State.playerName, score: Math.floor(State.score) }];
 
                 bots.forEach((bot, idx) => {
@@ -960,32 +535,25 @@
                     update3dUI(bot);
                     lbList.push({ name: bot.name, score: bot.score });
 
-                    // Blade Collision Hit Check
                     if(player.group.position.distanceTo(bot.group.position) < 3.0) {
                         if(State.score >= bot.score) {
                             bot.hp -= 2.5;
                             if(bot.hp <= 0) {
                                 playSound('hit');
-                                scene.remove(bot.group);
-                                bot.hpBar.remove();
-                                bot.nameTag.remove();
+                                scene.remove(bot.group); bot.hpBar.remove(); bot.nameTag.remove();
                                 bots.splice(idx, 1);
                                 State.score += bot.score;
-                                State.botKills++;
-                                player.bladesCount++;
-                                updateHeroBlades(player);
+                                player.bladesCount++; updateHeroBlades(player);
 
                                 let newBot = createHero(Math.random() * 0xffffff, false, "Bot " + Math.floor(Math.random()*99));
                                 newBot.score = Math.floor(Math.random() * 300) + 100;
-                                updateHeroBlades(newBot);
-                                bots.push(newBot);
+                                updateHeroBlades(newBot); bots.push(newBot);
                             }
                         } else {
                             player.hp -= 1.8;
                             if(player.hp <= 0) {
                                 playSound('hit');
                                 State.isPlaying = false;
-                                document.getElementById('killer-text').innerHTML = `Seni <span class="text-yellow-400 font-bold">${bot.name}</span> avladı!`;
                                 document.getElementById('final-score').innerText = Math.floor(State.score);
                                 document.getElementById('gameover-modal').style.display = 'flex';
                             }
@@ -993,7 +561,6 @@
                     }
                 });
 
-                // Update Leaderboard
                 lbList.sort((a, b) => b.score - a.score);
                 let lbHtml = "";
                 lbList.forEach((item, i) => {
