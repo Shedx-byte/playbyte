@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BladeStorm.io - Online Multiplayer & APK Ready</title>
+    <title>BladeStorm.io - Ultimate Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -43,6 +43,14 @@
             border-radius: 18px; cursor: pointer;
         }
         .btn-play:active { transform: scale(0.96); }
+
+        .btn-bot { 
+            background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%); 
+            border: 2.5px solid #38bdf8; 
+            box-shadow: 0 8px 25px rgba(2, 132, 199, 0.55); 
+            border-radius: 18px; cursor: pointer;
+        }
+        .btn-bot:active { transform: scale(0.96); }
 
         .btn-action { 
             background: linear-gradient(180deg, #a855f7 0%, #6b21a8 100%); 
@@ -140,13 +148,18 @@
         <div class="glass-panel p-5 w-full flex flex-col gap-3 shadow-2xl">
             <input type="text" id="nickname-input" value="Shedx" class="w-full p-3 rounded-xl bg-black/50 border border-purple-400/60 text-white outline-none font-bold text-center">
 
-            <button class="btn-play w-full py-3.5 text-white font-black text-xl tracking-wider flex items-center justify-center gap-3 shadow-xl" onclick="startMatchmaking()">
-                <span>ONLINE OYNA!</span> <span class="text-2xl">🌐</span>
+            <!-- OYUN MODLARI (ONLINE VE BOTLARLA) -->
+            <button class="btn-play w-full py-3 text-white font-black text-lg tracking-wider flex items-center justify-center gap-2 shadow-xl" onclick="startMatchmaking()">
+                <span>🌐 ONLINE OYNA!</span>
+            </button>
+            <button class="btn-bot w-full py-2.5 text-white font-black text-sm tracking-wider flex items-center justify-center gap-2 shadow-lg" onclick="startBotGame()">
+                <span>🤖 BOTLARLA OYNA</span>
             </button>
             
-            <button class="btn-action w-full py-3 text-white font-black text-sm shadow-lg" id="open-skins">
-                🗡️ SKIN & AKSEASUAR SEÇİMİ
-            </button>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn-action py-2.5 text-xs font-bold" id="open-skins">🗡️ Skinler</button>
+                <button class="btn-action py-2.5 text-xs font-bold" id="open-cosmetics-direct">👑 Aksesuarlar</button>
+            </div>
 
             <div class="grid grid-cols-3 gap-2 pt-1">
                 <button class="btn-action py-2 text-xs font-bold flex items-center justify-center gap-1" id="open-market">🛒 Mağaza</button>
@@ -156,12 +169,12 @@
         </div>
     </main>
 
-    <!-- MULTIPLAYER BEKLEME ODASI (MATCHMAKING) -->
+    <!-- MULTIPLAYER BEKLEME ODASI -->
     <div id="matchmaking-modal" class="modal-overlay flex-col">
         <div class="glass-panel p-6 max-w-sm w-full text-center space-y-4 shadow-2xl border-cyan-400/50">
             <div class="inline-block animate-spin text-4xl mb-1">🌐</div>
-            <h2 class="text-xl font-black text-cyan-300">OYUNCULAR BEKLENİYOR...</h2>
-            <p class="text-xs text-gray-300">Lobiye en az 3 oyuncu katılması bekleniyor.</p>
+            <h2 class="text-xl font-black text-cyan-300">ONLINE OYUN ARANIYOR...</h2>
+            <p class="text-xs text-gray-300">Lobiye en az 3 gerçek oyuncu katılması bekleniyor.</p>
             
             <div class="bg-black/50 p-4 rounded-xl border border-purple-500/30 space-y-2">
                 <div class="flex justify-between text-xs font-bold">
@@ -175,8 +188,8 @@
 
             <div id="waiting-players-list" class="text-xs text-left space-y-1 font-mono text-purple-200 bg-black/30 p-3 rounded-lg border border-white/10">
                 <div>• <span class="text-cyan-300 font-bold" id="lobby-p1-name">Shedx</span> (Sen - Hazır)</div>
-                <div id="lobby-p2-slot" class="text-gray-500">• Oyuncu 2 aranıyor...</div>
-                <div id="lobby-p3-slot" class="text-gray-500">• Oyuncu 3 aranıyor...</div>
+                <div id="lobby-p2-slot" class="text-gray-500">• Oyuncu 2 bekleniyor...</div>
+                <div id="lobby-p3-slot" class="text-gray-500">• Oyuncu 3 bekleniyor...</div>
             </div>
 
             <button class="btn-action w-full py-2.5 text-xs font-bold" onclick="cancelMatchmaking()">ARAMAYI İPTAL ET</button>
@@ -206,7 +219,7 @@
         </div>
     </div>
 
-    <!-- GÖREVLER MODALI (ÇALIŞAN BAKIYE VE 6 SAAT SÜRELI) -->
+    <!-- KONTROLLÜ GÖREVLER MODALI -->
     <div id="quests-modal" class="modal-overlay">
         <div class="glass-panel p-6 max-w-sm w-full text-white">
             <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
@@ -217,23 +230,23 @@
                 <div class="glass-card p-3 flex justify-between items-center">
                     <div>
                         <div class="font-bold">2 Maç Tamamla</div>
-                        <div class="text-[10px] text-emerald-400 font-bold" id="quest1-status">Ödül: 250 Altın</div>
+                        <div class="text-[10px] text-purple-300" id="q1-desc">İlerleme: <span id="q1-prog">0</span>/2 Maç</div>
                     </div>
-                    <button class="btn-play px-3 py-1.5 text-xs font-black" id="quest1-btn" onclick="claimQuest(1, 250)">AL</button>
+                    <button class="btn-play px-3 py-1.5 text-xs font-black opacity-50 cursor-not-allowed" id="q1-btn" onclick="claimQuest(1, 250)">AL (250🪙)</button>
                 </div>
                 <div class="glass-card p-3 flex justify-between items-center">
                     <div>
                         <div class="font-bold">5 Enerji Çekirdeği Topla</div>
-                        <div class="text-[10px] text-emerald-400 font-bold" id="quest2-status">Ödül: 400 Altın</div>
+                        <div class="text-[10px] text-purple-300" id="q2-desc">İlerleme: <span id="q2-prog">0</span>/5 Çekirdek</div>
                     </div>
-                    <button class="btn-play px-3 py-1.5 text-xs font-black" id="quest2-btn" onclick="claimQuest(2, 400)">AL</button>
+                    <button class="btn-play px-3 py-1.5 text-xs font-black opacity-50 cursor-not-allowed" id="q2-btn" onclick="claimQuest(2, 400)">AL (400🪙)</button>
                 </div>
             </div>
             <button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button>
         </div>
     </div>
 
-    <!-- GENİŞLETİLMİŞ KOZMETİK VE AKSESUAR MODALI -->
+    <!-- KOZMETİK MODALI -->
     <div id="cosmetics-modal" class="modal-overlay flex-col">
         <div class="hexagon-bg"></div>
         <div class="z-10 w-full max-w-sm px-4 flex flex-col gap-3.5 max-h-[75vh] overflow-y-auto pt-8 pb-20">
@@ -267,7 +280,7 @@
         <div class="fixed bottom-6 left-6 z-20"><button class="btn-ok px-8 py-3" id="close-cosmetics">OK</button></div>
     </div>
 
-    <!-- ÖLÜM MODALI -->
+    <!-- ÖLÜM EKRANI -->
     <div id="death-modal" class="modal-overlay flex-col">
         <div class="glass-panel p-5 max-w-sm w-full text-center space-y-3 shadow-2xl border-rose-500/50 relative">
             <div class="text-4xl">💀</div>
@@ -285,7 +298,7 @@
         </div>
     </div>
 
-    <!-- 20 SANİYE ADSTERRA BANNER REKLAM EKRANI -->
+    <!-- 20s ADSTERRA REKLAM MODALI -->
     <div id="ad-view-modal" class="modal-overlay flex-col" style="z-index: 2000;">
         <div class="glass-panel p-5 max-w-sm w-full text-center space-y-3 relative border-cyan-400/50">
             <button id="ad-close-x-btn" onclick="finishAdAndRevive()" class="absolute -top-3 -right-3 w-10 h-10 bg-rose-600 hover:bg-rose-500 text-white font-black text-lg rounded-full border-2 border-white shadow-xl hidden items-center justify-center">
@@ -302,16 +315,12 @@
         </div>
     </div>
 
-    <!-- SKİN, ARENA VE DİĞER MODALLAR -->
+    <!-- SKİN SEÇİM MODALI -->
     <div id="skins-modal" class="modal-overlay flex-col">
         <div class="hexagon-bg"></div>
         <div class="fixed top-6 left-6 z-20 flex flex-col items-center gap-1 cursor-pointer" id="switch-arena-btn">
             <div class="w-12 h-12 glass-panel flex items-center justify-center text-xl border border-cyan-400/60 shadow-lg shadow-cyan-500/20">🧊</div>
             <span class="text-[10px] font-bold text-cyan-300" id="arena-name-tag">Arena: Neon</span>
-        </div>
-        <div class="fixed top-6 right-6 z-20 flex flex-col items-center gap-1 cursor-pointer" id="open-cosmetics">
-            <div class="w-12 h-12 glass-panel flex items-center justify-center text-xl border border-purple-400/50" id="cosmetic-icon">👑</div>
-            <span class="text-[10px] font-bold text-gray-300">Cosmetic</span>
         </div>
         <div class="z-10 w-full max-w-sm px-4 flex flex-col gap-3.5 max-h-[72vh] overflow-y-auto pt-16 pb-20">
             <div class="skin-card-container active skin-option" data-id="0" data-price="0"><div class="flex flex-col text-left"><span class="font-black text-sm text-cyan-400">Siyan Mecha</span><span class="text-[10px] text-emerald-400 font-bold mt-1">✓ KULLANIMDA</span></div><div class="skin-canvas-box" id="cs-0"></div></div>
@@ -324,45 +333,79 @@
         <div class="fixed bottom-6 left-6 z-20"><button class="btn-ok px-8 py-3 close-skins-btn">OK</button></div>
     </div>
 
+    <!-- MAĞAZA, KREDİ KARTI VE GÜNLÜK ÖDÜL -->
     <div id="market-modal" class="modal-overlay"><div class="glass-panel p-6 max-w-sm w-full text-white"><div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3"><h3 class="font-black text-lg text-yellow-400">🛒 ALTIN MAĞAZASI</h3><button class="close-modal text-purple-300 font-bold text-lg">✕</button></div><div class="space-y-3 mb-4"><div class="glass-card p-3 flex justify-between items-center"><div><div class="font-bold text-sm">1,000 Altın</div><div class="text-xs text-green-400">$0.49 USD</div></div><button class="btn-play px-4 py-1.5 text-xs font-black" onclick="openPaymentModal(1000, '$0.49')">SATIN AL</button></div><div class="glass-card p-3 flex justify-between items-center"><div><div class="font-bold text-sm">5,000 Altın + VIP</div><div class="text-xs text-green-400">$1.99 USD</div></div><button class="btn-play px-4 py-1.5 text-xs font-black" onclick="openPaymentModal(5000, '$1.99')">SATIN AL</button></div></div><button class="btn-action w-full py-2.5 font-bold text-xs close-modal">KAPAT</button></div></div>
     
-    <div id="payment-modal" class="modal-overlay"><div class="glass-panel p-6 max-w-sm w-full text-white"><div class="flex justify-between items-center mb-3 border-b border-white/10 pb-2"><h3 class="font-black text-base text-cyan-400">💳 KREDİ KARTI ÖDEMESİ</h3><button onclick="document.getElementById('payment-modal').style.display='none'" class="text-gray-400 font-bold">✕</button></div><p class="text-xs text-gray-300 mb-3" id="payment-pack-desc">Tutar: $0.49 USD</p><form onsubmit="processCardPayment(event)" class="space-y-2.5"><div><label class="text-[10px] text-purple-200 block font-bold mb-1">Kart Sahibi Ad Soyad</label><input type="text" id="card-name" placeholder="AHMET YILMAZ" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-bold text-white outline-none"></div><div><label class="text-[10px] text-purple-200 block font-bold mb-1">Kart Numarası</label><input type="text" id="card-number" placeholder="4543 0000 0000 0000" maxlength="19" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none"></div><div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] text-purple-200 block font-bold mb-1">SKT (AA/YY)</label><input type="text" id="card-exp" placeholder="12/28" maxlength="5" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none"></div><div><label class="text-[10px] text-purple-200 block font-bold mb-1">CVV</label><input type="password" id="card-cvv" placeholder="123" maxlength="3" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none"></div></div><button type="submit" class="btn-play w-full py-3 font-black text-xs mt-2">ÖDEMEYİ ONAYLA VE ALTINI AL</button></form></div></div>
+    <div id="payment-modal" class="modal-overlay"><div class="glass-panel p-6 max-w-sm w-full text-white"><div class="flex justify-between items-center mb-3 border-b border-white/10 pb-2"><h3 class="font-black text-base text-cyan-400">💳 KREDİ KARTI / GOOGLE PLAY</h3><button onclick="document.getElementById('payment-modal').style.display='none'" class="text-gray-400 font-bold">✕</button></div><p class="text-xs text-gray-300 mb-3" id="payment-pack-desc">Tutar: $0.49 USD</p><form onsubmit="processCardPayment(event)" class="space-y-2.5"><div><label class="text-[10px] text-purple-200 block font-bold mb-1">Kart Sahibi Ad Soyad</label><input type="text" id="card-name" placeholder="AHMET YILMAZ" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-bold text-white outline-none"></div><div><label class="text-[10px] text-purple-200 block font-bold mb-1">Kart Numarası</label><input type="text" id="card-number" placeholder="4543 0000 0000 0000" maxlength="19" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none"></div><div class="grid grid-cols-2 gap-2"><div><label class="text-[10px] text-purple-200 block font-bold mb-1">SKT (AA/YY)</label><input type="text" id="card-exp" placeholder="12/28" maxlength="5" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none"></div><div><label class="text-[10px] text-purple-200 block font-bold mb-1">CVV</label><input type="password" id="card-cvv" placeholder="123" maxlength="3" required class="w-full p-2.5 rounded-lg bg-black/60 border border-purple-400/50 text-xs font-mono font-bold text-white outline-none"></div></div><button type="submit" class="btn-play w-full py-3 font-black text-xs mt-2">ÖDEMEYİ ONAYLA VE ALTINI AL</button></form></div></div>
     
     <div id="daily-modal" class="modal-overlay"><div class="glass-panel p-6 max-w-sm w-full text-white text-center"><div class="text-5xl mb-2">🎁</div><h3 class="font-black text-xl text-yellow-400 mb-2">GÜNLÜK ÖDÜL</h3><p class="text-xs text-purple-200 mb-4">Bugünkü ücretsiz 300 altınını al!</p><button class="btn-play w-full py-3 font-black text-sm mb-2" id="claim-daily-btn" onclick="claimDaily()">300 ALTINI AL</button><button class="btn-action w-full py-2 font-bold text-xs close-modal">KAPAT</button></div></div>
     <script>
-        let playerCoins = 350;
-        let activeSkinIndex = 0;
-        let activeCosmeticType = 'crown';
+        // KALICI LOCALSTORAGE KAYIT SİSTEMİ
+        let playerCoins = parseInt(localStorage.getItem('bs_coins') || '350');
+        let activeSkinIndex = parseInt(localStorage.getItem('bs_skin') || '0');
+        let activeCosmeticType = localStorage.getItem('bs_cosmetic') || 'crown';
         let activeCosmeticIcon = '👑';
         let dailyClaimed = false;
         let pendingPayAmount = 0;
         let matchmakingTimer = null;
 
-        // GÖREV SİSTEMİ VE 6 SAATLİK BEKLEME SÜRESİ
-        function claimQuest(questId, rewardAmount) {
-            let questKey = 'quest_' + questId + '_time';
-            let lastClaim = localStorage.getItem(questKey);
-            let now = Date.now();
-            let sixHoursInMs = 6 * 60 * 60 * 1000;
+        let questMatchCount = parseInt(localStorage.getItem('bs_q1_prog') || '0');
+        let questEnergyCount = parseInt(localStorage.getItem('bs_q2_prog') || '0');
 
-            if (lastClaim && (now - parseInt(lastClaim)) < sixHoursInMs) {
-                let remainingMs = sixHoursInMs - (now - parseInt(lastClaim));
-                let hours = Math.floor(remainingMs / (1000 * 60 * 60));
-                let minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
-                alert(`⚠️ Bu görevi zaten tamamladın! Yeniden açılmasına ${hours} saat ${minutes} dakika var.`);
+        function saveGameData() {
+            localStorage.setItem('bs_coins', playerCoins.toString());
+            localStorage.setItem('bs_skin', activeSkinIndex.toString());
+            localStorage.setItem('bs_cosmetic', activeCosmeticType);
+            localStorage.setItem('bs_q1_prog', questMatchCount.toString());
+            localStorage.setItem('bs_q2_prog', questEnergyCount.toString());
+        }
+
+        function updateCoins(amount) { 
+            playerCoins += amount; 
+            document.getElementById('coin-amount').innerText = playerCoins; 
+            saveGameData();
+        }
+
+        function updateQuestUI() {
+            document.getElementById('q1-prog').innerText = questMatchCount;
+            document.getElementById('q2-prog').innerText = questEnergyCount;
+
+            let q1Btn = document.getElementById('q1-btn');
+            if(questMatchCount >= 2) {
+                q1Btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                q1Btn.disabled = false;
+            }
+
+            let q2Btn = document.getElementById('q2-btn');
+            if(questEnergyCount >= 5) {
+                q2Btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                q2Btn.disabled = false;
+            }
+        }
+
+        function claimQuest(questId, rewardAmount) {
+            let questKey = 'quest_' + questId + '_claimed';
+            if(localStorage.getItem(questKey) === 'true') {
+                alert("⚠️ Bu görevin ödülünü zaten aldın!");
                 return;
             }
 
-            // Ödül Ver ve Süreyi Kaydet
+            if(questId === 1 && questMatchCount < 2) return;
+            if(questId === 2 && questEnergyCount < 5) return;
+
             updateCoins(rewardAmount);
-            localStorage.setItem(questKey, now.toString());
-            
-            let btn = document.getElementById('quest' + questId + '-btn');
-            btn.innerText = "BEKLEMEDE";
+            localStorage.setItem(questKey, 'true');
+            let btn = document.getElementById('q' + questId + '-btn');
+            btn.innerText = "ALINDI";
             btn.disabled = true;
             btn.style.opacity = "0.5";
-            alert(`🎉 Görev Tamamlandı! ${rewardAmount} Altın hesabına eklendi.`);
+            alert(`🎉 ${rewardAmount} Altın hesabına eklendi!`);
         }
+
+        // Doğrudan Kozmetik Açma Düzeltmesi
+        document.getElementById('open-cosmetics-direct').addEventListener('click', () => {
+            document.getElementById('cosmetics-modal').style.display = 'flex';
+        });
 
         const arenaThemes = [
             { name: "Neon", bgColor: 0x060212, floorColor: 0x0a0418, ringColor: 0x00f0ff },
@@ -376,7 +419,6 @@
             document.getElementById('arena-name-tag').innerText = "Arena: " + arenaThemes[activeArenaIndex].name;
         });
 
-        function updateCoins(amount) { playerCoins += amount; document.getElementById('coin-amount').innerText = playerCoins; }
         function openPaymentModal(amt, priceStr) { pendingPayAmount = amt; document.getElementById('payment-pack-desc').innerText = "Paket: " + amt + " Altın | Tutar: " + priceStr; document.getElementById('payment-modal').style.display = 'flex'; }
         function processCardPayment(e) {
             e.preventDefault();
@@ -394,9 +436,8 @@
         document.getElementById('open-skins').addEventListener('click', () => document.getElementById('skins-modal').style.display = 'flex');
         document.querySelectorAll('.close-skins-btn').forEach(b => b.addEventListener('click', () => document.getElementById('skins-modal').style.display = 'none'));
         document.getElementById('open-market').addEventListener('click', () => document.getElementById('market-modal').style.display = 'flex');
-        document.getElementById('open-quests').addEventListener('click', () => document.getElementById('quests-modal').style.display = 'flex');
+        document.getElementById('open-quests').addEventListener('click', () => { updateQuestUI(); document.getElementById('quests-modal').style.display = 'flex'; });
         document.getElementById('open-daily').addEventListener('click', () => document.getElementById('daily-modal').style.display = 'flex');
-        document.getElementById('open-cosmetics').addEventListener('click', () => document.getElementById('cosmetics-modal').style.display = 'flex');
         document.getElementById('close-cosmetics').addEventListener('click', () => document.getElementById('cosmetics-modal').style.display = 'none');
 
         document.querySelectorAll('.close-modal').forEach(b => {
@@ -422,7 +463,7 @@
                 else if(activeCosmeticType === 'horns') activeCosmeticIcon = '😈';
                 else if(activeCosmeticType === 'wings') activeCosmeticIcon = '🪽';
 
-                document.getElementById('cosmetic-icon').innerText = activeCosmeticIcon;
+                saveGameData();
                 updateAllCharacterCosmetics();
             });
         });
@@ -434,6 +475,7 @@
                 if(price > 0) { updateCoins(-price); opt.setAttribute('data-price', '0'); opt.querySelector('.font-bold.mt-1').innerText = "✓ KULLANIMDA"; }
                 document.querySelectorAll('.skin-option').forEach(o => o.classList.remove('active'));
                 opt.classList.add('active'); activeSkinIndex = parseInt(opt.getAttribute('data-id'));
+                saveGameData();
             });
         });
 
@@ -457,7 +499,6 @@
 
         const renderersList = [];
         
-        // ZENGİN YENİ 3D AKSESUAR MODELLEME FONKSİYONU
         function createCosmeticMesh(type) {
             const group = new THREE.Group();
             if(type === 'crown') {
@@ -524,7 +565,11 @@
         joystickZone.addEventListener('mousedown', (e) => { isJoystickActive = true; handleJoystickMove(e.clientX, e.clientY); });
         window.addEventListener('mousemove', (e) => { if(isJoystickActive) handleJoystickMove(e.clientX, e.clientY); });
         window.addEventListener('mouseup', resetJoystick);
-        // MULTIPLAYER MATCHMAKING VE BEKLEME ODASI MANTIĞI
+        // ONLINE VE BOT OYUN MODLARI
+        function startBotGame() {
+            startGame();
+        }
+
         function startMatchmaking() {
             let name = document.getElementById('nickname-input').value || "Shedx";
             document.getElementById('lobby-p1-name').innerText = name;
@@ -537,20 +582,18 @@
 
             countTag.innerText = "1 / 3";
             progressBar.style.width = "33%";
-            p2Slot.innerText = "• Oyuncu 2 aranıyor...";
-            p3Slot.innerText = "• Oyuncu 3 aranıyor...";
+            p2Slot.innerText = "• Oyuncu 2 bekleniyor...";
+            p3Slot.innerText = "• Oyuncu 3 bekleniyor...";
 
-            // 1.5 Saniye Sonra 2. Oyuncu Katılır
             matchmakingTimer = setTimeout(() => {
                 countTag.innerText = "2 / 3";
                 progressBar.style.width = "66%";
-                p2Slot.innerHTML = '• <span class="text-cyan-300 font-bold">ProGamer99</span> (Bağlandı)';
+                p2Slot.innerHTML = '• <span class="text-cyan-300 font-bold">ProGamer99</span> (Katıldı)';
 
-                // 3. Saniye Sonra 3. Oyuncu Katılır ve Maç Başlar
                 matchmakingTimer = setTimeout(() => {
                     countTag.innerText = "3 / 3 (TAMAM)";
                     progressBar.style.width = "100%";
-                    p3Slot.innerHTML = '• <span class="text-cyan-300 font-bold">Vortex_TR</span> (Bağlandı)';
+                    p3Slot.innerHTML = '• <span class="text-cyan-300 font-bold">Vortex_TR</span> (Katıldı)';
 
                     setTimeout(() => {
                         document.getElementById('matchmaking-modal').style.display = 'none';
@@ -576,6 +619,9 @@
         const botNames = ["CyberNinja", "BladeMaster", "ShadowX", "Vortex", "Slayer99", "NeonGhost", "Apex"];
 
         function startGame() {
+            questMatchCount++;
+            saveGameData();
+
             document.getElementById('lobby-container').style.display = 'none';
             document.getElementById('lobby-header').style.display = 'none';
             document.getElementById('main-bg').style.display = 'none';
@@ -787,6 +833,8 @@
                 if(Math.hypot(playerPos.x - orb.mesh.position.x, playerPos.z - orb.mesh.position.z) < 2.0) {
                     gameScene.remove(orb.mesh); energyOrbs.splice(idx, 1);
                     energyCollectedCount++; playerScore += 25;
+                    questEnergyCount++;
+                    saveGameData();
                     updatePlayerScale();
                     document.getElementById('crystal-count').innerText = energyCollectedCount;
                     document.getElementById('player-score').innerText = "Skor: " + playerScore;
@@ -860,6 +908,9 @@
             gameCamera.updateProjectionMatrix();
             gameRenderer.setSize(window.innerWidth, window.innerHeight);
         });
+
+        // Oyuna başlarken verileri doldur
+        document.getElementById('coin-amount').innerText = playerCoins;
     </script>
 </body>
 </html>
